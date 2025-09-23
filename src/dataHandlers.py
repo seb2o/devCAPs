@@ -94,12 +94,12 @@ class Dhcp3Fmri:
     def get_normalized_bold_path(self, subject, session, run, template_name):
         return self.root / "derivatives" / subject.name / session.name / "func" / f"{subject.name}_{session.name}_task-rest_run-{run + 1}_space-{template_name}_bold.nii.gz"
 
-    def get_raw_bolds_and_transforms(self,
-                                     template_name: str,
-                                     subject_filter,
-                                     session_filter,
-                                     dataset_name: Optional[str] = None
-                                     ):
+    def get_raw_bolds_and_transforms_paths(self,
+                                           template_name: str,
+                                           subject_filter,
+                                           session_filter,
+                                           dataset_name: Optional[str] = None
+                                           ):
 
         results = {}
         for subj_path in self.get_subjects_paths(subject_filter=subject_filter):
@@ -165,7 +165,7 @@ class Dhcp3Fmri:
 
         """
 
-        dataset = self.get_raw_bolds_and_transforms(
+        dataset = self.get_raw_bolds_and_transforms_paths(
             template_name=template_name,
             subject_filter=subject_filter,
             session_filter=session_filter
