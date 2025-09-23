@@ -77,7 +77,7 @@ class Dhcp3Fmri:
                 raise ValueError(
                     f"Multiple transforms found in {xfm_dir} for template {template_name}. Using the first one.")
             else:
-                return str(transform_list[0])
+                return transform_list[0]
 
     def get_bolds_paths_from_session_path(self, ses_path):
         func_dir = ses_path / "func"
@@ -96,8 +96,8 @@ class Dhcp3Fmri:
 
     def get_raw_bolds_and_transforms(self,
                                      template_name: str,
-                                     subject_filter: Optional[callable] = None,
-                                     session_filter: Optional[callable] = None,
+                                     subject_filter,
+                                     session_filter,
                                      dataset_name: Optional[str] = None
                                      ):
 
@@ -122,7 +122,7 @@ class Dhcp3Fmri:
                     "bolds": bolds,
                     "transform": transform_path
                 }
-            results[subj_path.name] = per_subject
+            results[subj_path] = per_subject
         self.datasets[dataset_name] = results
         return results
 
