@@ -1,5 +1,7 @@
 import os.path as op
 
+atlas_url = "https://git.fmrib.ox.ac.uk/seanf/dhcp-resources/-/blob/master/docs/dhcp-augmented-volumetric-atlas-extended.md"
+
 src = op.dirname(op.abspath(__file__))
 absolute_root = op.dirname(src)
 data = op.join(absolute_root, "data")
