@@ -1,10 +1,11 @@
 import os
 import warnings
+from datetime import timedelta
 from typing import Optional
 from pathlib import Path
 import paths
 from fsl.wrappers.fnirt import applywarp
-
+import time
 
 class Dhcp3Fmri:
     """
@@ -216,12 +217,12 @@ class Dhcp3Fmri:
                 for runid, run in enumerate(bolds):
                     # check if normalized bold already exists
                     outpath: Path = self.get_normalized_bold_path(subject_path, session_path, runid, template_name)
-
+                    starttime = time.time()
                     if outpath.exists():
                         already_normalized_count += 1
                         if verbose>1:
                             print(f"{outpath} already exists, skipping.")
-                        continue
+
                     else:
                         # apply normalization using fsl.wrappers.fnirt.applywarp
                         applywarp(
@@ -233,6 +234,10 @@ class Dhcp3Fmri:
                         normalized_count += 1
                         if verbose>1:
                             print(f"normalized {outpath}")
+                    endtime = time.time()
+                    if verbose>1:
+                        duration = endtime - starttime
+                        print(f"{str(timedelta(seconds=int(duration)))}")
                     normalized_paths.append(outpath)
         print(f"Normalized: {normalized_count} | Skipped (already exists): {already_normalized_count}")
         return normalized_paths
