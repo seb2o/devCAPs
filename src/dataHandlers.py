@@ -78,7 +78,8 @@ class Dhcp3Fmri:
                 for p in xfm_dir.iterdir()
                 if
                 p.is_file()
-                and f"from-bold_to-{template_name}" in p.name
+                and "from-bold_to-" in p.name
+                and template_name.split('_')[0] in p.name
             ]
             if len(transform_list) == 0:
                 raise ValueError(f"No transform found in {xfm_dir} for template {template_name}")
