@@ -37,7 +37,7 @@ class Dhcp3Fmri:
 
         self.root = Path(root)
 
-        self.derivative_root = derivative_root if derivative_root is not None else self.root / "derivatives"
+        self.derivative_root = Path(derivative_root) if derivative_root is not None else self.root / "derivatives"
 
         self.bold_file_suffix = bold_file_suffix
 
