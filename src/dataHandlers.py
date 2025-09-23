@@ -175,13 +175,15 @@ class Dhcp3Fmri:
         normalized_count = 0
         normalized_paths = []
 
-        for subject, sessions in dataset.items():
-            for session in sessions:
-                bolds = session['bolds']
-                transform = session['transform']
+
+
+        for subject_path, sessions_dict in tqdm(dataset.items()):
+            for session_path, session_data in sessions_dict.items():
+                bolds = session_data['bolds']
+                transform = session_data['transform']
                 for runid, run in enumerate(bolds):
                     # check if normalized bold already exists
-                    outpath: Path = self.get_normalized_bold_path(subject, session, runid, template_name)
+                    outpath: Path = self.get_normalized_bold_path(subject_path, session_path, runid, template_name)
 
                     if outpath.exists():
                         already_normalized_count += 1
@@ -189,10 +191,10 @@ class Dhcp3Fmri:
                     else:
                         # apply normalization using fsl.wrappers.fnirt.applywarp
                         applywarp(
-                            in_file=run,
-                            ref_file=self.get_template(template_name),
-                            warp_file=transform,
-                            out_file=outpath
+                            src=run,
+                            ref=self.get_template(template_name),
+                            warp=transform,
+                            out=outpath
                         )
                         normalized_count += 1
 
