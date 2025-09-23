@@ -25,6 +25,8 @@ class Dhcp3Fmri:
                 "extdhcp40wk": paths.ext40Template,
                 "extdhcp40wk_lowres": paths.ext40Template_lowres,
             }
+        else:
+            self.templates_paths = templates_paths
 
         for name, path in self.templates_paths.items():
             if not Path(path).is_file():
