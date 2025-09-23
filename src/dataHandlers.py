@@ -143,7 +143,7 @@ class Dhcp3Fmri:
                   template_name,
                   subject_filter,
                   session_filter,
-
+                  verbose=2
                   ):
         """
         Normalize all the bold runs for which a transform to the given template exists. Checks if the normalized bold already exists
@@ -183,6 +183,9 @@ class Dhcp3Fmri:
             session_filter=session_filter
         )
 
+        if verbose>1:
+            self.pretty_print_dataset(dataset)
+
         already_normalized_count = 0
         normalized_count = 0
         normalized_paths = []
@@ -199,6 +202,8 @@ class Dhcp3Fmri:
 
                     if outpath.exists():
                         already_normalized_count += 1
+                        if verbose>1:
+                            print(f"{outpath} already exists, skipping.")
                         continue
                     else:
                         # apply normalization using fsl.wrappers.fnirt.applywarp
@@ -209,7 +214,8 @@ class Dhcp3Fmri:
                             out=outpath
                         )
                         normalized_count += 1
-
+                        if verbose>1:
+                            print(f"normalized {outpath}")
                     normalized_paths.append(outpath)
         print(f"Normalized: {normalized_count} | Skipped (already exists): {already_normalized_count}")
         return normalized_paths
