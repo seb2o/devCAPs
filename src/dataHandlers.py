@@ -1,3 +1,4 @@
+import os
 import warnings
 from typing import Optional
 from pathlib import Path
@@ -10,23 +11,32 @@ class Dhcp3Fmri:
     Assumes BIDS format and dHCP rel 3 naming conventions.
     """
 
-    def __init__(self, root, bold_file_suffix="desc-preproc_bold.nii.gz"):
+    def __init__(self,
+                 root,
+                 derivative_root=None,
+                 templates_paths=None,
+                 bold_file_suffix="desc-preproc_bold.nii.gz"
+                 ):
 
         self.datasets = {}
-        self.templates_paths = {
-            "extdhcp40wk": paths.ext40Template,
-            "extdhcp40wk_lowres": paths.ext40Template_lowres,
-        }
 
-        # check that all templates exist
+        if templates_paths is None:
+            self.templates_paths = {
+                "extdhcp40wk": paths.ext40Template,
+                "extdhcp40wk_lowres": paths.ext40Template_lowres,
+            }
+
         for name, path in self.templates_paths.items():
             if not Path(path).is_file():
                 raise ValueError(
                     f"Template {name} not found at {path}."
-                    f"Download from {paths.atlas_url} and place in {paths.data}."
+                    f"Download from {paths.atlas_url}."
                 )
 
         self.root = Path(root)
+
+        self.derivative_root = derivative_root if derivative_root is not None else self.root / "derivatives"
+
         self.bold_file_suffix = bold_file_suffix
 
     def get_template(self, template):
@@ -104,7 +114,11 @@ class Dhcp3Fmri:
         ])
 
     def get_normalized_bold_path(self, subject, session, run, template_name):
-        return self.root / "derivatives" / subject.name / session.name / "func" / f"{subject.name}_{session.name}_task-rest_run-{run + 1}_space-{template_name}_bold.nii.gz"
+        file_folder = self.derivative_root / subject.name / session.name / "func"
+        os.makedirs(file_folder, exist_ok=True)
+        file_path = file_folder / f"{subject.name}_{session.name}_task-rest_run-{run + 1}_space-{template_name}_bold.nii.gz"
+        return file_path
+
 
     def get_raw_bolds_and_transforms_paths(self,
                                            template_name: str,
