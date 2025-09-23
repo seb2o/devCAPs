@@ -1,7 +1,6 @@
 import warnings
 from typing import Optional
 from pathlib import Path
-from tqdm import tqdm
 import paths
 from fsl.wrappers.fnirt import applywarp
 
@@ -190,7 +189,7 @@ class Dhcp3Fmri:
 
 
 
-        for subject_path, sessions_dict in tqdm(dataset.items()):
+        for subject_path, sessions_dict in dataset.items():
             for session_path, session_data in sessions_dict.items():
                 bolds = session_data['bolds']
                 transform = session_data['transform']
