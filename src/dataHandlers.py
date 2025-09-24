@@ -48,14 +48,18 @@ class Dhcp3Fmri:
                              f". Available templates: {list(self.templates_paths.keys())}")
         return self.templates_paths[template]
 
-    def get_subjects_paths(self, subject_filter):
+    def get_subjects_paths(self, subject_filter, keep_non_folder=False):
+
+        path_filter = lambda path: path.name.startswith("sub-") and subject_filter(path)
+        if not keep_non_folder:
+            base_filter = path_filter
+            path_filter = lambda path: base_filter(path) and path.is_dir()
+
         return sorted([
             p
             for p in self.root.iterdir()
             if
-            p.is_dir()
-            and p.name.startswith("sub-")
-            and subject_filter(p)
+            path_filter(p)
         ])
 
     @staticmethod
