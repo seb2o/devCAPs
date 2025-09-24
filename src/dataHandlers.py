@@ -105,7 +105,7 @@ class Dhcp3Fmri:
                                      "Please run get_raw_bolds_and_transforms_paths first "
                                      "or provide a dataset_dict or valid dataset_name.")
                 else:
-                    self.datasets_infos['default']['tree'] = dataset_dict
+                    dataset_dict = self.datasets_infos['default']['tree']
 
             elif dataset_name not in self.datasets_infos:
                 raise ValueError(f"Dataset {dataset_name} not found in datasets_infos.")
@@ -270,7 +270,7 @@ class Dhcp3Fmri:
                     endtime = time.time()
                     if verbose>1:
                         duration = endtime - starttime
-                        print(f"{str(timedelta(seconds=int(duration)))}")
+                        print(f"took {str(timedelta(seconds=int(duration)))} H:MM:SS")
                     session_data['normalized_bolds'].append(outpath)
 
 
