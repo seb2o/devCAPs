@@ -19,7 +19,7 @@ class Dhcp3Fmri:
                  bold_file_suffix="desc-preproc_bold.nii.gz"
                  ):
 
-        self.datasets = {}
+        self.datasets_infos = {}
 
         if templates_paths is None:
             self.templates_paths = {
@@ -96,17 +96,38 @@ class Dhcp3Fmri:
             else:
                 return transform_list[0]
 
-    @staticmethod
-    def pretty_print_dataset(dataset_dict):
+    def pretty_print_dataset(self, dataset_dict=None, dataset_name=None):
+
+        if dataset_dict is None:
+            if dataset_name is None:
+                if 'default' not in self.datasets_infos:
+                    raise ValueError("No dataset_dict provided and no default dataset found."
+                                     "Please run get_raw_bolds_and_transforms_paths first "
+                                     "or provide a dataset_dict or valid dataset_name.")
+                else:
+                    self.datasets_infos['default']['tree'] = dataset_dict
+
+            elif dataset_name not in self.datasets_infos:
+                raise ValueError(f"Dataset {dataset_name} not found in datasets_infos.")
+            else:
+                dataset_dict = self.datasets_infos[dataset_name]['tree']
+
         for subject_path, sessions_dict in dataset_dict.items():
             print(f"Subject: {subject_path.name}")
             for session_path, session_data in sessions_dict.items():
                 print(f"  Session: {session_path.name}")
                 bolds = [b.name for b in session_data['bolds']]
+                normalized_bolds = None
                 transform = session_data['transform'].name
+
+                if 'normalized_bolds' in session_data:
+                    normalized_bolds = [b.name for b in session_data['normalized_bolds']]
+
                 print(f"    Transform: {transform}")
                 for runid, run in enumerate(bolds):
                     print(f"    Run {runid}: {run}")
+                    if normalized_bolds:
+                        print(f"    Normalized: {normalized_bolds[runid]}")
 
 
     def get_bolds_paths_from_session_path(self, ses_path):
@@ -132,7 +153,7 @@ class Dhcp3Fmri:
                                            template_name: str,
                                            subject_filter,
                                            session_filter,
-                                           dataset_name: Optional[str] = None
+                                           dataset_name = 'default'
                                            ):
 
         results = {}
@@ -157,21 +178,22 @@ class Dhcp3Fmri:
                     "transform": transform_path
                 }
             results[subj_path] = per_subject
-        self.datasets[dataset_name] = results
-        return results
+
+        dataset_infos = {
+            "template_name": template_name,
+            "tree": results
+        }
+
+        self.datasets_infos[dataset_name] = dataset_infos
+        return dataset_infos
 
 
     def normalize(self,
-                  template_name,
-                  subject_filter,
-                  session_filter,
+                  dataset_infos: Optional[dict] = None,
                   verbose=2
                   ):
         """
         Normalize all the bold runs for which a transform to the given template exists. Checks if the normalized bold already exists
-        :param template_name: the template name
-        :param subject_filter: function to apply to the subject folder to determine if the subject is kept
-        :param session_filter: function to apply to the session folder to determine if the session is kept
         :return: a nested dictionary containing names of the subjects, sessions and runs that were normalized as keys and
         the path to the normalized bold as values.
         dictionary structure:
@@ -199,25 +221,32 @@ class Dhcp3Fmri:
 
         """
 
-        dataset = self.get_raw_bolds_and_transforms_paths(
-            template_name=template_name,
-            subject_filter=subject_filter,
-            session_filter=session_filter
-        )
+        if dataset_infos is None:
+            if 'default' not in self.datasets_infos:
+                raise ValueError("No dataset_tree_dict provided and no default dataset found."
+                                 "Please run get_raw_bolds_and_transforms_paths first "
+                                 "or provide a dataset_tree_dict.")
+
+            dataset_infos = self.datasets_infos['default']
+
+        dataset_tree_dict = dataset_infos['tree']
+        template_name = dataset_infos['template_name']
 
         if verbose>1:
-            self.pretty_print_dataset(dataset)
+            self.pretty_print_dataset(dataset_tree_dict)
 
         already_normalized_count = 0
         normalized_count = 0
-        normalized_paths = []
 
 
 
-        for subject_path, sessions_dict in dataset.items():
+        for subject_path, sessions_dict in dataset_tree_dict.items():
             for session_path, session_data in sessions_dict.items():
                 bolds = session_data['bolds']
                 transform = session_data['transform']
+
+                session_data['normalized_bolds'] = []
+
                 for runid, run in enumerate(bolds):
                     # check if normalized bold already exists
                     outpath: Path = self.get_normalized_bold_path(subject_path, session_path, runid, template_name)
@@ -242,8 +271,12 @@ class Dhcp3Fmri:
                     if verbose>1:
                         duration = endtime - starttime
                         print(f"{str(timedelta(seconds=int(duration)))}")
-                    normalized_paths.append(outpath)
+                    session_data['normalized_bolds'].append(outpath)
+
+
+
         print(f"Normalized: {normalized_count} | Skipped (already exists): {already_normalized_count}")
-        return normalized_paths
+
+        return dataset_infos
 
 
