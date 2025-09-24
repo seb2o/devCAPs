@@ -1,12 +1,22 @@
 from pathlib import Path
 
-def get_subj_and_ses_names_from_bolds(dir_path: Path):
+def get_subj_and_ses_names_from_bolds(
+        dir_path: Path,
+        subject_filter = None
+):
+
+    if subject_filter is None:
+        subject_filter = lambda x: True
+
     res = {}
     for file in dir_path.iterdir():
         if file.name.endswith('.nii.gz'):
             parts = file.stem.split('_')
             subj_id = Path(parts[0])
             ses_id = Path(parts[1])
+
+            if not subject_filter(subj_id):
+                continue
 
             if subj_id in res:
                 res[subj_id].append({ses_id : file})
@@ -36,20 +46,36 @@ def get_ses_transform(bids_root, sub_name, ses_name, transform_pattern, transfor
         raise ValueError(f"Multiple transform files found in {transform_path} matching pattern {transform_pattern} and extension {transform_extension}.")
     return transform_list[0]
 
-def build_dataset_info(bids_root, bolds_folder, template_name, transform_pattern, transform_extension ):
+def build_dataset_info(
+        bids_root,
+        bolds_folder,
+        template_name,
+        transform_pattern,
+        transform_extension,
+        subject_filter=None,
+):
 
     result = {}
     bids_root = Path(bids_root)
     bolds_folder = Path(bolds_folder)
 
-    subj_ses_dict = get_subj_and_ses_names_from_bolds(bolds_folder)
+    subj_ses_dict = get_subj_and_ses_names_from_bolds(
+        bolds_folder,
+        subject_filter
+    )
 
     for subj_name, ses_dict_list in subj_ses_dict.items():
         res_subj_dict = {}
         for ses_dict in ses_dict_list:
             ses_name = list(ses_dict.keys())[0]
             bold_path = ses_dict[ses_name]
-            transform_path = get_ses_transform(bids_root, subj_name, ses_name, transform_pattern, transform_extension)
+            transform_path = get_ses_transform(
+                bids_root,
+                subj_name,
+                ses_name,
+                transform_pattern,
+                transform_extension
+            )
             res_subj_dict[ses_name] = {
                 "bolds": [bold_path],
                 "transform": transform_path
