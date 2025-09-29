@@ -24,7 +24,7 @@ class Dhcp3Fmri:
         if templates_paths is None:
             self.templates_paths = {
                 "extdhcp40wk": paths.ext40Template,
-                "extdhcp40wk_lowres": paths.ext40Template_lowres,
+                "extdhcp40wk-lowres": paths.ext40Template_lowres,
             }
         else:
             self.templates_paths = templates_paths
@@ -86,7 +86,7 @@ class Dhcp3Fmri:
                 if
                 p.is_file()
                 and "from-bold_to-" in p.name
-                and template_name.split('_')[0] in p.name
+                and template_name.split('-')[0] in p.name
             ]
             if len(transform_list) == 0:
                 raise ValueError(f"No transform found in {xfm_dir} for template {template_name}")
