@@ -22,7 +22,7 @@ def get_subj_and_ses_names_from_bolds(
             subj_name = Path(parts[0])
             ses_name = Path(parts[1])
 
-            if not subject_filter(subj_name):
+            if not subject_filter(subj_name.name):
                 continue
 
             if subj_name in res:
