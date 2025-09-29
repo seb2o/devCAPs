@@ -1,44 +1,41 @@
+import utils
 import dataHandlers
 
 def main():
-    subs_to_keep = [
-        "sub-CC00119XX12",
-        "sub-CC00330XX09",
-        "sub-CC00702AN09",
-        "sub-CC00980XX16",
-        "sub-CC00134XX11",
-        "sub-CC00340XX11",
-        "sub-CC00702BN09",
-        "sub-CC00987XX23",
-        "sub-CC00168XX12",
-        "sub-CC00342XX13",
-        "sub-CC00731XX14",
-        "sub-CC01023XX09"
-    ]
-    template = "extdhcp40wk_lowres"
+
+
+    template = "extdhcp40wk-lowres"
     datadir = "/home/boo/kebiri/rel3_dhcp_fmri_pipeline/"
     derivativedir = "/home/boo/capslifespan/data/derivatives/"
     templates_paths={
-        "extdhcp40wk_lowres":"/home/boo/capslifespan/data/templates/extdhcp40wk_lowres.nii.gz",
+        "extdhcp40wk-lowres":"/home/boo/capslifespan/data/templates/extdhcp40wk_lowres.nii.gz",
     }
 
-    dataset = dataHandlers.Dhcp3Fmri(
+    folder = dataHandlers.Dhcp3Fmri(
         root=datadir,
         derivative_root=derivativedir,
         templates_paths=templates_paths,
     )
 
-    datastructure = dataset.get_raw_bolds_and_transforms_paths(
-        template_name=template,
-        subject_filter=lambda subject: subject.name in subs_to_keep,
-        session_filter=lambda session: True,
-    )
+    dataset_info = utils.build_dataset_info(
+        bids_root=datadir,
+        bolds_folder="/home/boo/kebiri/preproc_fMRI_dHCP/",
+        template_name="extdhcp40wk-lowres",
+        transform_pattern="from-bold_to-extdhcp40wk",
+        transform_extension=".nii.gz",
+        subject_filter=lambda subject: True
+)
 
-    dataset.pretty_print_dataset(datastructure)
-    dataset.normalize(
-        template_name=template,
-        subject_filter=lambda subject: subject.name in subs_to_keep,
-        session_filter=lambda session: True
-    )
+#    datastructure = dataset.get_raw_bolds_and_transforms_paths(
+#        template_name=template,
+#        subject_filter=lambda subject: subject.name in subs_to_keep,
+#        session_filter=lambda session: True,
+#    )
+
+    folder.pretty_print_dataset(dataset_info['tree'])
+    folder.normalize(
+            dataset_infos=dataset_info,
+            verbose=2
+     )
 if __name__ == "__main__":
     main()
