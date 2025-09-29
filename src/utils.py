@@ -165,3 +165,42 @@ def filter_subject_with_session_tsv(
         return False
 
     return tsv_filter(row)
+
+
+def filter_subject_with_combined_tsv(subject, subjects_dir):
+    """
+    Filter subjects based on criteria from the combined.tsv file.
+    Criteria: scan_age >= 34.5, birth_age >= 34.5, radiology_score < 3
+    If multiple entries exist for a subject, the first one is used.
+    :param subject:
+    :param subjects_dir:
+    :return:
+    """
+    subjects_dir = Path(subjects_dir)
+    combined_tsv = subjects_dir / "combined.tsv"
+    if not combined_tsv.exists():
+        raise FileNotFoundError(f"{combined_tsv} does not exist.")
+    with open(combined_tsv, newline='') as tsvfile:
+        reader = csv.DictReader(tsvfile, delimiter='\t')
+        subject_rows = [
+            row for row in reader
+            if 'sub-' + row['participant_id'] == subject
+        ]
+    if not subject_rows:
+        warnings.warn(f"No entry found for subject {subject} in {combined_tsv}.")
+        return False
+
+    if len(subject_rows) > 1:
+        warnings.warn(f"Multiple entries found for subject {subject} in {combined_tsv}. Using the first one.")
+
+    row = subject_rows[0]
+    try:
+        scan_age = float(row["scan_age"])
+        birth_age = float(row["birth_age"])
+        radiology_score = float(row["radiology_score"])
+    except (KeyError, ValueError) as e:
+        warnings.warn(f"TSV filter error: {e}", RuntimeWarning)
+        return False
+
+    return (scan_age >= 34.5) and (birth_age >= 34.5) and (radiology_score < 3)
+
