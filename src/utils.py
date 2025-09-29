@@ -19,16 +19,16 @@ def get_subj_and_ses_names_from_bolds(
     for file in dir_path.iterdir():
         if file.name.endswith('.nii.gz'):
             parts = file.stem.split('_')
-            subj_id = Path(parts[0])
-            ses_id = Path(parts[1])
+            subj_name = Path(parts[0])
+            ses_name = Path(parts[1])
 
-            if not subject_filter(subj_id):
+            if not subject_filter(subj_name):
                 continue
 
-            if subj_id in res:
-                res[subj_id].append({ses_id : file})
+            if subj_name in res:
+                res[subj_name].append((ses_name , file))
             else:
-                res[subj_id] = [{ses_id : file}]
+                res[subj_name] = [(ses_name , file)]
     return res
 
 def get_ses_transform(bids_root, sub_name, ses_name, transform_pattern, transform_extension):
