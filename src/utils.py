@@ -4,11 +4,18 @@ def get_subj_and_ses_names_from_bolds(
         dir_path: Path,
         subject_filter = None
 ):
+    """
+
+    :param dir_path: path to the folder containing the bolds files named according to BIDS convention, w/o sub and ses subfolder structure
+    :param subject_filter: function that takes the name of a subject, returns True if the subject should be included, False otherwise
+    :return: dict with subjects names as keys and list of tuples (ses_name: [bold_path]) as values
+    """
 
     if subject_filter is None:
         subject_filter = lambda x: True
 
     res = {}
+    # each file is a potential bold file
     for file in dir_path.iterdir():
         if file.name.endswith('.nii.gz'):
             parts = file.stem.split('_')
@@ -54,6 +61,15 @@ def build_dataset_info(
         transform_extension,
         subject_filter=None,
 ):
+    """
+
+    :param bids_root: path to the root of a BUDS dataset containing the raw data and the xfm folders
+    :param bolds_folder: path to the root of a folder containing bolds files named according to BIDS convention, wo sub and ses subfolder structure
+    :param template_name: the template name as to how it is defined in the folder templates dict
+    :param transform_pattern: the pattern that is used to identify the correct transform file in the xfm folder
+    :param transform_extension: extension that the transform file should have, typically .mat or .nii.gz
+    :param subject_filter: function that takes a subject name and returns True if the subject should be included, False otherwise    :return:
+    """
 
     result = {}
     bids_root = Path(bids_root)
