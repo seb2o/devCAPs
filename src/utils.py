@@ -80,23 +80,31 @@ def build_dataset_info(
         subject_filter
     )
 
-    for subj_name, ses_dict_list in subj_ses_dict.items():
+    for subj_name, ses_bold_tuple_list in subj_ses_dict.items():
         res_subj_dict = {}
-        for ses_dict in ses_dict_list:
-            ses_name = list(ses_dict.keys())[0]
-            bold_path = ses_dict[ses_name]
-            transform_path = get_ses_transform(
-                bids_root,
-                subj_name,
-                ses_name,
-                transform_pattern,
-                transform_extension
-            )
-            res_subj_dict[ses_name] = {
-                "bolds": [bold_path],
-                "transform": transform_path
-            }
-        result[subj_name] = res_subj_dict
+        for ses_name, bold_path in ses_bold_tuple_list:
+
+            try:
+                transform_path = get_ses_transform(
+                    bids_root,
+                    subj_name,
+                    ses_name,
+                    transform_pattern,
+                    transform_extension
+                )
+                res_subj_dict[ses_name] = {
+                    "bolds": [bold_path],
+                    "transform": transform_path
+                }
+            except FileNotFoundError as e:
+                print(f"{e} No transform file found for subject {subj_name}, session {ses_name}. Skipping this session.")
+                continue
+
+        if len(res_subj_dict) > 0:
+            result[subj_name] = res_subj_dict
+        else:
+            print(f"No valid sessions found for subject {subj_name}. Skipping this subject.")
+
     dataset_infos = {
         "template_name": template_name,
         "tree": result
