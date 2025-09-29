@@ -7,6 +7,7 @@ import paths
 from fsl.wrappers.fnirt import applywarp
 import time
 
+
 class Dhcp3Fmri:
     """
     Assumes BIDS format and dHCP rel 3 naming conventions.
@@ -129,7 +130,6 @@ class Dhcp3Fmri:
                     if normalized_bolds:
                         print(f"    Normalized: {normalized_bolds[runid]}")
 
-
     def get_bolds_paths_from_session_path(self, ses_path):
         func_dir = ses_path / "func"
         if not func_dir.is_dir(): raise ValueError(f"func directory not found in {func_dir}")
@@ -148,12 +148,11 @@ class Dhcp3Fmri:
         file_path = file_folder / f"{subject.name}_{session.name}_task-rest_run-{run + 1}_space-{template_name}_bold.nii.gz"
         return file_path
 
-
     def get_raw_bolds_and_transforms_paths(self,
                                            template_name: str,
                                            subject_filter,
                                            session_filter,
-                                           dataset_name = 'default'
+                                           dataset_name='default'
                                            ):
 
         results = {}
@@ -169,7 +168,8 @@ class Dhcp3Fmri:
             for ses_path in sessions_paths:
 
                 bolds = self.get_bolds_paths_from_session_path(ses_path)
-                if len(bolds) == 0: raise ValueError(f"No bolds found for session {ses_path.name} of subject {subj_path.name}.")
+                if len(bolds) == 0: raise ValueError(
+                    f"No bolds found for session {ses_path.name} of subject {subj_path.name}.")
 
                 transform_path = self.get_transform_path_from_session_path(ses_path, template_name)
 
@@ -187,36 +187,38 @@ class Dhcp3Fmri:
         self.datasets_infos[dataset_name] = dataset_infos
         return dataset_infos
 
-
     def normalize(self,
                   dataset_infos: Optional[dict] = None,
                   verbose=2
                   ):
         """
         Normalize all the bold runs for which a transform to the given template exists. Checks if the normalized bold already exists
-        :return: a nested dictionary containing names of the subjects, sessions and runs that were normalized as keys and
+        Updates the tree field of the provided dataset_info or the default from the folder with
+        a nested dictionary containing names of the subjects, sessions and runs that were normalized as keys and
         the path to the normalized bold as values.
         dictionary structure:
         {
-            subject1: {
-                session1: {
-                    'bolds' : [run1, run2, ...],
-                    'transform': transform_path
+        tree: {
+                subject1: {
+                    session1: {
+                        'bolds' : [run1, run2, ...],
+                        'transform': transform_path
+                    },
+                    session2: {
+                        'bolds' : [run1, run2, ...],
+                        'transform': transform_path
+                    },
+                    ...
                 },
-                session2: {
-                    'bolds' : [run1, run2, ...],
-                    'transform': transform_path
+                subject2: {
+                    session1: {
+                        'bolds' : [run1, run2, ...],
+                        'transform': transform_path
+                    },
+                    ...
                 },
                 ...
-            },
-            subject2: {
-                session1: {
-                    'bolds' : [run1, run2, ...],
-                    'transform': transform_path
-                },
-                ...
-            },
-            ...
+            }
         }
 
         """
@@ -232,13 +234,11 @@ class Dhcp3Fmri:
         dataset_tree_dict = dataset_infos['tree']
         template_name = dataset_infos['template_name']
 
-        if verbose>1:
+        if verbose > 1:
             self.pretty_print_dataset(dataset_tree_dict)
 
         already_normalized_count = 0
         normalized_count = 0
-
-
 
         for subject_path, sessions_dict in dataset_tree_dict.items():
             for session_path, session_data in sessions_dict.items():
@@ -253,7 +253,7 @@ class Dhcp3Fmri:
                     starttime = time.time()
                     if outpath.exists():
                         already_normalized_count += 1
-                        if verbose>1:
+                        if verbose > 1:
                             print(f"{outpath} already exists, skipping.")
 
                     else:
@@ -265,19 +265,16 @@ class Dhcp3Fmri:
                             out=outpath
                         )
                         normalized_count += 1
-                        if verbose>1:
+                        if verbose > 1:
                             print(f"normalized {outpath}")
                     endtime = time.time()
-                    if verbose>1:
+                    if verbose > 1:
                         duration = endtime - starttime
                         print(f"took {str(timedelta(seconds=int(duration)))} H:MM:SS")
                     session_data['normalized_bolds'].append(outpath)
 
-
-
         print(f"Normalized: {normalized_count} | Skipped (already exists): {already_normalized_count}")
 
-        return dataset_infos
 
 class SubjectFilter:
     """
@@ -286,6 +283,7 @@ class SubjectFilter:
     :param filt_func: Function that takes a subject name, optionally kwargs, and returns True if the subject should be included, False otherwise.
                       filt_func can raise an exception if the subject folder cannot be found
     """
+
     def __init__(self, filt_func=None, filt_func_kwargs=None):
         self.filt_func = filt_func or (lambda x, _: True)
         self.filt_func_kwargs = filt_func_kwargs or {}
