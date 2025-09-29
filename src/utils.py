@@ -50,7 +50,7 @@ def get_ses_transform(bids_root, sub_name, ses_name, transform_pattern, transfor
     if len(transform_list) == 0:
         raise FileNotFoundError(f"No transform files found in {transform_path} matching pattern {transform_pattern} and extension {transform_extension}.")
     if len(transform_list) > 1:
-        raise ValueError(f"Multiple transform files found in {transform_path} matching pattern {transform_pattern} and extension {transform_extension}.")
+        raise FileNotFoundError(f"Multiple transform files found in {transform_path} matching pattern {transform_pattern} and extension {transform_extension}.")
     return transform_list[0]
 
 def build_dataset_info(
