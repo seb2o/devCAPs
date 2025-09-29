@@ -1,4 +1,8 @@
+import csv
+import warnings
 from pathlib import Path
+from typing import Callable
+
 
 def get_subj_and_ses_names_from_bolds(
         dir_path: Path,
@@ -110,3 +114,54 @@ def build_dataset_info(
         "tree": result
     }
     return dataset_infos
+
+def default_session_tsv_filter(subject_dict: dict) -> bool:
+    """
+    Example filter function that checks if the 'age' field in the subject dictionary is >= 18.
+    Adjust the logic as needed for your specific filtering criteria.
+    """
+    try:
+        scan_age = float(subject_dict["scan_age"])
+        radiology_score = float(subject_dict["radiology_score"])
+    except (KeyError, ValueError) as e:
+        warnings.warn(f"TSV filter error: {e}", RuntimeWarning)
+        return False
+
+    return scan_age >= 34.5 and radiology_score < 3.0
+
+
+def filter_subject_with_session_tsv(
+    subject: str,
+    subjects_dir: str,
+    tsv_filter: Callable[[dict], bool],
+) -> bool:
+    """
+    Find the subject's folder (name contains `subject`), locate `<subject>_sessions.tsv`,
+    and apply `filter_func` to it. Returns False if the TSV is missing.
+
+    Raises:
+        FileNotFoundError: if no matching subject folder is found.
+    """
+
+    subjects_dir = Path(subjects_dir)
+
+    folder = next(
+        (p for p in subjects_dir.iterdir() if p.is_dir() and subject in p.name),
+        None,
+    )
+    if folder is None:
+        raise FileNotFoundError(f"No folder found for subject {subject} in {subjects_dir}")
+
+    tsv_file = folder / f"{subject}_sessions.tsv"
+    if not tsv_file.exists():
+        return False
+
+    with open(tsv_file, newline="") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        row = next(reader, None)
+
+    if row is None:
+        warnings.warn(f"{tsv_file} excluded: empty TSV file", RuntimeWarning)
+        return False
+
+    return tsv_filter(row)
