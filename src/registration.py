@@ -26,9 +26,5 @@ def main():
 )
 
     folder.pretty_print_dataset(dataset_info['tree'])
-    folder.normalize(
-            dataset_infos=dataset_info,
-            verbose=2
-     )
 if __name__ == "__main__":
     main()
