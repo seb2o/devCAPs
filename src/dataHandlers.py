@@ -283,14 +283,12 @@ class SubjectFilter:
     """
     Class to filter subjects based on a provided function.
     If no function is provided, all subjects are included.
-    :param subjects_root: Path to the root directory containing subject folders.
-    :param filt_func: Function that takes a subject name and the subjects_root path,
-                      and returns True if the subject should be included, False otherwise.
+    :param filt_func: Function that takes a subject name, optionally kwargs, and returns True if the subject should be included, False otherwise.
                       filt_func can raise an exception if the subject folder cannot be found
     """
-    def __init__(self, subjects_root, filt_func=None):
-        self.subjects_root = Path(subjects_root)
+    def __init__(self, filt_func=None, filt_func_kwargs=None):
         self.filt_func = filt_func or (lambda x, _: True)
+        self.filt_func_kwargs = filt_func_kwargs or {}
 
     def __call__(self, subject_name):
-        return self.filt_func(subject_name, self.subjects_root)
+        return self.filt_func(subject_name, **self.filt_func_kwargs)
