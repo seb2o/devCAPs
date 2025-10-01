@@ -96,15 +96,29 @@ LUT = {
 
 
 if __name__ == "__main__":
-    ids_to_exclude = [node_id for node_id, name in LUT.items() if any(x in name for x in ["WM", "background", "CSF"])]
-    ids_to_keep= []
-    for node_id in LUT.keys():
-        if node_id not in ids_to_exclude:
-            ids_to_keep.append(node_id)
-            print(f"{node_id}: {LUT[node_id]} kept")
+
+    # ids_to_exclude = [node_id for node_id, name in LUT.items() if any(x in name for x in ["WM", "background", "CSF"])]
+    # ids_to_keep= []
+    # for node_id in LUT.keys():
+    #     if node_id not in ids_to_exclude:
+    #         ids_to_keep.append(node_id)
+    #         print(f"{node_id}: {LUT[node_id]} kept")
+    ids_to_keep = [
+        node_id
+        for
+            node_id, name in LUT.items()
+        if
+            "Cingulate gyrus, posterior" in name
+        and
+            "WM" not in name
+    ]
+
+    for node_id in ids_to_keep:
+        print(f"{node_id}: {LUT[node_id]} kept")
+
 
     PARCELLATION_FILE = paths.ext40Parcellation
-    OUTPUT_MASK_FILE = paths.ext40GreyMatterMask
+    OUTPUT_MASK_FILE = paths.ext40PosteriorCingulateGyrusMask
     # ========================
 
     # Load parcellation
