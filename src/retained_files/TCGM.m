@@ -17,7 +17,7 @@ disp(['Using GM mask with ', num2str(nGMvoxels), ' voxels']);
 % ----------------------------
 subject_folders = dir(main_folder);
 subject_folders = subject_folders([subject_folders.isdir] & ...
-                                  ~startsWith({subject_folders.name}, '.'));
+                                  startsWith({subject_folders.name}, 'sub-'));
 
 all_data = cell(length(subject_folders), 1); % Preallocate
 
