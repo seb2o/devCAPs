@@ -299,7 +299,6 @@ Outputs.Metrics.CAPOutDegree                 = OutDegree;
 Outputs.Metrics.SubjectCounts                = SubjectEntries;
 
 % 3. Save clean .mat file
-out_dir = '/media/RCPNAS/Data/asalcedo/CAPs_dhcp_smooth_pos_4.3';
 if ~exist(out_dir, 'dir'), mkdir(out_dir); end
 
 out_mat = fullfile(out_dir, 'variables_clean_10.mat');
