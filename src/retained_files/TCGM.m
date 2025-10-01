@@ -18,34 +18,13 @@ subject_folders = dir(main_folder);
 subject_folders = subject_folders([subject_folders.isdir] & ...
                                   ~startsWith({subject_folders.name}, '.'));
 
-session_folders = cell(length(subject_folders), 1);
-for s = 1:length(subject_folders)
-    subj_path = fullfile(main_folder, subject_folders(s).name);
-    sessions = dir(subj_path);
-    sessions = sessions([sessions.isdir]);
-    session_names = {sessions.name};
-    is_session = ~startsWith(session_names, '.') & startsWith(session_names, 'ses');
-    session_folders{s} = session_names(is_session);
-end
-
 all_data = cell(length(subject_folders), 1); % Preallocate
 
 % ----------------------------
 % LOOP OVER SUBJECTS
 % ----------------------------
 for s = 1:length(subject_folders)
-    subj_root = fullfile(main_folder, subject_folders(s).name);
-    sessions = session_folders{s};
-
-    if isempty(sessions)
-        warning(['No session folder found for subject: ', subject_folders(s).name]);
-        continue;
-    elseif numel(sessions) > 1
-        warning(['Multiple session folders found for subject: ', subject_folders(s).name]);
-        continue;
-    end
-
-    subj_path = fullfile(subj_root, sessions{1});
+    subj_path = fullfile(main_folder, subject_folders(s).name);
     data_folder = fullfile(subj_path, data_subfolder_name);
     
     if ~isfolder(data_folder)
@@ -86,4 +65,4 @@ end
 all_data = all_data';
 
 disp('✅ Data extraction complete');
-end 
+end
