@@ -5,7 +5,7 @@ function all_data = TCGM()
 % ----------------------------
 main_folder = '/home/boo/capslifespan/data/sample_derivatives';      % Folder containing subject folders
 data_subfolder_name = 'vols';        % Name of subfolder inside each subject folder
-mask_volume = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatter_mask.nii')
+mask_volume = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatterLowres_mask.nii')
 mask_data = spm_read_vols(mask_volume);          % Load the 3D data
 mask_vector = (mask_data(:) > 0);   % 1 for mask voxels, 0 otherwise
 
