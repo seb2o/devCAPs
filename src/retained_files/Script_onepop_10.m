@@ -4,7 +4,8 @@
 addpath(genpath(pwd));
 
 % ---- USER SETTINGS ----
-out_dir = fullfile('/media/RCPNAS/Data/asalcedo/CAPs_dhcp_smooth_pos_4.3');   % change if you want a different folder
+out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs'
+out_dir = fullfile(out_dir_path);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
 %% 1. Loading the data files
@@ -17,26 +18,35 @@ TC = TCGM();
 size(TC)
 
 % Mask: n_voxels x 1 logical vector
-V = spm_vol('/media/RCPNAS/Data/asalcedo/GM_masks/GMmask_nodeep_smooth.nii');          % Read header
+V = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatterLowres_mask.nii');          % Read header
 mask_data = spm_read_vols(V);          % Load the 3D data
 mask = (mask_data(:) > 0);
 
+% Seed: a n_masked_voxels x n_seed logical vector with seed information
+Vseed = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkPosteriorCingulateGyrusLowres_mask.nii');
+seed_img = spm_read_vols(Vseed);           % 3D
+seed_vec = seed_img(:) > 0;                % vectorize
+Seed     = seed_vec(mask);                  % restrict to GM masked voxels
+% If you had multiple seeds, concatenate as extra columns.
+% e.g., Seed = [seed1_vec(mask) seed2_vec(mask)];
+
+
 % Header: the header (obtained by spm_vol) of one NIFTI file with proper
 % data dimension and .mat information
-brain_info = spm_vol('/media/RCPNAS/Data/asalcedo/preproc_nii/3D_vols/reg_CC00340XX11/vols/reg_CC00340XX11_final_smoothed5mm_01774.nii');
+volume_files = dir('/home/boo/capslifespan/data/sample_derivatives/sub-*/vols/*3D_1.nii');
+if ~isempty(volume_files)
+    brain_info = spm_vol(fullfile(files(1).folder, files(1).name));
+else
+    error('No NIfTI files found');
+end
+
 
 % Framewise displacement: a n_TP x n_subjs matrix with framewise
 % displacement information
 FD = zeros(size(TC{1},1), numel(TC));
 size(FD)
 
-% Seed: a n_masked_voxels x n_seed logical vector with seed information
-Vseed = spm_vol('/media/RCPNAS/Data/asalcedo/GM_masks/PCC_seed_smooth.nii');
-seed_img = spm_read_vols(Vseed);           % 3D
-seed_vec = seed_img(:) > 0;                % vectorize
-Seed     = seed_vec(mask);                  % restrict to GM masked voxels
-% If you had multiple seeds, concatenate as extra columns.
-% e.g., Seed = [seed1_vec(mask) seed2_vec(mask)];
+
 
 
 
