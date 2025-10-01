@@ -26,6 +26,7 @@ data = absolute_root / "data"
 
 templates = data / "templates"
 derivatives = data / "derivatives"
+sample_derivatives = data / "sample_derivatives"
 preprocessed_bolds = data / "preprocessed_bolds"
 bids_root = data / "bids_root"
 
