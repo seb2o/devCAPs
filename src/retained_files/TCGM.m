@@ -3,9 +3,9 @@ function all_data = TCGM()
 % ----------------------------
 % SETTINGS
 % ----------------------------
-main_folder = '/media/RCPNAS/Data/asalcedo/preproc_nii/3D_vols/';      % Folder containing subject folders
+main_folder = '/home/boo/capslifespan/data/sample_derivatives';      % Folder containing subject folders
 data_subfolder_name = 'vols';        % Name of subfolder inside each subject folder
-mask_vector = load('/media/RCPNAS/Data/asalcedo/GM_masks/mask_vector_nodeep4_smooth.mat').mask_vector; % Your GM mask vector (logical)
+mask_vector = load('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatter_mask.mat').mask_vector; % Your GM mask vector (logical)
 mask_vector = logical(mask_vector);
 
 nGMvoxels = sum(mask_vector);
