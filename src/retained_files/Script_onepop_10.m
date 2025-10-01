@@ -4,7 +4,7 @@
 addpath(genpath(pwd));
 
 % ---- USER SETTINGS ----
-out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs'
+out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_n-15_w_consensus'
 out_dir = fullfile(out_dir_path);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
@@ -162,18 +162,18 @@ fprintf('✅ Replaced %d NaN voxels with zeros across all subjects.\n', nan_voxe
 % This specifies the range of values over which to perform consensus
 % clustering: if you want to run parallel consensus clustering processes,
 % you should feed in different ranges to each call of the function
-%K_range = 2:6;
+K_range = 2:20;
 
 % Have each of these run in a separate process on the server =)
-%[Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
+[Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
 
 % Calculates the quality metrics
-%[~,PAC] = ComputeClusteringQuality(Consensus,[]);
+[~,PAC] = ComputeClusteringQuality(Consensus,[]);
 
 % Qual should be inspected to determine the best cluster number(s)
 
 % You should fill this with the actual value 
-K_opt = 4;
+K_opt = 15;
 
 
 %% Sanity check right before clustering
