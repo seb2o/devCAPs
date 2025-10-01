@@ -1,0 +1,121 @@
+import nibabel as nib
+import numpy as np
+import paths
+
+# ==== USER VARIABLES ====
+LUT = {
+1 :"Hippocampus left",
+2 :"Hippocampus right",
+3 :"Amygdala left",
+4 :"Amygdala right",
+5 :"Anterior temporal lobe, medial part left GM",
+6 :"Anterior temporal lobe, medial part right GM",
+7 :"Anterior temporal lobe, lateral part left GM",
+8 :"Anterior temporal lobe, lateral part right GM",
+9 :"Gyri parahippocampalis et ambiens anterior part left GM",
+10:"Gyri parahippocampalis et ambiens anterior part right GM",
+11:"Superior temporal gyrus, middle part left GM",
+12:"Superior temporal gyrus, middle part right GM",
+13:"Medial and inferior temporal gyri anterior part left GM",
+14:"Medial and inferior temporal gyri anterior part right GM",
+15:"Lateral occipitotemporal gyrus, gyrus fusiformis anterior part left GM",
+16:"Lateral occipitotemporal gyrus, gyrus fusiformis anterior part right GM",
+17:"Cerebellum left",
+18:"Cerebellum right",
+19:"Brainstem, spans the midline",
+20:"Insula right GM",
+21:"Insula left GM",
+22:"Occipital lobe right GM",
+23:"Occipital lobe left GM",
+24:"Gyri parahippocampalis et ambiens posterior part right GM",
+25:"Gyri parahippocampalis et ambiens posterior part left GM",
+26:"Lateral occipitotemporal gyrus, gyrus fusiformis posterior part right GM",
+27:"Lateral occipitotemporal gyrus, gyrus fusiformis posterior part left GM",
+28:"Medial and inferior temporal gyri posterior part right GM",
+29:"Medial and inferior temporal gyri posterior part left GM",
+30:"Superior temporal gyrus, posterior part right GM",
+31:"Superior temporal gyrus, posterior part left GM",
+32:"Cingulate gyrus, anterior part right GM",
+33:"Cingulate gyrus, anterior part left GM",
+34:"Cingulate gyrus, posterior part right GM",
+35:"Cingulate gyrus, posterior part left GM",
+36:"Frontal lobe right GM",
+37:"Frontal lobe left GM",
+38:"Parietal lobe right GM",
+39:"Parietal lobe left GM",
+40:"Caudate nucleus right",
+41:"Caudate nucleus left",
+42:"Thalamus right, high intensity part in T2",
+43:"Thalamus left, high intensity part in T2",
+44:"Subthalamic nucleus right",
+45:"Subthalamic nucleus left ",
+46:"Lentiform Nucleus right",
+47:"Lentiform Nucleus left",
+48:"Corpus Callosum",
+49:"Lateral Ventricle left",
+50:"Lateral Ventricle right",
+51:"Anterior temporal lobe, medial part left WM",
+52:"Anterior temporal lobe, medial part right WM",
+53:"Anterior temporal lobe, lateral part left WM",
+54:"Anterior temporal lobe, lateral part right WM",
+55:"Gyri parahippocampalis et ambiens anterior part left WM",
+56:"Gyri parahippocampalis et ambiens anterior part right WM",
+57:"Superior temporal gyrus, middle part left WM",
+58:"Superior temporal gyrus, middle part right WM",
+59:"Medial and inferior temporal gyri anterior part left WM",
+60:"Medial and inferior temporal gyri anterior part right WM",
+61:"Lateral occipitotemporal gyrus, gyrus fusiformis anterior part left WM",
+62:"Lateral occipitotemporal gyrus, gyrus fusiformis anterior part right WM",
+63:"Insula right WM",
+64:"Insula left WM",
+65:"Occipital lobe right WM",
+66:"Occipital lobe left WM",
+67:"Gyri parahippocampalis et ambiens posterior part right WM",
+68:"Gyri parahippocampalis et ambiens posterior part left WM",
+69:"Lateral occipitotemporal gyrus, gyrus fusiformis posterior part right WM",
+70:"Lateral occipitotemporal gyrus, gyrus fusiformis posterior part left WM",
+71:"Medial and inferior temporal gyri posterior part right WM",
+72:"Medial and inferior temporal gyri posterior part left WM",
+73:"Superior temporal gyrus, posterior part right WM",
+74:"Superior temporal gyrus, posterior part left WM",
+75:"Cingulate gyrus, anterior part right WM",
+76:"Cingulate gyrus, anterior part left WM",
+77:"Cingulate gyrus, posterior part right WM",
+78:"Cingulate gyrus, posterior part left WM",
+79:"Frontal lobe right WM",
+80:"Frontal lobe left WM",
+81:"Parietal lobe right WM",
+82:"Parietal lobe left WM",
+83:"CSF",
+84:"Extra-cranial background",
+85:"Intra-cranial background",
+86:"Thalamus right, low intensity part in T2",
+87:"Thalamus left, low intensity part in T2",
+}
+
+
+
+if __name__ == "__main__":
+    ids_to_exclude = [node_id for node_id, name in LUT.items() if any(x in name for x in ["WM", "background", "CSF"])]
+    ids_to_keep= []
+    for node_id in LUT.keys():
+        if node_id not in ids_to_exclude:
+            ids_to_keep.append(node_id)
+            print(f"{node_id}: {LUT[node_id]} kept")
+
+    PARCELLATION_FILE = paths.ext40Parcellation
+    OUTPUT_MASK_FILE = paths.ext40GreyMatterMask
+    # ========================
+
+    # Load parcellation
+    img = nib.load(PARCELLATION_FILE)
+    data = img.get_fdata()
+
+    # Create binary mask (1 if voxel belongs to any of the chosen node IDs)
+    mask = np.isin(data, ids_to_keep).astype(np.uint8)
+
+    # Save mask as new NIfTI
+    mask_img = nib.Nifti1Image(mask, affine=img.affine, header=img.header)
+    nib.save(mask_img, OUTPUT_MASK_FILE)
+
+    print(f"Binary mask for nodes {ids_to_keep} saved to {OUTPUT_MASK_FILE}")

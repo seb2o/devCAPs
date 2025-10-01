@@ -33,6 +33,7 @@ bids_root = data / "bids_root"
 ext40Template = templates / "extdhcp40wk.nii.gz"
 ext40Template_lowres = templates / "extdhcp40wk_lowres.nii.gz"
 ext40Parcellation = templates / "extdhcp40wk_parcellation.nii.gz"
+ext40GreyMatterMask = templates / "extdhcp40wkGreyMatter_mask.nii.gz"
 ext40Mask = templates / "extdhcp40wk_mask.nii.gz"
 
 
