@@ -53,10 +53,10 @@ size(FD)
 %% 2. Specifying the main parameters
 
 % Threshold above which to select frames
-T = 15;
+T = 0.8;
 
 % Selection mode ('Threshold' or 'Percentage')
-SelMode = 'Percentage';
+SelMode = 'Threshold';
 
 % Threshold of FD above which to scrub out the frame and also the t-1 and
 % t+1 frames (if you want another scrubbing setting, directly edit the
