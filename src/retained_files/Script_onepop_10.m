@@ -13,7 +13,7 @@ fprintf('>>> Start: %s\n', datestr(t_start, 'yyyy-mm-dd HH:MM:SS.FFF'));
 tic; 
 
 % Data: cell array, each cell of size n_TP x n_masked_voxels
-TC = TCGM_chunk3();
+TC = TCGM();
 size(TC)
 
 % Mask: n_voxels x 1 logical vector
