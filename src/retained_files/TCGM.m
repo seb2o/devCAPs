@@ -8,13 +8,6 @@ data_subfolder_name = 'vols';        % Name of subfolder inside each subject fol
 mask_vector = load('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatter_mask.mat').mask_vector; % Your GM mask vector (logical)
 mask_vector = logical(mask_vector);
 
-% Sanity checks
-if numel(mask_vector) ~= numel(vol0)
-    error(['Mask/volume size mismatch: mask has ', num2str(numel(mask_vector)), ...
-           ' elements but volume has ', num2str(numel(vol0)), ...
-           '. Use a mask in the SAME space/resolution as the data or reslice one to the other.']);
-end
-
 nGMvoxels = sum(mask_vector);
 disp(['Using GM mask with ', num2str(nGMvoxels), ' voxels']);
 
