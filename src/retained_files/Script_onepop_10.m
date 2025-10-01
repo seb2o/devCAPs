@@ -64,7 +64,7 @@ SelMode = 'Percentage';
 Tmot = 0.5;
 
 % Type of used seed information: select between 'Average','Union' or
-% 'Intersection'
+% 'Intersection' (only useful for multiple seeds)
 SeedType = 'Average';
 
 % Contains the information, for each seed (each row), about whether to
