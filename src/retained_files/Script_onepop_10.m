@@ -35,7 +35,7 @@ Seed     = seed_vec(mask);                  % restrict to GM masked voxels
 % data dimension and .mat information
 volume_files = dir('/home/boo/capslifespan/data/sample_derivatives/sub-*/vols/*3D_1.nii');
 if ~isempty(volume_files)
-    brain_info = spm_vol(fullfile(files(1).folder, files(1).name));
+    brain_info = spm_vol(fullfile(volume_files(1).folder, volume_files(1).name));
 else
     error('No NIfTI files found');
 end
