@@ -135,7 +135,8 @@ B = table((1:n_subjects)', total_vox, nan_voxels, pct_nan_vox, ...
           'VariableNames', {'Subject','TotalVoxels','NaNVoxels','PercentNaNVoxels', ...
                             'TotalFrames','NaNFrames','PercentNaNFrames'});
 
-save('/media/RCPNAS/Data/asalcedo/CAPs_dhcp_smooth_pos_4.3/variables_1st.mat');
+first_save_path = fullfile(out_dir_path, 'variables_1st.mat')
+save(first_save_path);
 
   
 %% 3.5 Replace NaNs with zeros in Xon (keep frames)
@@ -260,7 +261,8 @@ elapsed = toc;
 fprintf('>>> End:   %s\n', datestr(t_end,   'yyyy-mm-dd HH:MM:SS.FFF'));
 fprintf('>>> Elapsed: %.2f seconds (%.2f minutes)\n', elapsed, elapsed/60);
 
-save('/media/RCPNAS/Data/asalcedo/CAPs_dhcp_smooth_pos_4.3/variables_2nd.mat');
+second_save_path = fullfile(out_dir_path, 'variables_2nd.mat')
+save(second_save_path);
 
 
 %% =======================
