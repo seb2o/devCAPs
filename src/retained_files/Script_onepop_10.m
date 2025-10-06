@@ -191,10 +191,6 @@ XONn = cell2mat(Xon);   % [n_voxels x total_retained_frames_after_cleanup]
 
 %% 5.1. Save CAPs as NIfTI maps (one file per cluster)
 
-% If you want to force a specific template header instead of brain_info,
-% uncomment the next line and point to your template image:
-% brain_info = spm_vol('/path/to/your/template_image.nii');
-
 % -----------------------
 
 K = size(CAP, 1);                 % number of clusters
