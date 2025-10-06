@@ -38,11 +38,17 @@ def split_4d_to_3d(in_file: Path, out_dir: Path):
         raise RuntimeError(f"{in_file} is not 4D")
 
     vols = nib.funcs.four_to_three(img4d)
+    n_skipped = n_wrote = 0
     for i, vol in enumerate(vols, start=1):
-        vol.set_data_dtype(img4d.get_data_dtype())
         out_path = out_dir / f"{Path(in_file.stem).stem}_bold_3D_{i}.nii"
-        nib.save(vol, str(out_path))
-    print(f"Wrote {len(vols)} volumes into {out_dir}")
+        if not out_path.exists():
+            vol.set_data_dtype(img4d.get_data_dtype())
+            nib.save(vol, str(out_path))
+            n_wrote += 1
+        else:
+            n_skipped += 1
+
+    print(f"Wrote {n_wrote} volumes into {out_dir} | skipped {n_skipped} existing")
 
 def main():
     """
