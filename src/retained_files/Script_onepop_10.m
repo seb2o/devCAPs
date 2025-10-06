@@ -4,7 +4,7 @@
 addpath(genpath(pwd));
 
 % ---- USER SETTINGS ----
-out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-15_tp-15_n-30'
+out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_n-30_w-consensus'
 out_dir = fullfile(out_dir_path);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
@@ -15,7 +15,6 @@ tic;
 
 % Data: cell array, each cell of size n_TP x n_masked_voxels
 TC = TCGM();
-size(TC)
 
 % Mask: n_voxels x 1 logical vector
 V = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatterLowres_mask.nii');          % Read header
@@ -44,7 +43,6 @@ end
 % Framewise displacement: a n_TP x n_subjs matrix with framewise
 % displacement information
 FD = zeros(size(TC{1},1), numel(TC));
-size(FD)
 
 
 
@@ -162,18 +160,18 @@ fprintf('✅ Replaced %d NaN voxels with zeros across all subjects.\n', nan_voxe
 % This specifies the range of values over which to perform consensus
 % clustering: if you want to run parallel consensus clustering processes,
 % you should feed in different ranges to each call of the function
-%K_range = 2:20;
+K_range = 2:20;
 
 % Have each of these run in a separate process on the server =)
-%[%Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
+[Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
 
 % Calculates the quality metrics
-%[%~,PAC] = ComputeClusteringQuality(Consensus,[]);
+[~,PAC] = ComputeClusteringQuality(Consensus,[]);
 
 % Qual should be inspected to determine the best cluster number(s)
 
 % You should fill this with the actual value 
-K_opt=15;
+K_opt=5;
 
 
 %% Sanity check right before clustering
