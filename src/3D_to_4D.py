@@ -1,9 +1,6 @@
 import paths
 import warnings
 
-# -------- CONFIG --------
-DERIVATIVES_ROOT = paths.sample_derivatives
-# ------------------------
 
 import os
 from pathlib import Path
@@ -68,9 +65,9 @@ def main():
     - If no BOLD file is found for a subject, a warning is printed.
     - If multiple BOLD files are found, only the first one is used.
     """
-    deriv = Path(DERIVATIVES_ROOT).resolve()
+    subj_dir = Path("/home/boo/capslifespan/data/derivatives/non_preterm").resolve()
 
-    for subj in sorted(deriv.iterdir()):
+    for subj in sorted(subj_dir.iterdir()):
         if not subj.is_dir() or not subj.name.startswith("sub-"):
             continue
         bolds = list(subj.glob("ses-*/func/*.nii.gz"))
