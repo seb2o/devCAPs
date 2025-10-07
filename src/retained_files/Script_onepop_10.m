@@ -4,7 +4,7 @@
 addpath(genpath(pwd));
 
 % ---- USER SETTINGS ----
-out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_n-30_w-consensus'
+out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_n-30'
 out_dir = fullfile(out_dir_path);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
@@ -93,6 +93,7 @@ N = 50;
 % subfield for retained frames and a subfield for scrubbed frames)
 [Xon,~,Indices] = CAP_find_activity(TC,Seed,T,FD,Tmot,SelMode,SeedType,SignMatrix);
 
+size(Xon)
 
 %% 3.1 Information on NaNs
 n_subjects = numel(Xon);
@@ -160,13 +161,13 @@ fprintf('✅ Replaced %d NaN voxels with zeros across all subjects.\n', nan_voxe
 % This specifies the range of values over which to perform consensus
 % clustering: if you want to run parallel consensus clustering processes,
 % you should feed in different ranges to each call of the function
-K_range = 2:20;
+%K_range = 3:15;
 
 % Have each of these run in a separate process on the server =)
-[Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
+%[Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
 
 % Calculates the quality metrics
-[~,PAC] = ComputeClusteringQuality(Consensus,[]);
+%[~,PAC] = ComputeClusteringQuality(Consensus,[]);
 
 % Qual should be inspected to determine the best cluster number(s)
 
