@@ -12,7 +12,7 @@ SelMode = 'Percentage';
 
 % Contains the information, for each seed (each row), about whether to
 % retain activation (1 0) or deactivation (0 1) time points
-SignMatrix = [1,0];
+SignMatrix = [0,1];
 if isequal(SignMatrix, [1, 0])
     sign_str = "pos";
 else
@@ -47,7 +47,8 @@ out_dir_path = fullfile(derivatives_folder, ...
     "_t" + SelMode(1) + "-" + string(T) + ...
     "_activation-" + sign_str + ...
     "_n-" + string(numel(TC)));
-out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_n-30'
+
+out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_activation-neg_n-30'
 fprintf('Output directory path: %s\n', out_dir_path);
 out_dir = fullfile(out_dir_path);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
