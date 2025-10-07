@@ -4,17 +4,54 @@
 addpath(genpath(pwd));
 
 % ---- USER SETTINGS ----
-out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_n-30'
-out_dir = fullfile(out_dir_path);
-if ~exist(out_dir, 'dir'); mkdir(out_dir); end
+% Threshold above which to select frames
+T = 15;
+
+% Selection mode ('Threshold' or 'Percentage')
+SelMode = 'Percentage';
+
+% Contains the information, for each seed (each row), about whether to
+% retain activation (1 0) or deactivation (0 1) time points
+SignMatrix = [1,0];
+if isequal(SignMatrix, [1, 0])
+    sign_str = "pos";
+else
+    sign_str = "neg";
+end
+
+
+% Number of clusters to use
+K_opt=5;
+
+% run consensus clustering ?
+run_consensus = false  % true or false
+
+group_name = 'sample';
+
+in_dir_path = fullfile(derivatives_folder, group_name);
+in_dir_path = '/home/boo/capslifespan/data/sample_derivatives/';
 
 %% 1. Loading the data files
 t_start = datetime('now');
 fprintf('>>> Start: %s\n', datestr(t_start, 'yyyy-mm-dd HH:MM:SS.FFF'));
-tic; 
+tic;
 
 % Data: cell array, each cell of size n_TP x n_masked_voxels
-TC = TCGM();
+TC = TCGM(in_dir_path);
+
+
+
+
+out_dir_path = fullfile(derivatives_folder, ...
+    group_name + "_CAPS_k-" + string(K_opt) + ...
+    "_t" + SelMode(1) + "-" + string(T) + ...
+    "_activation-" + sign_str + ...
+    "_n-" + string(numel(TC)));
+out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_n-30'
+fprintf('Output directory path: %s\n', out_dir_path);
+out_dir = fullfile(out_dir_path);
+if ~exist(out_dir, 'dir'); mkdir(out_dir); end
+
 
 % Mask: n_voxels x 1 logical vector
 V = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatterLowres_mask.nii');          % Read header
@@ -50,11 +87,7 @@ FD = zeros(size(TC{1},1), numel(TC));
 
 %% 2. Specifying the main parameters
 
-% Threshold above which to select frames
-T = 15;
 
-% Selection mode ('Threshold' or 'Percentage')
-SelMode = 'Percentage';
 
 % Threshold of FD above which to scrub out the frame and also the t-1 and
 % t+1 frames (if you want another scrubbing setting, directly edit the
@@ -65,9 +98,7 @@ Tmot = 0.5;
 % 'Intersection' (only useful for multiple seeds)
 SeedType = 'Average';
 
-% Contains the information, for each seed (each row), about whether to
-% retain activation (1 0) or deactivation (0 1) time points
-SignMatrix = [1,0];
+
 
 % Percentage of positive-valued voxels to retain for clustering
 Pp = 100;
@@ -157,22 +188,21 @@ fprintf('✅ Replaced %d NaN voxels with zeros across all subjects.\n', nan_voxe
     
 
 %% 4. Consensus clustering (if wished to determine the optimum K)
-
+if run_consensus
 % This specifies the range of values over which to perform consensus
 % clustering: if you want to run parallel consensus clustering processes,
 % you should feed in different ranges to each call of the function
-%K_range = 3:15;
+    K_range = 3:15;
 
 % Have each of these run in a separate process on the server =)
-%[Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
+    [Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
 
 % Calculates the quality metrics
-%[~,PAC] = ComputeClusteringQuality(Consensus,[]);
+    [~,PAC] = ComputeClusteringQuality(Consensus,[]);
 
 % Qual should be inspected to determine the best cluster number(s)
 
-% You should fill this with the actual value 
-K_opt=5;
+end
 
 
 %% Sanity check right before clustering
