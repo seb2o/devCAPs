@@ -1,9 +1,14 @@
-function all_data = TCGM()
+function all_data = TCGM(main_folder)
 
 % ----------------------------
 % SETTINGS
 % ----------------------------
-main_folder = '/home/boo/capslifespan/data/sample_derivatives';      % Folder containing subject folders
+
+if nargin < 1
+    error('You must provide the main_folder as an input argument.');
+end
+
+
 data_subfolder_name = 'vols';        % Name of subfolder inside each subject folder
 mask_volume = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatterLowres_mask.nii')
 mask_data = spm_read_vols(mask_volume);          % Load the 3D data
