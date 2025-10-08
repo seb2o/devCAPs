@@ -75,12 +75,11 @@ def plot_cap_detail(
 
 
 if __name__ == "__main__":
-    caps_k_15_n_30 = paths.sample_derivatives / "sample_CAPs_k-15_tp-15_n-30"
-    caps_k_5_n_30 = paths.sample_derivatives / "sample_CAPs_k-5_tp-15_n-30"
-    caps_k_5_n_30_activations_neg = paths.sample_derivatives / "sample_CAPs_k-5_tp-15_activation-neg_n-30"
+
+    p = paths.sample_derivatives / "non_preterm_CAPS_k-5_tPercentage-15_activation-pos_n-3"
 
     plot_caps(
-        caps_k_5_n_30,
+        p,
         fig_title="high activation (top 15%) CAPs k=5 n=34",
-        save_path=caps_k_5_n_30
+        save_path=p
     )
