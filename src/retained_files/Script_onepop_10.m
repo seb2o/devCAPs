@@ -12,7 +12,7 @@ SelMode = 'Percentage';
 
 % Contains the information, for each seed (each row), about whether to
 % retain activation (1 0) or deactivation (0 1) time points
-SignMatrix = [0,1];
+SignMatrix = [1,0];
 
 % Number of clusters to use
 K_opt=5;
@@ -29,6 +29,12 @@ group_name = 'non_preterm';
 % optional custom prefix for output folder
 custom_prefix = '';
 
+
+derivatives_folder = string(derivatives_folder);
+group_name         = string(group_name);
+custom_prefix      = string(custom_prefix);
+SelMode            = string(SelMode);
+
 in_dir_path = fullfile(derivatives_folder, group_name);
 
 
@@ -41,27 +47,24 @@ tic;
 TC = TCGM(in_dir_path);
 
 
-
 if isequal(SignMatrix, [1, 0])
     sign_str = "pos";
 else
     sign_str = "neg";
 end
 
-if ~strcmp(custom_prefix, '')
-    custom_prefix = [custom_prefix '_'];
+if ~strcmp(custom_prefix, "")
+    custom_prefix = [custom_prefix "_"];
 end
 
-
-
-out_dir_path = fullfile(derivatives_folder, ...
-    custom_prefix + ...
-    group_name + "_CAPS_k-" + string(K_opt) + ...
-    "_t" + SelMode(1) + "-" + string(T) + ...
+folder_name = custom_prefix + group_name + ...
+    "_CAPS_k-" + string(K_opt) + ...
+    "_t" + string(SelMode(1)) + "-" + string(T) + ...
     "_activation-" + sign_str + ...
-    "_n-" + string(numel(TC)));
+    "_n-" + string(numel(TC));
 
-out_dir_path = '/home/boo/capslifespan/data/sample_derivatives/sample_CAPs_k-5_tp-15_activation-neg_n-30'
+out_dir_path = fullfile(char(derivatives_folder), char(folder_name));
+
 fprintf('Output directory path: %s\n', out_dir_path);
 out_dir = fullfile(out_dir_path);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
