@@ -81,5 +81,5 @@ if __name__ == "__main__":
     plot_caps(
         p,
         fig_title="high activation (top 15%) CAPs k=5 n=34",
-        save_path=p
+        save_path=p/p.name
     )
