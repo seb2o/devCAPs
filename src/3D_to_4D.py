@@ -1,3 +1,4 @@
+import re
 import paths
 import warnings
 
@@ -34,16 +35,40 @@ def split_4d_to_3d(in_file: Path, out_dir: Path):
     if len(img4d.shape) != 4:
         raise RuntimeError(f"{in_file} is not 4D")
 
-    vols = nib.funcs.four_to_three(img4d)
-    n_skipped = n_wrote = 0
-    for i, vol in enumerate(vols, start=1):
-        out_path = out_dir / f"{Path(in_file.stem).stem}_bold_3D_{i}.nii"
-        if not out_path.exists():
+    stem = Path(in_file.stem).stem
+
+    files_3d_already_here = sorted(out_dir.glob(f"{stem}_bold_3D_*.nii"))
+    n_wrote = n_skipped = 0
+
+    if len(files_3d_already_here) == 0:
+        vols = nib.funcs.four_to_three(img4d)
+        for i, vol in enumerate(vols, start=1):
+            out_path = out_dir / f"{stem}_bold_3D_{i}.nii"
             vol.set_data_dtype(img4d.get_data_dtype())
             nib.save(vol, str(out_path))
             n_wrote += 1
-        else:
-            n_skipped += 1
+    else:
+        dataobj = img4d.dataobj  # array proxy -> loads only the needed 3D chunk
+        n_vols = img4d.shape[3]
+
+        # Reuse header + dtype; adjust shape per volume
+        hdr_template = img4d.header.copy()
+        hdr_template.set_data_dtype(img4d.get_data_dtype())
+
+        for i in range(n_vols):
+            out_path = out_dir / f"{stem}_bold_3D_{i + 1}.nii"
+            if out_path.exists():
+                n_skipped += 1
+                continue
+
+            vol_data = dataobj[..., i]  # lazy slice; no 4D load
+            hdr = hdr_template.copy()
+            hdr.set_data_shape(vol_data.shape)  # ensure 3D header
+            vol_img = nib.Nifti1Image(vol_data, img4d.affine, header=hdr)
+            vol_img.set_data_dtype(img4d.get_data_dtype())
+
+            nib.save(vol_img, str(out_path))
+            n_wrote += 1
 
     print(f"Wrote {n_wrote} volumes into {out_dir} | skipped {n_skipped} existing")
 
