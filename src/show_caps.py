@@ -35,6 +35,7 @@ def plot_caps(
             cut_coords=None,
             colorbar=True,
             vmax=5,
+            cmap='RdBu_r',
             axes=ax,
             bg_img=bgimg,
             black_bg=False,
@@ -97,6 +98,6 @@ if __name__ == "__main__":
 
     plot_caps(
         p,
-        fig_title="high activation (top 15%) CAPs k=5 n=34",
-        save_path=p/p.name
+        fig_title=title,
+        save_path=p/(p.name + ".png"),
     )
