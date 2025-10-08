@@ -1,4 +1,6 @@
 #%%
+import re
+
 import paths
 from nilearn import plotting, image
 from pathlib import Path
@@ -76,7 +78,22 @@ def plot_cap_detail(
 
 if __name__ == "__main__":
 
-    p = paths.sample_derivatives / "non_preterm_CAPS_k-5_tPercentage-15_activation-pos_n-3"
+    folder_name = "sample_CAPs_k-5_tp-15_activation-neg_n-30"
+
+    m = re.search(r'k-(\d+).*?t([pt])-(\d+).*?activation-(pos|neg).*?n-(\d+)', folder_name, re.IGNORECASE)
+    k, ttype, tvalue, atype, n = m.groups()
+
+    atype = 'high' if atype.lower() == 'pos' else 'low'
+
+    if ttype.lower() == 'p':
+        t = f"top {int(tvalue)}%"
+    else:
+        t = f" gaussian threshold {tvalue}"
+
+
+    title = f"CAPs (k={k}) from {atype} activation ({t}) frames, n={n}"
+
+    p = paths.sample_derivatives / folder_name
 
     plot_caps(
         p,
