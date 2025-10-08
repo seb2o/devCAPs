@@ -13,12 +13,6 @@ SelMode = 'Percentage';
 % Contains the information, for each seed (each row), about whether to
 % retain activation (1 0) or deactivation (0 1) time points
 SignMatrix = [0,1];
-if isequal(SignMatrix, [1, 0])
-    sign_str = "pos";
-else
-    sign_str = "neg";
-end
-
 
 % Number of clusters to use
 K_opt=5;
@@ -26,10 +20,17 @@ K_opt=5;
 % run consensus clustering ?
 run_consensus = false  % true or false
 
-group_name = 'sample';
-derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
+% folder where to find the data (in BIDS derivatives format)
+derivatives_folder = '/home/boo/capslifespan/data/derivatives/';
+
+% group folder in derivatives where to fetch subjects
+group_name = 'non_preterm';
+
+% optional custom prefix for output folder
+custom_prefix = '';
+
 in_dir_path = fullfile(derivatives_folder, group_name);
-in_dir_path = '/home/boo/capslifespan/data/sample_derivatives/';
+
 
 %% 1. Loading the data files
 t_start = datetime('now');
@@ -41,8 +42,20 @@ TC = TCGM(in_dir_path);
 
 
 
+if isequal(SignMatrix, [1, 0])
+    sign_str = "pos";
+else
+    sign_str = "neg";
+end
+
+if ~strcmp(custom_prefix, '')
+    custom_prefix = [custom_prefix '_'];
+end
+
+
 
 out_dir_path = fullfile(derivatives_folder, ...
+    custom_prefix + ...
     group_name + "_CAPS_k-" + string(K_opt) + ...
     "_t" + SelMode(1) + "-" + string(T) + ...
     "_activation-" + sign_str + ...
