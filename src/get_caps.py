@@ -62,47 +62,15 @@ def main(group_path, T):
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
     CAPs = CAPs.apply(lambda x: (x - x.mean()) / x.std())  # zscore each CAP
 
-    # reshape each CAP to 3D and plot
+    # reshape each CAP to 3D and save
     for i, cap in CAPs.items():
         cap_3d = utils.unflatten_to_3d(cap, gm_mask)
-        plotting.plot_stat_map(
-            cap_3d,
-            display_mode="ortho",
-            cut_coords=None,
-            colorbar=True,
-            vmax=5,
-            bg_img=paths.ext40Template,
-            output_file=group_path / f"CAP_{i+1:02d}_z.png",
-            black_bg=False,
-            cmap="RdBu_r",
-        )
+        nib.save(cap_3d, group_path / f"CAP_{i+1}_z.nii")
+
+    # save retained_frames_df for further analysis
+    retained_frames_df.to_pickle(group_path / "retained_frames.pkl")
+
 if __name__ == "__main__":
     gpath = paths.sample_derivatives / "non_preterm"
     t = 15
     main(gpath, t)
-
-
-
-# in the end i want
-# 1. easy access to retained_frames globally (to perform clustering on them)
-# 2. a mapping between each retained frame and its subject, time index and it being either a high or low activation at seed frame
-
-# for each subject,
-#     get vols/ path,
-#     load all of its frames, GM mask them,
-#     compute z-scored mean activity at seed := s for each frame
-#     compute T and 100 - T percentiles l,h
-#     for each frame f,
-#       if s < l
-#           store subj_id, f_time, "low" and frame vector in dataframe
-#       elif s > h:
-#           store subj_id, f_time, "high" and frame vector in dataframe
-#     append to global dataframe with
-#     as index subj_id, time of the frame
-#     and as columns "retain_reason" and the frame vector
-
-# compute kmeans on df[frames]
-# append to each row of df the cluster it belongs to
-
-# for each group in df.groupby(cluster):
-#   average, zscore, reshape to 3D, plot
