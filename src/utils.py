@@ -220,20 +220,21 @@ def get_masked_frames(vol_dir, gm_mask):
     """
     pattern = re.compile(r'^.*_3D_(\d+)\.nii$')
     masked_vols = {}
-    gm_mask_data = gm_mask.get_fdata().astype(bool)
-    n_vols = len(list(vol_dir.iterdir()))
-    for vol_path in tqdm(vol_dir.iterdir(), total=n_vols, desc="Loading subject volumes", leave=True):
+    gm_mask_data = gm_mask.get_fdata().ravel().astype(bool)
+    maskidx = np.flatnonzero(gm_mask_data)
+    for vol_path in vol_dir.iterdir():
         if match := pattern.match(vol_path.name):
             frame_time = int(match.group(1))
 
-            vol_data = nib.load(vol_path).get_fdata()
+            vol_data = np.asanyarray(nib.load(vol_path).dataobj).ravel()
 
             if gm_mask_data.shape != vol_data.shape:
                 raise ValueError(f"Mask shape {gm_mask_data.shape} does not match volume shape {vol_data.shape} for file {vol_path}")
 
-            masked_data : np.ndarray = vol_data * gm_mask_data
+            masked_data = np.zeros_like(vol_data)
+            masked_data[maskidx] = vol_data[maskidx]
 
-            masked_vols[frame_time]= masked_data.flatten()
+            masked_vols[frame_time]= masked_data
     return [masked_vols[i] for i in sorted(masked_vols.keys())]
 
 
