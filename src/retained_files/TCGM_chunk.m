@@ -1,12 +1,18 @@
-function all_data = TCGM_chunk()
+function all_data = TCGM_chunk(main_folder)
 
 % ----------------------------
 % SETTINGS
 % ----------------------------
-main_folder = '/media/RCPNAS/Data/asalcedo/preproc_nii/3D_vols/';      % Folder containing subject folders
+
+if nargin < 1
+    error('You must provide the main_folder as an input argument.');
+end
+
+
 data_subfolder_name = 'vols';        % Name of subfolder inside each subject folder
-mask_vector = load('/media/RCPNAS/Data/asalcedo/GM_masks/mask_vector_nodeep4_smooth.mat').mask_vector; % Your GM mask vector (logical)
-mask_vector = logical(mask_vector);
+mask_volume = spm_vol('/home/boo/capslifespan/data/templates/extdhcp40wkGreyMatterLowres_mask.nii')
+mask_data = spm_read_vols(mask_volume);          % Load the 3D data
+mask_vector = (mask_data(:) > 0);   % 1 for mask voxels, 0 otherwise
 
 nGMvoxels = sum(mask_vector);
 disp(['Using GM mask with ', num2str(nGMvoxels), ' voxels']);
@@ -16,7 +22,7 @@ disp(['Using GM mask with ', num2str(nGMvoxels), ' voxels']);
 % ----------------------------
 subject_folders = dir(main_folder);
 subject_folders = subject_folders([subject_folders.isdir] & ...
-                                  ~startsWith({subject_folders.name}, '.'));
+                                  startsWith({subject_folders.name}, 'sub-'));
 
 all_data = cell(length(subject_folders), 1); % Preallocate
 
