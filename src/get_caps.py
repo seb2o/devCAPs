@@ -46,8 +46,12 @@ def main(group_path, T):
     del retained_frames
 
     stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
-
-    kmeans = KMeans(n_clusters=5, random_state=0)
+    # todo use correlation as distance and more init
+    kmeans = KMeans(
+        n_clusters=5,
+        random_state=0,
+        n_init=300,
+    )
     retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
 
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
