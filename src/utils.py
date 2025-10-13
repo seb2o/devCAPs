@@ -1,7 +1,11 @@
 import csv
+import re
 import warnings
 from pathlib import Path
 from typing import Callable
+import nibabel as nib
+import numpy as np
+from tqdm import tqdm
 
 
 def get_subj_and_ses_names_from_bolds(
@@ -204,3 +208,69 @@ def filter_subject_with_combined_tsv(subject, subjects_dir):
 
     return (scan_age >= 34.5) and (birth_age >= 34.5) and (radiology_score < 3)
 
+
+def get_masked_frames(vol_dir, gm_mask):
+    """
+    given vols dir path, assuming vols are suffixed with _3D_<frame_time>.nii
+    applies the gm_mask to each volume and returns a list with frame_time as index
+    raise ValueError if the mask shape does not match the volume shape
+    :param vol_dir:
+    :param gm_mask:
+    :return:
+    """
+    pattern = re.compile(r'^.*_3D_(\d+)\.nii$')
+    masked_vols = {}
+    gm_mask_data = gm_mask.get_fdata().astype(bool)
+    for vol_path in tqdm(vol_dir.iterdir(), desc="Loading subject volumes", leave=False):
+        if match := pattern.match(vol_path.name):
+            frame_time = int(match.group(1))
+
+            vol_data = nib.load(vol_path).get_fdata()
+
+            if gm_mask_data.shape != vol_data.shape:
+                raise ValueError(f"Mask shape {gm_mask_data.shape} does not match volume shape {vol_data.shape} for file {vol_path}")
+
+            masked_data : np.ndarray = vol_data * gm_mask_data
+
+            masked_vols[frame_time]= masked_data.flatten()
+    return [masked_vols[i] for i in sorted(masked_vols.keys())]
+
+
+def get_seed_timecourse(flat_vols, seed_mask, zscore=True):
+    """
+    assumes flat_vols is a list with timepoint as idx and flattened volume as value
+    computes the mean timecourse within the seed mask
+    and optionally zscore the timecourse
+
+    :param flat_vols:
+    :param seed_mask:
+    :param zscore:
+    :return:
+    """
+    seed_timecourse = []
+    for vol in flat_vols:
+        seed_voxels = vol[seed_mask.get_fdata().flatten() > 0]
+        seed_timecourse.append(np.mean(seed_voxels))
+    seed_timecourse = np.array(seed_timecourse)
+    if zscore:
+        seed_timecourse = (seed_timecourse - np.mean(seed_timecourse)) / np.std(seed_timecourse)
+    return seed_timecourse
+
+
+def get_percentile_thresholds(seed_timecourse, T):
+    """
+    computes the T and 100-T percentile of the seed timecourse
+    :param seed_timecourse:
+    :param T:
+    :return:
+    """
+    lower_threshold = np.percentile(seed_timecourse, T)
+    upper_threshold = np.percentile(seed_timecourse, 100 - T)
+    return lower_threshold, upper_threshold
+
+
+def unflatten_to_3d(cap, gm_mask):
+    if np.prod(gm_mask.shape) != np.prod(cap.shape):
+        raise ValueError(f"Shape of cap {cap.shape} does not match shape of gm_mask {gm_mask.shape}")
+    threeD_cap = cap.reshape(gm_mask.shape)
+    return nib.Nifti1Image(threeD_cap, gm_mask.affine, gm_mask.header)
