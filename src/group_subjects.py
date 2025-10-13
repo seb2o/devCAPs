@@ -86,7 +86,7 @@ def get_subjs_to_symlink(
             if group_tsv_criterion(row):
                 subjs_to_symlink.append(subject_path)
             else:
-                print(f"Excluded {subj_id} by TSV criterion. (row: {row})")
+                print(f"Excluded {subj_id} by TSV criterion. (birth_age: {row['birth_age']})")
         except (KeyError, ValueError) as e:
             warnings.warn(f"TSV filter error for {subj_id}: {e}", category=RuntimeWarning)
             continue
@@ -129,5 +129,5 @@ if __name__ == '__main__':
         group_name="non_preterm",
         group_tsv_criterion=non_preterm_criterion,
         bids_root=paths.bids_root,
-        derivatives_path=paths.sample_derivatives
+        derivatives_path=paths.derivatives
 )

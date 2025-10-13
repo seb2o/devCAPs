@@ -55,10 +55,14 @@ def plot_caps(
     else:
         plt.show()
 
+    for i in range(1, len(zcaps_paths)+1):
+            plot_cap_detail(folder_path, i, folder_path)
+
 
 def plot_cap_detail(
         folder_path,
         cap_index: int,
+        savedir=None
 ):
     cap_name = f"CAP_{cap_index:02d}_z.nii"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
@@ -73,6 +77,8 @@ def plot_cap_detail(
         vmax=5,
         bg_img=paths.ext40Template,
         black_bg=False,
+        cmap="RdBu_r",
+        output_file=savedir / (zcap_path.stem + ".png")
     )
     plt.show()
 
