@@ -226,7 +226,7 @@ def get_masked_frames(vol_dir, gm_mask):
         if match := pattern.match(vol_path.name):
             frame_time = int(match.group(1))
 
-            vol_data = np.asanyarray(nib.load(vol_path).dataobj).ravel()
+            vol_data = nib.load(vol_path).get_fdata().ravel()
 
             if gm_mask_data.shape != vol_data.shape:
                 raise ValueError(f"Mask shape {gm_mask_data.shape} does not match volume shape {vol_data.shape} for file {vol_path}")
