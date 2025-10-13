@@ -31,7 +31,8 @@ for vol_dir in subj_vols_dirs:
         seed_activity = seed_timecourse[frame_time]
         activity_type = None
         if seed_activity < l:
-            activity_type = "low"
+            # activity_type = "low"
+            pass # skipping low activity frames for now
         elif seed_activity > h:
             activity_type = "high"
         if activity_type:
