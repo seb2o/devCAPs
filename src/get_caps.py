@@ -54,6 +54,11 @@ def main(group_path, T):
     )
     retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
 
+    cluster_order = retained_frames_df['cluster'].value_counts().index
+    cluster_map = {old: new for new, old in enumerate(cluster_order)}
+    retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
+
+
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
     CAPs = CAPs.apply(lambda x: (x - x.mean()) / x.std())  # zscore each CAP
 
