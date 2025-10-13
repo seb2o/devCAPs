@@ -44,7 +44,7 @@ fprintf('>>> Start: %s\n', datestr(t_start, 'yyyy-mm-dd HH:MM:SS.FFF'));
 tic;
 
 % Data: cell array, each cell of size n_TP x n_masked_voxels
-TC = TCGM(in_dir_path);
+TC = TCGM_chunk(in_dir_path);
 disp(['Shape of TC cell array: ', num2str(size(TC,1)), ' subjects, each with [', ...])
       num2str(size(TC{1},1)), ' time points x ', num2str(size(TC{1},2)), ' voxels]']);
 
