@@ -12,14 +12,16 @@ from nilearn import plotting
 from time import perf_counter
 
 
-def main(group_path, T):
+def main(group_path, T, expname):
     gm_mask_path = paths.ext40GreyMatterMask
     seed_mask_path = paths.ext40PosteriorCingulateGyrusMask
     gm_mask = nib.load(gm_mask_path)
     seed_mask = nib.load(seed_mask_path)
     subj_vols_dirs = sorted(group_path.glob("sub-*/vols"))
 
-
+    savedir = group_path / expname
+    print(f"saving CAPs and df to {savedir}")
+    savedir.mkdir(exist_ok=True)
     retained_frames = []
     for vol_dir in subj_vols_dirs:
         # load each 3d frames and apply gm mask to it, returns a list of tuples (frame_time, frame_vector)
@@ -69,12 +71,13 @@ def main(group_path, T):
     # reshape each CAP to 3D and save
     for i, cap in CAPs.items():
         cap_3d = utils.unflatten_to_3d(cap, gm_mask)
-        nib.save(cap_3d, group_path / f"CAP_{i+1}_z.nii")
+        nib.save(cap_3d, savedir / f"CAP_{i+1}_z.nii")
 
     # save retained_frames_df for further analysis
-    retained_frames_df.to_pickle(group_path / "retained_frames.pkl")
+    retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
 
 if __name__ == "__main__":
     gpath = paths.sample_derivatives / "non_preterm"
     t = 15
-    main(gpath, t)
+    expname="Pos_caps"
+    main(gpath, t, expname)
