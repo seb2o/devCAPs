@@ -62,8 +62,8 @@ for s = 1:length(subject_folders)
     end
     
     % ==== NEW: Crop to selected frames ====
-    frame_start = 1;      % set start
-    frame_end   = 760;    % set end
+    frame_start = 763;      % set start
+    frame_end   = 1763;    % set end
     frame_end = min(frame_end, size(data_2d,1)); % safety check
     data_2d = data_2d(frame_start:frame_end, :);
     
