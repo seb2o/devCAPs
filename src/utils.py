@@ -221,7 +221,8 @@ def get_masked_frames(vol_dir, gm_mask):
     pattern = re.compile(r'^.*_3D_(\d+)\.nii$')
     masked_vols = {}
     gm_mask_data = gm_mask.get_fdata().astype(bool)
-    for vol_path in tqdm(vol_dir.iterdir(), desc="Loading subject volumes", leave=False):
+    n_vols = len(list(vol_dir.iterdir()))
+    for vol_path in tqdm(vol_dir.iterdir(), total=n_vols, desc="Loading subject volumes", leave=True):
         if match := pattern.match(vol_path.name):
             frame_time = int(match.group(1))
 
