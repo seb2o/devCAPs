@@ -9,6 +9,8 @@ import utils
 import pandas as pd
 from sklearn.cluster import KMeans
 from nilearn import plotting
+from time import perf_counter
+
 
 def main(group_path, T):
     gm_mask_path = paths.ext40GreyMatterMask
@@ -21,7 +23,10 @@ def main(group_path, T):
     retained_frames = []
     for vol_dir in subj_vols_dirs:
         # load each 3d frames and apply gm mask to it, returns a list of tuples (frame_time, frame_vector)
+        start = perf_counter()
         flat_vols = utils.get_masked_frames(vol_dir, gm_mask)
+        end = perf_counter()
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded and masked {vol_dir.parent.name} in {end-start:.4f} seconds")
         seed_timecourse = utils.get_seed_timecourse(flat_vols, seed_mask, zscore=True)
         l, h = utils.get_percentile_thresholds(seed_timecourse, T)
         for frame_time, frame in enumerate(flat_vols):
