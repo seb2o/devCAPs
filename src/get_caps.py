@@ -46,6 +46,10 @@ def main(group_path, T):
     del retained_frames
 
     stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
+
+    # zscore samples
+    stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
+
     # todo use correlation as distance and more init
     kmeans = KMeans(
         n_clusters=5,
