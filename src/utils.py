@@ -220,19 +220,18 @@ def get_masked_frames(vol_dir, gm_mask):
     """
     pattern = re.compile(r'^.*_3D_(\d+)\.nii$')
     masked_vols = {}
-    gm_mask_data = gm_mask.get_fdata().ravel().astype(bool)
-    maskidx = np.flatnonzero(gm_mask_data)
+    gm_mask_data = gm_mask.get_fdata().astype(bool)
     for vol_path in vol_dir.iterdir():
         if match := pattern.match(vol_path.name):
             frame_time = int(match.group(1))
 
-            vol_data = nib.load(vol_path).get_fdata().ravel()
+            vol_data = nib.load(vol_path).get_fdata()
 
             if gm_mask_data.shape != vol_data.shape:
                 raise ValueError(f"Mask shape {gm_mask_data.shape} does not match volume shape {vol_data.shape} for file {vol_path}")
 
-            masked_data = np.zeros_like(vol_data)
-            masked_data[maskidx] = vol_data[maskidx]
+            masked_data = vol_data * gm_mask_data
+            masked_data = masked_data.flatten()
 
             masked_vols[frame_time]= masked_data
     return [masked_vols[i] for i in sorted(masked_vols.keys())]
