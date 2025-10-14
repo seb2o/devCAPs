@@ -64,6 +64,8 @@ folder_name = custom_prefix + group_name + ...
     "_activation-" + sign_str + ...
     "_n-" + string(numel(TC));
 
+disp(['Output folder name: ', folder_name]);
+
 out_dir = fullfile(derivatives_folder, folder_name);
 
 fprintf('Output directory path: %s\n', out_dir);
