@@ -59,14 +59,14 @@ def main(group_path, T, expname):
 
     stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
 
-    # zscore samples
+    # zscore samples to approximate correlation distance with euclidean
+    # this is important for kmeans to work well
     stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
-    # todo use correlation as distance and more init
     kmeans = KMeans(
         n_clusters=5,
         random_state=0,
-        n_init=3,
+        n_init=10,
     )
 
 
@@ -79,7 +79,7 @@ def main(group_path, T, expname):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
 
 
-    cluster_order = retained_frames_df['cluster'].value_counts().index
+    cluster_order = retained_frames_df['cluster'].value_counts(ascending=True).index
     cluster_map = {old: new for new, old in enumerate(cluster_order)}
     retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
 
