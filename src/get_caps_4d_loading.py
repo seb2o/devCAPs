@@ -84,7 +84,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         kmeans = KMeans(
             n_clusters=5,
             random_state=0,
-            n_init=10,
+            n_init=50,
         )
 
 
