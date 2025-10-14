@@ -8,6 +8,17 @@ import numpy as np
 from tqdm import tqdm
 
 
+def get_bold_from_ses(ses_dir):
+    bold_runs = [p for p in ses_dir.iterdir() if p.name.endswith('bold.nii.gz')]
+
+    if len(bold_runs) == 0:
+        raise FileNotFoundError(f"No bold.nii.gz files found in {ses_dir}")
+    if len(bold_runs) > 1:
+        warnings.warn(f"Found multiple bold.nii.gz files in {ses_dir}, using the first one: {bold_runs[0]}",
+                      RuntimeWarning)
+    return bold_runs[0]
+
+
 def get_subj_and_ses_names_from_bolds(
         dir_path: Path,
         subject_filter = None
@@ -236,6 +247,28 @@ def get_masked_frames(vol_dir, gm_mask):
             masked_vols[frame_time]= masked_data
     return [masked_vols[i] for i in sorted(masked_vols.keys())]
 
+def get_masked_frames_4d(bold_path, gm_mask):
+    """
+    given vols dir path, assuming vols are suffixed with _3D_<frame_time>.nii
+    applies the gm_mask to each volume and returns a list with frame_time as index
+    raise ValueError if the mask shape does not match the volume shape
+    :param vol_dir:
+    :param gm_mask:
+    :return:
+    """
+    gm_mask_data = gm_mask.get_fdata().astype(bool)[..., np.newaxis]
+    timeserie_data = nib.load(bold_path).get_fdata()
+
+    if gm_mask_data.shape[:-1] != timeserie_data.shape[:-1]:
+        raise ValueError(f"Mask shape {gm_mask_data.shape} does not match volume shape {timeserie_data.shape} for file {bold_path}")
+
+    masked_timeserie = timeserie_data * gm_mask_data
+
+    return masked_timeserie
+
+
+
+
 
 def get_seed_timecourse(flat_vols, seed_mask, zscore=True):
     """
@@ -253,6 +286,30 @@ def get_seed_timecourse(flat_vols, seed_mask, zscore=True):
         seed_voxels = vol[seed_mask.get_fdata().flatten() > 0]
         seed_timecourse.append(np.mean(seed_voxels))
     seed_timecourse = np.array(seed_timecourse)
+    if zscore:
+        seed_timecourse = (seed_timecourse - np.mean(seed_timecourse)) / np.std(seed_timecourse)
+    return seed_timecourse
+
+
+def get_seed_timecourse_from4d(timeserie, seed_mask, zscore=True):
+    """
+    assumes flat_vols is a list with timepoint as idx and flattened volume as value
+    computes the mean timecourse within the seed mask
+    and optionally zscore the timecourse
+
+    :param flat_vols:
+    :param seed_mask:
+    :param zscore:
+    :return:
+    """
+    seed_mask_data = seed_mask.get_fdata().astype(bool)[..., np.newaxis]
+
+    if seed_mask_data.shape[:-1] != timeserie.shape[:-1]:
+        raise ValueError(f"Mask shape {seed_mask_data.shape} does not match volume shape {timeserie.shape} for seed mask {seed_mask}")
+
+    seed_masked_timeserie = timeserie * seed_mask_data
+    seed_timecourse = seed_masked_timeserie.mean(axis=(0,1,2))
+
     if zscore:
         seed_timecourse = (seed_timecourse - np.mean(seed_timecourse)) / np.std(seed_timecourse)
     return seed_timecourse
