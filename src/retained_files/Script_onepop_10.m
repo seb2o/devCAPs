@@ -21,13 +21,13 @@ K_opt=5;
 run_consensus = false  % true or false
 
 % folder where to find the data (in BIDS derivatives format)
-derivatives_folder = '/home/boo/capslifespan/data/derivatives/';
+derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
 
 % group folder in derivatives where to fetch subjects
-group_name = 'non_preterm';
+group_name = '';
 
 % optional custom prefix for output folder
-custom_prefix = '';
+custom_prefix = 'euclidean';
 
 
 derivatives_folder = string(derivatives_folder);
