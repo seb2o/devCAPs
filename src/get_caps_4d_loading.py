@@ -10,6 +10,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from nilearn import plotting
 from time import perf_counter
+import show_caps
 
 
 def main(group_path, T, expname):
@@ -101,6 +102,13 @@ def main(group_path, T, expname):
 
     #save retained_frames_df for further analysis
     retained_frames_df.drop(columns="frame").to_pickle(savedir / "frames_clustering.pkl")
+
+    # extract png view for caps
+    show_caps.plot_caps(
+        folder_path=savedir,
+        fig_title=f"CAPs in {group_path.name} ({n} total)",
+        save_path=savedir / "CAPs_overview.png"
+    )
 
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
