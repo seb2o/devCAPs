@@ -14,6 +14,10 @@ import show_caps
 
 
 def main(group_path, T, expname, load_retained_frames_df=False, recompute_clusters=True):
+
+    if not load_retained_frames_df and not recompute_clusters:
+        raise ValueError("If not loading retained_frames_df, must recompute clusters")
+
     gm_mask_path = paths.ext40GreyMatterMask
     seed_mask_path = paths.ext40PosteriorCingulateGyrusMask
     gm_mask = nib.load(gm_mask_path)
@@ -29,7 +33,6 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     del sample_fourd
 
     if not load_retained_frames_df:
-        subj_4dbolds_paths = sorted(group_path.glob("sub-*/ses-*/func/*bold.nii.gz"))
         retained_frames = []
         times = []
         for bold_path in subj_4dbolds_paths:
@@ -121,5 +124,5 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
     t = 15
-    expname="negative_caps_t_15"
-    main(gpath, t, expname, load_retained_frames_df=True, recompute_clusters=True)
+    expname="positive_caps_t_15"
+    main(gpath, t, expname, load_retained_frames_df=False, recompute_clusters=True)
