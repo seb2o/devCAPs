@@ -23,11 +23,13 @@ def main(group_path, T, expname):
     print(f"saving CAPs and df to {savedir}")
     savedir.mkdir(exist_ok=True)
     retained_frames = []
+    times = []
     for vol_dir in subj_vols_dirs:
         # load each 3d frames and apply gm mask to it, returns a list of tuples (frame_time, frame_vector)
         start = perf_counter()
         flat_vols = utils.get_masked_frames(vol_dir, gm_mask)
         end = perf_counter()
+        times.append(end-start)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded and masked {vol_dir.parent.name} in {end-start:.4f} seconds")
         seed_timecourse = utils.get_seed_timecourse(flat_vols, seed_mask, zscore=True)
         l, h = utils.get_percentile_thresholds(seed_timecourse, T)
@@ -44,50 +46,70 @@ def main(group_path, T, expname):
                 retained_frames.append((vol_dir.parent.name, frame_time, activity_type, frame))
 
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processed {vol_dir.parent.name} ({len(flat_vols)} vols), retained {len(retained_frames)} frames so far")
-
-    retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "frame_time", "type", "frame"]).set_index(["subj_name", "frame_time"])
-    del retained_frames
-
-    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
-
-    # zscore samples
-    stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
-
-    # todo use correlation as distance and more init
-    kmeans = KMeans(
-        n_clusters=5,
-        random_state=0,
-        n_init=300,
-    )
-
-
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
-
-
-    retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
-
-
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
-
-
-    cluster_order = retained_frames_df['cluster'].value_counts().index
-    cluster_map = {old: new for new, old in enumerate(cluster_order)}
-    retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
-
-
-    CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
-    CAPs = CAPs.apply(lambda x: (x - x.mean()) / x.std())  # zscore each CAP
-
-    # reshape each CAP to 3D and save
-    for i, cap in CAPs.items():
-        cap_3d = utils.unflatten_to_3d(cap, gm_mask)
-        nib.save(cap_3d, savedir / f"CAP_{i+1}_z.nii")
-
-    # save retained_frames_df for further analysis
-    retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
+    print(f"Average time to load and mask a subject: {np.mean(times):.4f} seconds")
+    # retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "frame_time", "type", "frame"]).set_index(["subj_name", "frame_time"])
+    # del retained_frames
+    #
+    # stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
+    #
+    # # zscore samples
+    # stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
+    #
+    # # todo use correlation as distance and more init
+    # kmeans = KMeans(
+    #     n_clusters=5,
+    #     random_state=0,
+    #     n_init=3,
+    # )
+    #
+    #
+    # print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
+    #
+    #
+    # retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
+    #
+    #
+    # print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
+    #
+    #
+    # cluster_order = retained_frames_df['cluster'].value_counts().index
+    # cluster_map = {old: new for new, old in enumerate(cluster_order)}
+    # retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
+    #
+    #
+    # CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
+    # CAPs = CAPs.apply(lambda x: (x - x.mean()) / x.std())  # zscore each CAP
+    #
+    # # reshape each CAP to 3D and save
+    # n = CAPs.shape[0]
+    # fig, axes = plt.subplots(n ,1, figsize=(12, 3*n))
+    # if n == 1:
+    #     axes = [axes]
+    # bgimg = nib.load(paths.ext40Template)
+    #
+    #
+    # for (i, cap), ax in zip(CAPs.items(), axes):
+    #     cap_3d = utils.unflatten_to_3d(cap, gm_mask)
+    #     plotting.plot_stat_map(
+    #         cap_3d,
+    #         bg_img=bgimg,
+    #         title=f"CAP_{i+1:02d}_z.nii",
+    #         display_mode="ortho",
+    #         cut_coords=None,
+    #         colorbar=True,
+    #         vmax=5,
+    #         cmap='RdBu_r',
+    #         axes=ax,
+    #         black_bg=False,
+    #     )
+    # plt.show()
+    #     # nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
+    #
+    # # save retained_frames_df for further analysis
+    # # retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
 
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
     t = 15
-    expname="positive_caps_t_15"
+    expname="check_caps_when_optimizing_speed"
     main(gpath, t, expname)
