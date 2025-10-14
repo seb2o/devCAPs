@@ -52,11 +52,11 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
                 seed_activity = seed_timecourse[frame_time]
                 activity_type = None
                 if seed_activity < l:
-                    #activity_type = "low"
-                    pass # skipping low activity frames for now
+                    activity_type = "low"
+                    # pass # skipping low activity frames for now
                 elif seed_activity > h:
-                    activity_type = "high"
-                    #pass
+                    # activity_type = "high"
+                    pass
                 if activity_type:
                     retained_frames.append((subj_name, frame_time, activity_type, masked_timeserie[..., frame_time].flatten()))
 
@@ -124,5 +124,5 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
     t = 15
-    expname="positive_caps_t_15"
+    expname="negative_caps_t_15"
     main(gpath, t, expname, load_retained_frames_df=False, recompute_clusters=True)
