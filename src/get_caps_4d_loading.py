@@ -124,5 +124,5 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
     t = 15
-    expname="negative_caps_t_15"
-    main(gpath, t, expname, load_retained_frames_df=False, recompute_clusters=True)
+    expname="positive_caps_t_15"
+    main(gpath, t, expname, load_retained_frames_df=True, recompute_clusters=False)
