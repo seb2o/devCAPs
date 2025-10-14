@@ -21,7 +21,7 @@ K_opt=5;
 run_consensus = false  % true or false
 
 % folder where to find the data (in BIDS derivatives format)
-derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
+derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/test';
 
 % group folder in derivatives where to fetch subjects
 group_name = "";
@@ -44,7 +44,7 @@ fprintf('>>> Start: %s\n', datestr(t_start, 'yyyy-mm-dd HH:MM:SS.FFF'));
 tic;
 
 % Data: cell array, each cell of size n_TP x n_masked_voxels
-TC = TCGM(in_dir_path);
+TC = TCGM_chunk(in_dir_path);
 disp(['Shape of TC cell array: ', num2str(size(TC,1)), ' subjects, each with [', ...])
       num2str(size(TC{1},1)), ' time points x ', num2str(size(TC{1},2)), ' voxels]']);
 
@@ -272,6 +272,12 @@ for k = 1:K
     Vout_raw.fname  = fullfile(out_dir, sprintf('CAP_%02d_raw.nii', k));
     Vout_raw.descrip= sprintf('Raw CAP #%d (K=%d)', k, K);
     if isfield(Vout_raw,'dt'); Vout_raw.dt = [16 0]; end
+
+
+    disp(Vout_raw)
+
+    disp(vol3D_raw)
+
     spm_write_vol(Vout_raw, vol3D_raw);
 
     % ----- Z-SCORED CAP -----
