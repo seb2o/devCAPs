@@ -20,7 +20,13 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     seed_mask = nib.load(seed_mask_path)
     savedir = group_path / expname
     savedir.mkdir(exist_ok=True)
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting CAP analysis from {group_path}, saving to {savedir}, T={T}")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting CAP analysis from {group_path}, saving to {savedir}")
+    subj_4dbolds_paths = sorted(group_path.glob("sub-*/ses-*/func/*bold.nii.gz"))
+
+    # load one 3d bold to get affine, header, shape info
+    sample_fourd = nib.load(subj_4dbolds_paths[0])
+    sample_volume = sample_fourd.slicer[..., 0]
+    del sample_fourd
 
     if not load_retained_frames_df:
         subj_4dbolds_paths = sorted(group_path.glob("sub-*/ses-*/func/*bold.nii.gz"))
@@ -72,7 +78,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         kmeans = KMeans(
             n_clusters=5,
             random_state=0,
-            n_init=300,
+            n_init=10,
         )
 
 
@@ -91,14 +97,13 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 
 
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
-    CAPs = CAPs.apply(lambda x: (x - x.mean()) / x.std())  # zscore each CAP
 
     # reshape each CAP to 3D and save
     n = CAPs.shape[0]
 
 
     for i, cap in CAPs.items():
-        cap_3d = utils.unflatten_to_3d(cap, gm_mask)
+        cap_3d = utils.unflatten_to_3d(cap, gm_mask, sample_volume,  zscore=True)
         nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
 
     #save retained_frames_df for further analysis

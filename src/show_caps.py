@@ -64,9 +64,12 @@ def plot_cap_detail(
         cap_index: int,
         savedir=None
 ):
-    cap_name = f"CAP_{cap_index:02d}_z.nii"
+    cap_name = f"CAP_{cap_index:02d}_z"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
-    zcap_path = [p for p in zcap_paths if p.name == cap_name][0]
+    zcap_path = [p for p in zcap_paths if p.stem == cap_name][0]
+
+    if savedir is not None:
+        savedir = savedir / (cap_name + ".png")
 
     plotting.plot_stat_map(
         zcap_path,
@@ -78,9 +81,10 @@ def plot_cap_detail(
         bg_img=paths.ext40Template,
         black_bg=False,
         cmap="RdBu_r",
-        output_file=savedir / (zcap_path.stem + ".png")
+        output_file=savedir
     )
-    plt.show()
+    if not savedir:
+        plt.show()
 
 
 if __name__ == "__main__":

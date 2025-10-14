@@ -327,8 +327,15 @@ def get_percentile_thresholds(seed_timecourse, T):
     return lower_threshold, upper_threshold
 
 
-def unflatten_to_3d(cap, gm_mask):
+def unflatten_to_3d(cap, gm_mask, sample_volume, zscore=True):
     if np.prod(gm_mask.shape) != np.prod(cap.shape):
         raise ValueError(f"Shape of cap {cap.shape} does not match shape of gm_mask {gm_mask.shape}")
-    threeD_cap = cap.reshape(gm_mask.shape)
-    return nib.Nifti1Image(threeD_cap, gm_mask.affine, gm_mask.header)
+
+    if zscore:
+        cap = (cap - np.mean(cap)) / np.std(cap)
+
+    cap = cap.reshape(sample_volume.shape)
+
+    cap = cap * gm_mask.get_fdata().astype(bool)
+
+    return nib.Nifti1Image(cap, sample_volume.affine, sample_volume.header)
