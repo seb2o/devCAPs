@@ -13,7 +13,7 @@ from time import perf_counter
 import show_caps
 
 
-def main(group_path, T, expname, load_retained_frames_df=False):
+def main(group_path, T, expname, load_retained_frames_df=False, recompute_clusters=True):
     gm_mask_path = paths.ext40GreyMatterMask
     seed_mask_path = paths.ext40PosteriorCingulateGyrusMask
     gm_mask = nib.load(gm_mask_path)
@@ -61,31 +61,33 @@ def main(group_path, T, expname, load_retained_frames_df=False):
         retained_frames_df = pd.read_pickle(savedir / "retained_frames.pkl")
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / 'retained_frames.pkl'}, shape: {retained_frames_df.shape}")
 
-    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
+    if recompute_clusters:
 
-    # zscore samples to approximate correlation distance with euclidean
-    # this is important for kmeans to work well
-    stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
+        stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
 
-    kmeans = KMeans(
-        n_clusters=5,
-        random_state=0,
-        n_init=10,
-    )
+        # zscore samples to approximate correlation distance with euclidean
+        # this is important for kmeans to work well
+        stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
-
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
-
-
-    retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
+        kmeans = KMeans(
+            n_clusters=5,
+            random_state=0,
+            n_init=300,
+        )
 
 
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
 
 
-    cluster_order = retained_frames_df['cluster'].value_counts(ascending=True).index
-    cluster_map = {old: new for new, old in enumerate(cluster_order)}
-    retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
+        retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
+
+
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
+
+
+        cluster_order = retained_frames_df['cluster'].value_counts(ascending=True).index
+        cluster_map = {old: new for new, old in enumerate(cluster_order)}
+        retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
 
 
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
@@ -115,4 +117,4 @@ if __name__ == "__main__":
     gpath = paths.sample_derivatives
     t = 15
     expname="negative_caps_t_15"
-    main(gpath, t, expname, load_retained_frames_df=True)
+    main(gpath, t, expname, load_retained_frames_df=True, recompute_clusters=True)
