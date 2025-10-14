@@ -102,8 +102,8 @@ if __name__ == "__main__":
 
     p = paths.sample_derivatives / folder_name
 
-    p = paths.sample_derivatives / ("non_preterm/" + "positive_caps_t_15")
-    title = "CAPs from python, high activation, top 15% frames, non preterm"
+    p = paths.sample_derivatives / ("negative_caps_t_15")
+    title = "CAPs from python, low activation, top 15% frames, n=34"
 
     plot_caps(
         p,
