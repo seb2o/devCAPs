@@ -64,7 +64,7 @@ def plot_cap_detail(
         cap_index: int,
         savedir=None
 ):
-    cap_name = f"CAP_{cap_index:02d}_z.nii"
+    cap_name = f"CAP_{cap_index}_z.nii"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
     zcap_path = [p for p in zcap_paths if p.name == cap_name][0]
 
@@ -101,6 +101,9 @@ if __name__ == "__main__":
     title = f"CAPs (k={k}) from {atype} activation ({t}) frames, n={n}"
 
     p = paths.sample_derivatives / folder_name
+
+    p = paths.sample_derivatives / ("non_preterm/" + "positive_caps_t_15")
+    title = "CAPs from python, high activation, top 15% frames, non preterm"
 
     plot_caps(
         p,

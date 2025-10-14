@@ -35,10 +35,11 @@ def main(group_path, T, expname):
             seed_activity = seed_timecourse[frame_time]
             activity_type = None
             if seed_activity < l:
-                # activity_type = "low"
+                #activity_type = "low"
                 pass # skipping low activity frames for now
             elif seed_activity > h:
                 activity_type = "high"
+                #pass
             if activity_type:
                 retained_frames.append((vol_dir.parent.name, frame_time, activity_type, frame))
 
@@ -58,7 +59,16 @@ def main(group_path, T, expname):
         random_state=0,
         n_init=300,
     )
+
+
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
+
+
     retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
+
+
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
+
 
     cluster_order = retained_frames_df['cluster'].value_counts().index
     cluster_map = {old: new for new, old in enumerate(cluster_order)}
@@ -77,7 +87,7 @@ def main(group_path, T, expname):
     retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
 
 if __name__ == "__main__":
-    gpath = paths.sample_derivatives / "non_preterm"
+    gpath = paths.sample_derivatives
     t = 15
-    expname="Pos_caps"
+    expname="positive_caps_t_15"
     main(gpath, t, expname)
