@@ -44,7 +44,7 @@ fprintf('>>> Start: %s\n', datestr(t_start, 'yyyy-mm-dd HH:MM:SS.FFF'));
 tic;
 
 % Data: cell array, each cell of size n_TP x n_masked_voxels
-TC = TCGM_chunk(in_dir_path);
+TC = TCGM(in_dir_path);
 disp(['Shape of TC cell array: ', num2str(size(TC,1)), ' subjects, each with [', ...])
       num2str(size(TC{1},1)), ' time points x ', num2str(size(TC{1},2)), ' voxels]']);
 
@@ -64,7 +64,7 @@ folder_name = custom_prefix + group_name + ...
     "_activation-" + sign_str + ...
     "_n-" + string(numel(TC));
 
-out_dir_path = fullfile(char(derivatives_folder), char(folder_name));
+out_dir_path = fullfile(derivatives_folder, folder_name);
 
 fprintf('Output directory path: %s\n', out_dir_path);
 out_dir = fullfile(out_dir_path);
