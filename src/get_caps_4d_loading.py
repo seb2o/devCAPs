@@ -50,15 +50,18 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 
             for frame_time in range(masked_timeserie.shape[-1]):
                 seed_activity = seed_timecourse[frame_time]
-                activity_type = None
+                activity_type = frame_sign = None
                 if seed_activity < l:
                     activity_type = "low"
+                    frame_sign = 1
                     # pass # skipping low activity frames for now
                 elif seed_activity > h:
-                    # activity_type = "high"
-                    pass
+                    activity_type = "high"
+                    frame_sign = -1
+                    # pass
                 if activity_type:
-                    retained_frames.append((subj_name, frame_time, activity_type, masked_timeserie[..., frame_time].flatten()))
+                    # works because masked_timeserie is 0 centered
+                    retained_frames.append((subj_name, frame_time, activity_type, frame_sign*masked_timeserie[..., frame_time].flatten()))
 
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processed {subj_name} ({masked_timeserie.shape[-1]} vols), retained {len(retained_frames)} frames so far")
 
@@ -124,5 +127,5 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
     t = 15
-    expname="positive_caps_t_15"
-    main(gpath, t, expname, load_retained_frames_df=True, recompute_clusters=False)
+    expname="combined_caps_t_15"
+    main(gpath, t, expname, load_retained_frames_df=False, recompute_clusters=True)
