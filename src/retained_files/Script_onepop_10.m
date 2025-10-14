@@ -69,10 +69,8 @@ folder_name = custom_prefix + group_name + ...
     "_activation-" + sign_str + ...
     "_n-" + string(numel(TC));
 
-disp(['Output folder name: ', folder_name]);
-
-out_dir = fullfile(derivatives_folder, folder_name);
-out_dir_path = out_dir
+out_dir_path = fullfile(derivatives_folder, folder_name);
+out_dir = char(out_dir_path);
 fprintf('Output directory path: %s\n', out_dir);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
@@ -147,8 +145,6 @@ N = 50;
 % points associated to these frames, for each subject (it contains a
 % subfield for retained frames and a subfield for scrubbed frames)
 [Xon,~,Indices] = CAP_find_activity(TC,Seed,T,FD,Tmot,SelMode,SeedType,SignMatrix);
-
-size(Xon)
 
 %% 3.1 Information on NaNs
 n_subjects = numel(Xon);
