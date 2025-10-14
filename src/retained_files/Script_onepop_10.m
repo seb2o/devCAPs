@@ -58,8 +58,13 @@ if ~strcmp(custom_prefix, "")
     custom_prefix = custom_prefix + "_";
 end
 
+if ~strcmp(group_name, "")
+    group_name = group_name + "_";
+end
+
+
 folder_name = custom_prefix + group_name + ...
-    "_CAPS_k-" + string(K_opt) + ...
+    "CAPS_k-" + string(K_opt) + ...
     "_t" + string(SelMode(1)) + "-" + string(T) + ...
     "_activation-" + sign_str + ...
     "_n-" + string(numel(TC));
@@ -67,7 +72,7 @@ folder_name = custom_prefix + group_name + ...
 disp(['Output folder name: ', folder_name]);
 
 out_dir = fullfile(derivatives_folder, folder_name);
-
+out_dir_path = out_dir
 fprintf('Output directory path: %s\n', out_dir);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
