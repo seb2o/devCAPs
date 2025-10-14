@@ -21,13 +21,13 @@ K_opt=5;
 run_consensus = false  % true or false
 
 % folder where to find the data (in BIDS derivatives format)
-derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
+derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/test/';
 
 % group folder in derivatives where to fetch subjects
-group_name = '';
+group_name = "";
 
 % optional custom prefix for output folder
-custom_prefix = 'euclidean';
+custom_prefix = "euclidean";
 
 
 derivatives_folder = string(derivatives_folder);
@@ -64,10 +64,9 @@ folder_name = custom_prefix + group_name + ...
     "_activation-" + sign_str + ...
     "_n-" + string(numel(TC));
 
-out_dir_path = fullfile(derivatives_folder, folder_name);
+out_dir = fullfile(derivatives_folder, folder_name);
 
-fprintf('Output directory path: %s\n', out_dir_path);
-out_dir = fullfile(out_dir_path);
+fprintf('Output directory path: %s\n', out_dir);
 if ~exist(out_dir, 'dir'); mkdir(out_dir); end
 
 
