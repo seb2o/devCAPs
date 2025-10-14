@@ -55,7 +55,7 @@ else
 end
 
 if ~strcmp(custom_prefix, "")
-    custom_prefix = [custom_prefix "_"];
+    custom_prefix = custom_prefix + "_";
 end
 
 folder_name = custom_prefix + group_name + ...
