@@ -100,7 +100,7 @@ def main(group_path, T, expname):
         nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
 
     #save retained_frames_df for further analysis
-    retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
+    retained_frames_df.drop(columns="frame").to_pickle(savedir / "frames_clustering.pkl")
 
 if __name__ == "__main__":
     gpath = paths.sample_derivatives
