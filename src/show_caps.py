@@ -64,7 +64,7 @@ def plot_cap_detail(
         cap_index: int,
         savedir=None
 ):
-    cap_name = f"CAP_{cap_index}_z.nii"
+    cap_name = f"CAP_{cap_index:02d}_z.nii"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
     zcap_path = [p for p in zcap_paths if p.name == cap_name][0]
 
