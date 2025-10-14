@@ -21,7 +21,7 @@ K_opt=5;
 run_consensus = false  % true or false
 
 % folder where to find the data (in BIDS derivatives format)
-derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/test/';
+derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
 
 % group folder in derivatives where to fetch subjects
 group_name = "";
