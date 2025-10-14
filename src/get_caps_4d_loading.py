@@ -97,20 +97,7 @@ def main(group_path, T, expname):
 
     for (i, cap), ax in zip(CAPs.items(), axes):
         cap_3d = utils.unflatten_to_3d(cap, gm_mask)
-        plotting.plot_stat_map(
-            cap_3d,
-            bg_img=bgimg,
-            title=f"CAP_{i+1:02d}_z.nii",
-            display_mode="ortho",
-            cut_coords=None,
-            colorbar=True,
-            vmax=5,
-            cmap='RdBu_r',
-            axes=ax,
-            black_bg=False,
-        )
-    plt.show()
-    nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
+        nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
 
     #save retained_frames_df for further analysis
     retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
