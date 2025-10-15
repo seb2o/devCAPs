@@ -89,14 +89,14 @@ def plot_cap_detail(
 
 if __name__ == "__main__":
 
-    folder_name = "euclidean_CAPS_k-5_tp-15_activation-pos_n-34"
+    folder_name = "euclidean_CAPS_k-4_tPercentage-15_activation-pos_n-34"
 
-    m = re.search(r'k-(\d+).*?t([pt])-(\d+).*?activation-(pos|neg).*?n-(\d+)', folder_name, re.IGNORECASE)
+    m = re.search(r'k-(\d+).*?t(Percentage|p|t|Threshold)-(\d+).*?activation-(pos|neg).*?n-(\d+)', folder_name, re.IGNORECASE)
     k, ttype, tvalue, atype, n = m.groups()
 
     atype = 'high' if atype.lower() == 'pos' else 'low'
 
-    if ttype.lower() == 'p':
+    if ttype.lower() == 'p'or ttype.lower() == 'percentage':
         t = f"top {int(tvalue)}%"
     else:
         t = f" gaussian threshold {tvalue}"
@@ -105,6 +105,9 @@ if __name__ == "__main__":
     title = f"MATLAB CAPs Euclidean dist  (k={k}) from {atype} activation ({t}) frames, n={n}"
 
     p = paths.sample_derivatives / folder_name
+
+    p = paths.sample_derivatives / "combined_caps_t_15"
+    title = "CAPs overview (python)"
 
 
     plot_caps(
