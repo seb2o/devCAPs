@@ -214,8 +214,7 @@ def main(
       <style>
         @page {{ size: A4; margin: 20mm; }}
         /* New page before each column section (marked by H1), except the first */
-        h1 {{ page-break-before: always; }}
-        h1:first-of-type {{ page-break-before: auto; }}
+        h3 {{ page-break-before: always; }}
     
         /* Make images span page width while keeping aspect ratio */
         img {{ display: block; width: 100%; height: auto; max-width: 100%; }}
