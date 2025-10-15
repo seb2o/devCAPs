@@ -121,8 +121,16 @@ def main(
     cap_img_paths = {p.stem.removesuffix("_z") :p for p in caps_img_paths}
     cap_paths = sorted(data_path.glob("CAP_*_z.nii"))
     n_caps = len(cap_paths)
-
     print(f"Found {n_caps} CAP files.")
+
+    detailed_overview_paths = sorted(data_path.glob("*_detailed.png"))
+
+    detailed_overview_path = detailed_overview_paths[0]
+    print(f"Using detailed overview file: {detailed_overview_path.name}")
+
+    cluster_sizes_path = data_path / "cluster_sizes.pkl"
+    cluster_sizes = pd.read_pickle(cluster_sizes_path)
+    cluster_sizes.index = [f"CAP_{i:02d}" for i in cluster_sizes.index]
 
     glob_res = {}
     for cap_idx, cap_path in enumerate(cap_paths):
@@ -156,8 +164,14 @@ def main(
     outfile = data_path /  "report.md"
     lines = []
 
+    lines.append(f"# CAP Analysis Report\n")
+    lines.append(f"Folder: `{data_path}`\n")
+
     for col in df.columns:
-        lines.append(f"# {col}\n")
+        lines.append(f"### {col}\n")
+
+        # cluster size
+        lines.append(f"**Cluster size:** {cluster_sizes.loc[col]} frames\n")
 
         # Image
         img_path = cap_img_paths[col].relative_to(data_path)
@@ -182,6 +196,8 @@ def main(
             lines.append(f"| `{str(idx)}` | {val:.4f} |")
         lines.append("")
 
+    # Overview image
+    lines.append(f"![Detailed overview]({detailed_overview_path.name})")
 
     with open(outfile, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
