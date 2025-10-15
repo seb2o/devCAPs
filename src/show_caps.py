@@ -56,7 +56,7 @@ def plot_caps(
         plt.show()
 
 
-    fig = plt.figure(figsize=(12, 9 * n))
+    fig = plt.figure(figsize=(12, 9 * n), constrained_layout=True)
 
     subfigs = fig.subfigures(nrows=n, ncols=1)
 
