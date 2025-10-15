@@ -422,7 +422,12 @@ def extract_subject_frames(
         gm_mask,
         seed_mask,
         T,
+        selmode,
 ):
+
+    if selmode != 'pos':
+        raise NotImplementedError(f"Selection mode {selmode} not implemented, only 'pos' is supported.")
+
     subj_name = bold_path.parent.parent.parent.name
 
     start = perf_counter()
