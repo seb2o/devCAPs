@@ -38,12 +38,12 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
             subj_name = bold_path.parent.parent.parent.name
 
             start = perf_counter()
-            masked_timeserie = utils.get_masked_frames_4d(bold_path, gm_mask)
+            masked_timeserie = utils.get_masked_frames_4d_only_gm(bold_path, gm_mask)
             end = perf_counter()
             times.append(end-start)
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded and masked {subj_name} in {end-start:.4f} seconds")
 
-            seed_timecourse = utils.get_seed_timecourse_from4d(masked_timeserie, seed_mask, zscore=True)
+            seed_timecourse = utils.get_seed_timecourse_from4d_only_gm(masked_timeserie, gm_mask, seed_mask, zscore=True)
 
             l, h = utils.get_percentile_thresholds(seed_timecourse, T)
 
@@ -107,7 +107,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     n = CAPs.shape[0]
 
     for i, cap in CAPs.items():
-        cap_3d = utils.unflatten_to_3d(cap, gm_mask, sample_volume,  zscore=True)
+        cap_3d = utils.unflatten_to_3d_only_gm(cap, gm_mask, sample_volume,  zscore=True)
         nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
 
     #save retained_frames_df for further analysis

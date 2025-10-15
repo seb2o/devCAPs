@@ -268,6 +268,33 @@ def get_masked_frames_4d(bold_path, gm_mask):
 
 
 
+def get_masked_frames_4d_only_gm(bold_path, gm_mask):
+    """
+    given vols dir path, assuming vols are suffixed with _3D_<frame_time>.nii
+    applies the gm_mask to each volume and returns a list with frame_time as index
+    raise ValueError if the mask shape does not match the volume shape
+    :param vol_dir:
+    :param gm_mask:
+    :return:
+    """
+    gm_mask_data = gm_mask.get_fdata().astype(bool)
+    timeserie =  nib.load(bold_path)
+    timeserie_data = timeserie.get_fdata()
+
+
+    if gm_mask_data.shape != timeserie_data.shape[:-1]:
+        raise ValueError(f"Mask shape {gm_mask_data.shape} does not match volume shape {timeserie_data.shape} for file {bold_path}")
+
+    masked_timeserie = timeserie_data[gm_mask_data]
+
+    print(masked_timeserie.shape)
+
+    return masked_timeserie
+
+
+
+
+
 
 
 def get_seed_timecourse(flat_vols, seed_mask, zscore=True):
@@ -315,6 +342,34 @@ def get_seed_timecourse_from4d(timeserie, seed_mask, zscore=True):
     return seed_timecourse
 
 
+def get_seed_timecourse_from4d_only_gm(timeserie, gm_mask, seed_mask, zscore=True):
+    """
+    timeseries is a flattend, gm only 2d array (nGmvoxels, time)
+    gm and seed mask are 3d nifti images
+    computes the mean timecourse within the seed mask
+    and optionally zscore the timecourse
+    """
+
+    gm_mask_data = gm_mask.get_fdata().astype(bool).reshape(-1)
+
+    seed_mask_data = seed_mask.get_fdata().astype(bool).reshape(-1)
+
+    seed_mask_gm = seed_mask_data[gm_mask_data]
+
+
+    if seed_mask_gm.shape != timeserie.shape[:-1]:
+        raise ValueError(f"seed mask shape {seed_mask_gm.shape} does not match volume shape {timeserie.shape} for seed mask {seed_mask}")
+
+    seed_masked_timeserie = timeserie[seed_mask_gm] # (voxels_in_seed, time)
+    seed_timecourse = seed_masked_timeserie.mean(axis=0) # (time,)
+
+    if zscore:
+        seed_timecourse = (seed_timecourse - np.mean(seed_timecourse)) / np.std(seed_timecourse)
+    return seed_timecourse
+
+
+
+
 def get_percentile_thresholds(seed_timecourse, T):
     """
     computes the T and 100-T percentile of the seed timecourse
@@ -339,3 +394,24 @@ def unflatten_to_3d(cap, gm_mask, sample_volume, zscore=True):
     cap = cap * gm_mask.get_fdata().astype(bool)
 
     return nib.Nifti1Image(cap, sample_volume.affine, sample_volume.header)
+
+
+def unflatten_to_3d_only_gm(cap, gm_mask, sample_volume, zscore=True):
+
+    flat_mask = gm_mask.get_fdata().astype(bool).flatten()
+
+    if cap.ndim != 1 or cap.shape[0] != np.sum(flat_mask):
+        raise ValueError(
+            f"Mismatch: cap has shape {cap.shape}, but gm_mask has {np.sum(flat_mask)} GM voxels."
+        )
+
+    if zscore:
+        cap = (cap - np.mean(cap)) / np.std(cap)
+
+    full_cap = np.zeros(flat_mask.size, dtype=np.float32)
+    full_cap[flat_mask] = cap
+
+    cap_3d = full_cap.reshape(sample_volume.shape)
+
+
+    return nib.Nifti1Image(cap_3d, sample_volume.affine, sample_volume.header)
