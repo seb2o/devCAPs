@@ -1,16 +1,15 @@
 
 from datetime import datetime
-import numpy as np
-import paths
-from pathlib import Path
+from time import perf_counter
+
 import nibabel as nib
-import matplotlib.pyplot as plt
-import utils
+import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from nilearn import plotting
-from time import perf_counter
+
+import paths
 import show_caps
+import utils
 
 
 def main(group_path, T, expname, load_retained_frames_df=False, recompute_clusters=True):
@@ -52,12 +51,12 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
                 seed_activity = seed_timecourse[frame_time]
                 activity_type = frame_sign = None
                 if seed_activity < l:
-                    activity_type = "low"
-                    frame_sign = 1
-                    # pass # skipping low activity frames for now
+                    # activity_type = "low"
+                    # frame_sign = -1
+                    pass # skipping low activity frames for now
                 elif seed_activity > h:
                     activity_type = "high"
-                    frame_sign = -1
+                    frame_sign = 1
                     # pass
                 if activity_type:
                     # works because masked_timeserie is 0 centered
@@ -97,7 +96,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
 
 
-        cluster_order = retained_frames_df['cluster'].value_counts(ascending=True).index
+        cluster_order = retained_frames_df['cluster'].value_counts().index
         cluster_map = {old: new for new, old in enumerate(cluster_order)}
         retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
 
@@ -106,7 +105,6 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 
     # reshape each CAP to 3D and save
     n = CAPs.shape[0]
-
 
     for i, cap in CAPs.items():
         cap_3d = utils.unflatten_to_3d(cap, gm_mask, sample_volume,  zscore=True)
