@@ -126,8 +126,8 @@ if __name__ == "__main__":
 
     p = paths.sample_derivatives / folder_name
 
-    p = paths.sample_derivatives / "combined_caps_t_15"
-    title = "CAPs overview (python)"
+    #p = paths.sample_derivatives / "combined_caps_t_15"
+    #title = "CAPs overview (python)"
 
 
     plot_caps(
