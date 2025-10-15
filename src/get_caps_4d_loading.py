@@ -36,7 +36,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         retained_frames = []
         times = []
         start_time = perf_counter()
-        with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as ex:
+        with ThreadPoolExecutor(max_workers=4) as ex:
 
             futures = [
                 ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, T)
@@ -49,7 +49,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
                 retained_frames.extend(res["retained"])
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print(
-                    f"[{now}] Processed {res['subj_name']}, {res['n_vols']} vols of {res['n_voxels']} in {res['load_time']:.4f}, retained {len(retained_frames)} frames so far"
+                    f"[{now}] Processed {res['subj_name']}, {res['n_vols']} vols of {res['n_voxels']} in {res['load_time']:.4f}s, retained {len(retained_frames)} frames so far"
                 )
 
         end_time = perf_counter()

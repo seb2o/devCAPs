@@ -288,8 +288,6 @@ def get_masked_frames_4d_only_gm(bold_path, gm_mask):
 
     masked_timeserie = timeserie_data[gm_mask_data]
 
-    print(masked_timeserie.shape)
-
     return masked_timeserie
 
 
