@@ -66,6 +66,7 @@ def plot_caps(
                 folder_path,
                 i,
                 savedir=None,
+                fig=fig,
                 ax=axes[i-1],
             )
     fig.suptitle(f"Detailed CAPs in {folder_path.name} ({n} total)", fontsize=20, y=0.92)
@@ -81,7 +82,8 @@ def plot_cap_detail(
         folder_path,
         cap_index: int,
         savedir=None,
-        ax=None
+        ax=None,
+        fig=None
 ):
     cap_name = f"CAP_{cap_index:02d}_z"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
@@ -101,6 +103,7 @@ def plot_cap_detail(
         black_bg=False,
         cmap="RdBu_r",
         output_file=savedir,
+        figure=fig,
         axes=ax,
     )
     if not savedir and not ax:
