@@ -36,7 +36,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         retained_frames = []
         times = []
         start_time = perf_counter()
-        with ThreadPoolExecutor(max_workers=4) as ex:
+        with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as ex:
 
             futures = [
                 ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, T)
