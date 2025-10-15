@@ -87,7 +87,9 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
 
 
-        cluster_order = retained_frames_df['cluster'].value_counts().index
+        clusters_value_counts = retained_frames_df['cluster'].value_counts()
+        print(f"Cluster sizes: {clusters_value_counts.to_dict()}")
+        cluster_order = clusters_value_counts.index
         cluster_map = {old: new for new, old in enumerate(cluster_order)}
         retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
 
