@@ -104,6 +104,9 @@ def plot_cap_detail(
     )
     if not savedir:
         plt.show()
+        return None
+    else:
+        return savedir
 
 
 if __name__ == "__main__":
