@@ -65,11 +65,15 @@ def plot_caps(
 
 
     for i in range(1, n+1):
+
+        ax = subfigs[i-1].subplots(1,1)
+
         plot_cap_detail(
             folder_path,
             i,
             savedir=None,
             fig=subfigs[i-1],
+            ax=ax
         )
 
     fig.suptitle(f"Detailed CAPs in {folder_path.name} ({n} total)", fontsize=20, y=0.92)
