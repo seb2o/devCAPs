@@ -363,7 +363,7 @@ def get_seed_timecourse_from4d_only_gm(timeserie, gm_mask, seed_mask, zscore=Tru
     seed_timecourse = seed_masked_timeserie.mean(axis=0) # (time,)
 
     if zscore:
-        seed_timecourse = (seed_timecourse - np.mean(seed_timecourse)) / np.std(seed_timecourse)
+        seed_timecourse = (seed_timecourse - np.mean(seed_timecourse)) / np.std(seed_timecourse, ddof=1 )
     return seed_timecourse
 
 
