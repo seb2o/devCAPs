@@ -268,7 +268,6 @@ for k = 1:K
     Vout_raw.fname  = fullfile(out_dir, sprintf('CAP_%02d_raw.nii', k));
     Vout_raw.descrip= sprintf('Raw CAP #%d (K=%d)', k, K);
     if isfield(Vout_raw,'dt'); Vout_raw.dt = [16 0]; end
-    disp(vol3D_raw)
 
     spm_write_vol(Vout_raw, vol3D_raw);
 

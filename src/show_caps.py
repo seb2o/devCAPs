@@ -89,7 +89,7 @@ def plot_cap_detail(
 
 if __name__ == "__main__":
 
-    folder_name = "sample_CAPs_k-5_tp-15_activation-neg_n-30"
+    folder_name = "euclidean_CAPS_k-5_tp-15_activation-pos_n-34"
 
     m = re.search(r'k-(\d+).*?t([pt])-(\d+).*?activation-(pos|neg).*?n-(\d+)', folder_name, re.IGNORECASE)
     k, ttype, tvalue, atype, n = m.groups()
@@ -102,12 +102,10 @@ if __name__ == "__main__":
         t = f" gaussian threshold {tvalue}"
 
 
-    title = f"CAPs (k={k}) from {atype} activation ({t}) frames, n={n}"
+    title = f"MATLAB CAPs Euclidean dist  (k={k}) from {atype} activation ({t}) frames, n={n}"
 
     p = paths.sample_derivatives / folder_name
 
-    p = paths.sample_derivatives / ("negative_caps_t_15")
-    title = "CAPs from python, low activation, top 15% frames, n=34"
 
     plot_caps(
         p,
