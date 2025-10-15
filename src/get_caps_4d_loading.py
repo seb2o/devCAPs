@@ -144,6 +144,8 @@ def main(
         save_path=savedir / "CAPs_overview.png"
     )
 
+    return savedir
+
 if __name__ == "__main__":
     main(
         group_path=paths.sample_derivatives,
