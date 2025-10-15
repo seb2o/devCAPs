@@ -75,7 +75,7 @@ def plot_caps(
         y_offset += im.height
 
     combined_savepath = save_path.parent / f"{save_path.stem}_detailed.png"
-
+    print(f"\nDetailed figure saved to: {combined_savepath}")
     combined.save(combined_savepath)
 
 def plot_cap_detail(
@@ -128,8 +128,8 @@ if __name__ == "__main__":
 
     p = paths.sample_derivatives / folder_name
 
-    #p = paths.sample_derivatives / "combined_caps_t_15"
-    #title = "CAPs overview (python)"
+    p = paths.sample_derivatives / "combined_caps_t_15"
+    title = "CAPs overview (python)"
 
 
     plot_caps(
