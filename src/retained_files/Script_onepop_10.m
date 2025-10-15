@@ -15,7 +15,7 @@ SelMode = 'Percentage';
 SignMatrix = [1,0];
 
 % Number of clusters to use
-K_opt=5;
+K_opt=4;
 
 % run consensus clustering ?
 run_consensus = false  % true or false

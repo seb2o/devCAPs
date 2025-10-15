@@ -72,7 +72,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
         kmeans = KMeans(
-            n_clusters=5,
+            n_clusters=4,
             random_state=0,
             n_init=300,
         )
