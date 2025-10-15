@@ -69,7 +69,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
 
         # zscore samples to approximate correlation distance with euclidean
         # this is important for kmeans to work well
-        stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
+        zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
         kmeans = KMeans(
             n_clusters=5,
@@ -81,7 +81,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
 
 
-        retained_frames_df['cluster'] = kmeans.fit_predict(stacked_frames)
+        retained_frames_df['cluster'] = kmeans.fit_predict(zscored_stacked_frames)
 
 
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
