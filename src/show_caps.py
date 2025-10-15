@@ -56,7 +56,7 @@ def plot_caps(
         plt.show()
 
 
-    fig, axes = plt.subplots(nrows=n, ncols=1, figsize=(12, 6 * n))
+    fig, axes = plt.subplots(nrows=n, ncols=1, figsize=(12, 9 * n))
     if n  == 1:
         axes = [axes]
 
@@ -72,7 +72,7 @@ def plot_caps(
     fig.suptitle(f"Detailed CAPs in {folder_path.name} ({n} total)", fontsize=20, y=0.92)
     if save_path:
         detailed_save_path = save_path.parent / (save_path.stem + "_detailed.png")
-        fig.savefig(detailed_save_path, bbox_inches="tight", dpi=300)
+        fig.savefig(detailed_save_path, bbox_inches=None, dpi=300)
         print(f"\nDetailed figure saved to: {detailed_save_path}")
     else:
         plt.show()
