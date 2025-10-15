@@ -49,7 +49,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
                 retained_frames.extend(res["retained"])
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print(
-                    f"[{now}] Processed {res['subj_name']}, {res['n_vols']} vols of {res['n_voxels']} in {res['load_time']:.4f}s, retained {len(retained_frames)} frames so far"
+                    f"[{now}] Processed {res['subj_name']}, {res['n_vols']} vols of {res['n_voxels']} voxels each in {res['load_time']:.4f}s, retained {len(retained_frames)} frames so far"
                 )
 
         end_time = perf_counter()

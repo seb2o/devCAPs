@@ -376,8 +376,8 @@ def get_percentile_thresholds(seed_timecourse, T):
     :param T:
     :return:
     """
-    lower_threshold = np.percentile(seed_timecourse, T)
-    upper_threshold = np.percentile(seed_timecourse, 100 - T)
+    lower_threshold = np.percentile(seed_timecourse, T, method="higher")
+    upper_threshold = np.percentile(seed_timecourse, 100 - T, method="higher")
     return lower_threshold, upper_threshold
 
 
