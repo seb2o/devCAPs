@@ -1,6 +1,8 @@
 #%%
 import re
 
+from PIL import Image
+
 import paths
 from nilearn import plotting, image
 from pathlib import Path
@@ -55,9 +57,26 @@ def plot_caps(
     else:
         plt.show()
 
+    detailed_caps_savepaths = []
     for i in range(1, len(zcaps_paths)+1):
-            plot_cap_detail(folder_path, i, folder_path)
+            detailed_caps_savepaths.append(plot_cap_detail(folder_path, i, save_path.parent))
 
+    # combine vertically all detailed cap images into one
+    images = [Image.open(p) for p in detailed_caps_savepaths]
+    widths, heights = zip(*(i.size for i in images))
+
+    total_height = sum(heights)
+    max_width = max(widths)
+
+    combined = Image.new("RGBA", (max_width, total_height))
+    y_offset = 0
+    for im in images:
+        combined.paste(im, (0, y_offset))
+        y_offset += im.height
+
+    combined_savepath = save_path.parent / f"{save_path.stem}_detailed.png"
+
+    combined.save(combined_savepath)
 
 def plot_cap_detail(
         folder_path,
