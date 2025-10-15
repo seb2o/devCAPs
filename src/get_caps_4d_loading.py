@@ -1,4 +1,5 @@
-
+import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from time import perf_counter
 
@@ -34,37 +35,27 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     if not load_retained_frames_df:
         retained_frames = []
         times = []
-        for bold_path in subj_4dbolds_paths:
-            subj_name = bold_path.parent.parent.parent.name
+        start_time = perf_counter()
+        with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as ex:
 
-            start = perf_counter()
-            masked_timeserie = utils.get_masked_frames_4d_only_gm(bold_path, gm_mask)
-            end = perf_counter()
-            times.append(end-start)
-            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded and masked {subj_name} in {end-start:.4f} seconds")
+            futures = [
+                ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, T)
+                for bold_path in subj_4dbolds_paths
+            ]
 
-            seed_timecourse = utils.get_seed_timecourse_from4d_only_gm(masked_timeserie, gm_mask, seed_mask, zscore=True)
+            for fut in as_completed(futures):
+                res = fut.result()
+                times.append(res["load_time"])
+                retained_frames.extend(res["retained"])
+                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                print(
+                    f"[{now}] Processed {res['subj_name']}, {res['n_vols']} vols of {res['n_voxels']} in {res['load_time']:.4f}, retained {len(retained_frames)} frames so far"
+                )
 
-            l, h = utils.get_percentile_thresholds(seed_timecourse, T)
+        end_time = perf_counter()
+        total_time = end_time - start_time
 
-            for frame_time in range(masked_timeserie.shape[-1]):
-                seed_activity = seed_timecourse[frame_time]
-                activity_type = frame_sign = None
-                if seed_activity < l:
-                    # activity_type = "low"
-                    # frame_sign = -1
-                    pass # skipping low activity frames for now
-                elif seed_activity > h:
-                    activity_type = "high"
-                    frame_sign = 1
-                    # pass
-                if activity_type:
-                    # works because masked_timeserie is 0 centered
-                    retained_frames.append((subj_name, frame_time, activity_type, frame_sign*masked_timeserie[..., frame_time].flatten()))
-
-            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Processed {subj_name} ({masked_timeserie.shape[-1]} vols), retained {len(retained_frames)} frames so far")
-
-        print(f"Average time to load and mask a subject: {np.mean(times):.4f} seconds")
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Average time to load and mask a subject: {np.mean(times):.4f} seconds. Total time: {total_time:.2f} seconds to process {len(subj_4dbolds_paths)} subjects")
 
         retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "frame_time", "type", "frame"]).set_index(["subj_name", "frame_time"])
         del retained_frames

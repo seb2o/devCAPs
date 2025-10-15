@@ -2,6 +2,7 @@ import csv
 import re
 import warnings
 from pathlib import Path
+from time import perf_counter
 from typing import Callable
 import nibabel as nib
 import numpy as np
@@ -415,3 +416,44 @@ def unflatten_to_3d_only_gm(cap, gm_mask, sample_volume, zscore=True):
 
 
     return nib.Nifti1Image(cap_3d, sample_volume.affine, sample_volume.header)
+
+
+
+def extract_subject_frames(
+        bold_path,
+        gm_mask,
+        seed_mask,
+        T,
+):
+    subj_name = bold_path.parent.parent.parent.name
+
+    start = perf_counter()
+    masked_timeserie = get_masked_frames_4d_only_gm(bold_path, gm_mask)
+    end = perf_counter()
+
+    seed_timecourse = get_seed_timecourse_from4d_only_gm(masked_timeserie, gm_mask, seed_mask, zscore=True)
+
+    l, h = get_percentile_thresholds(seed_timecourse, T)
+
+    local_retained = []
+    for frame_time in range(masked_timeserie.shape[-1]):
+        seed_activity = seed_timecourse[frame_time]
+        activity_type = frame_sign = None
+        if seed_activity < l:
+            # activity_type, frame_sign = "low", -1
+            pass
+        elif seed_activity > h:
+            activity_type, frame_sign = "high", 1
+        if activity_type:
+            local_retained.append(
+                (subj_name, frame_time, activity_type,
+                 frame_sign * masked_timeserie[..., frame_time].flatten())
+            )
+
+    return {
+        "subj_name": subj_name,
+        "load_time": end - start,
+        "n_vols": masked_timeserie.shape[1],
+        "n_voxels": masked_timeserie.shape[0],
+        "retained": local_retained,
+    }
