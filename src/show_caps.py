@@ -55,14 +55,33 @@ def plot_caps(
     else:
         plt.show()
 
-    for i in range(1, len(zcaps_paths)+1):
-            plot_cap_detail(folder_path, i, folder_path)
+
+    fig, axes = plt.subplots(nrows=n, ncols=1, figsize=(12, 6 * n))
+    if n  == 1:
+        axes = [axes]
+
+
+    for i in range(1, n+1):
+            plot_cap_detail(
+                folder_path,
+                i,
+                savedir=None,
+                ax=axes[i-1],
+            )
+    fig.suptitle(f"Detailed CAPs in {folder_path.name} ({n} total)", fontsize=20, y=0.92)
+    if save_path:
+        detailed_save_path = save_path.parent / (save_path.stem + "_detailed.png")
+        fig.savefig(detailed_save_path, bbox_inches="tight", dpi=300)
+        print(f"\nDetailed figure saved to: {detailed_save_path}")
+    else:
+        plt.show()
 
 
 def plot_cap_detail(
         folder_path,
         cap_index: int,
-        savedir=None
+        savedir=None,
+        ax=None
 ):
     cap_name = f"CAP_{cap_index:02d}_z"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
@@ -81,9 +100,10 @@ def plot_cap_detail(
         bg_img=paths.ext40Template,
         black_bg=False,
         cmap="RdBu_r",
-        output_file=savedir
+        output_file=savedir,
+        axes=ax,
     )
-    if not savedir:
+    if not savedir and not ax:
         plt.show()
 
 
