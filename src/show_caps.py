@@ -55,42 +55,14 @@ def plot_caps(
     else:
         plt.show()
 
-
-    fig = plt.figure(figsize=(12, 9 * n), constrained_layout=True)
-
-    subfigs = fig.subfigures(nrows=n, ncols=1)
-
-    if n  == 1:
-        subfigs = [subfigs]
-
-
-    for i in range(1, n+1):
-
-        ax = subfigs[i-1].subplots(1,1)
-
-        plot_cap_detail(
-            folder_path,
-            i,
-            savedir=None,
-            fig=subfigs[i-1],
-            ax=ax
-        )
-
-    fig.suptitle(f"Detailed CAPs in {folder_path.name} ({n} total)", fontsize=20, y=0.92)
-    if save_path:
-        detailed_save_path = save_path.parent / (save_path.stem + "_detailed.png")
-        fig.savefig(detailed_save_path, bbox_inches="tight", dpi=300)
-        print(f"\nDetailed figure saved to: {detailed_save_path}")
-    else:
-        plt.show()
+    for i in range(1, len(zcaps_paths)+1):
+            plot_cap_detail(folder_path, i, folder_path)
 
 
 def plot_cap_detail(
         folder_path,
         cap_index: int,
-        savedir=None,
-        ax=None,
-        fig=None
+        savedir=None
 ):
     cap_name = f"CAP_{cap_index:02d}_z"
     zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
@@ -109,11 +81,9 @@ def plot_cap_detail(
         bg_img=paths.ext40Template,
         black_bg=False,
         cmap="RdBu_r",
-        output_file=savedir,
-        figure=fig,
-        axes=ax,
+        output_file=savedir
     )
-    if not savedir and not ax:
+    if not savedir:
         plt.show()
 
 
