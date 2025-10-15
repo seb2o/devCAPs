@@ -231,5 +231,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        data_path= paths.sample_derivatives / "combined_caps_t_15"
+        data_path= paths.sample_derivatives / "dist-euclidean_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
     )
