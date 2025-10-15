@@ -405,7 +405,7 @@ def unflatten_to_3d_only_gm(cap, gm_mask, sample_volume, zscore=True):
         )
 
     if zscore:
-        cap = (cap - np.mean(cap)) / np.std(cap)
+        cap = (cap - np.mean(cap)) / np.std(cap, ddof=1)
 
     full_cap = np.zeros(flat_mask.size, dtype=np.float32)
     full_cap[flat_mask] = cap
