@@ -135,10 +135,7 @@ def main(
     retained_frames_df.drop(columns="frame").to_pickle(savedir / "frames_clustering.pkl")
 
     # Save cluster sizes
-    clusters_value_counts = retained_frames_df['cluster'].value_counts()
-    with open(savedir / "cluster_sizes.txt", "w") as f:
-        for cluster_id, size in clusters_value_counts.sort_index().items():
-            f.write(f"Cluster {cluster_id}: {size} frames\n")
+    retained_frames_df['cluster'].value_counts().to_pickle(savedir / "cluster_sizes.pkl")
 
     # Save png views for each individual CAP, global overview, and detailed overview
     show_caps.plot_caps(
