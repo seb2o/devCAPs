@@ -130,7 +130,7 @@ def main(
 
     cluster_sizes_path = data_path / "cluster_sizes.pkl"
     cluster_sizes = pd.read_pickle(cluster_sizes_path)
-    cluster_sizes.index = [f"CAP_{i:02d}" for i in cluster_sizes.index]
+    cluster_sizes.index = [f"CAP_{i+1:02d}" for i in cluster_sizes.index]
 
     glob_res = {}
     for cap_idx, cap_path in enumerate(cap_paths):
