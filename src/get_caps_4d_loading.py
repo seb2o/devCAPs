@@ -13,7 +13,17 @@ import show_caps
 import utils
 
 
-def main(group_path, T, expname, load_retained_frames_df=False, recompute_clusters=True):
+def main(
+        group_path,
+        t=15,
+        threshold_type='percentage',
+        n_clusters=4,
+        n_inits=50,
+        sel_mode='pos',
+        cluster_dist='euclidean',
+        load_retained_frames_df=False,
+        recompute_clusters=True
+):
 
     if not load_retained_frames_df and not recompute_clusters:
         raise ValueError("If not loading retained_frames_df, must recompute clusters")
@@ -22,10 +32,21 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     seed_mask_path = paths.ext40PosteriorCingulateGyrusMask
     gm_mask = nib.load(gm_mask_path)
     seed_mask = nib.load(seed_mask_path)
+    subj_4dbolds_paths = sorted(group_path.glob("sub-*/ses-*/func/*bold.nii.gz"))
+    n_subjs = len(subj_4dbolds_paths)
+
+    expname = (
+           f"dist-{cluster_dist}"
+           f"_ttype-{threshold_type}"
+           f"_tvalue-{t}"
+           f"_k-{n_clusters}"
+           f"_ninits-{n_inits}"
+           f"_activation-{sel_mode}"
+           f"_n-{n_subjs}"
+    )
     savedir = group_path / expname
     savedir.mkdir(exist_ok=True)
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting CAP analysis from {group_path}, saving to {savedir}")
-    subj_4dbolds_paths = sorted(group_path.glob("sub-*/ses-*/func/*bold.nii.gz"))
 
     # load one 3d bold to get affine, header, shape info
     sample_fourd = nib.load(subj_4dbolds_paths[0])
@@ -39,7 +60,7 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as ex:
 
             futures = [
-                ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, T)
+                ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, t, sel_mode)
                 for bold_path in subj_4dbolds_paths
             ]
 
@@ -72,9 +93,9 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
         zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
         kmeans = KMeans(
-            n_clusters=4,
+            n_clusters=n_clusters,
             random_state=0,
-            n_init=50,
+            n_init=n_inits,
         )
 
 
@@ -99,16 +120,27 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     # reshape each CAP to 3D and save
     n = CAPs.shape[0]
 
+
+    # Save zscored .nii files
+
     for i, cap in CAPs.items():
         cap_3d = utils.unflatten_to_3d_only_gm(cap, gm_mask, sample_volume,  zscore=True)
         nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
 
-    #save retained_frames_df for further analysis
+    # Save analysed frames df with their clusters
+
     retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
-    # save without the frame data to save space when only want to analyze clusters
+
+    # Save without the frame data to save space when only want to analyze clusters
     retained_frames_df.drop(columns="frame").to_pickle(savedir / "frames_clustering.pkl")
 
-    # extract png view for caps
+    # Save cluster sizes
+    clusters_value_counts = retained_frames_df['cluster'].value_counts()
+    with open(savedir / "cluster_sizes.txt", "w") as f:
+        for cluster_id, size in clusters_value_counts.sort_index().items():
+            f.write(f"Cluster {cluster_id}: {size} frames\n")
+
+    # Save png views for each individual CAP, global overview, and detailed overview
     show_caps.plot_caps(
         folder_path=savedir,
         fig_title=f"CAPs in {group_path.name} ({n} total)",
@@ -116,7 +148,14 @@ def main(group_path, T, expname, load_retained_frames_df=False, recompute_cluste
     )
 
 if __name__ == "__main__":
-    gpath = paths.sample_derivatives
-    t = 15
-    expname="combined_caps_t_15"
-    main(gpath, t, expname, load_retained_frames_df=False, recompute_clusters=True)
+    main(
+        group_path=paths.sample_derivatives,
+        t=15,
+        threshold_type='percentage',
+        n_clusters=4,
+        n_inits=50,
+        sel_mode='pos',
+        cluster_dist='euclidean',
+        load_retained_frames_df=False,
+        recompute_clusters=True
+    )
