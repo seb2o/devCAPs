@@ -2,7 +2,7 @@ import paths, report_caps, get_caps_4d_loading
 
 
 def main(
-        group_path=paths.derivatives,
+        group_path=paths.derivatives / "non_preterm",
         t=15,
         threshold_type='percentage',
         n_clusters=4,
