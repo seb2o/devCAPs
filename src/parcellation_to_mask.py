@@ -1,6 +1,8 @@
 import nibabel as nib
 import numpy as np
 import paths
+from fsl.wrappers import flirt
+
 
 # ==== USER VARIABLES ====
 LUT = {
@@ -97,29 +99,38 @@ LUT = {
 
 if __name__ == "__main__":
 
-    # ids_to_exclude = [node_id for node_id, name in LUT.items() if any(x in name for x in ["WM", "background", "CSF"])]
-    # ids_to_keep= []
-    # for node_id in LUT.keys():
-    #     if node_id not in ids_to_exclude:
-    #         ids_to_keep.append(node_id)
-    #         print(f"{node_id}: {LUT[node_id]} kept")
-    ids_to_keep = [
-        node_id
-        for
-            node_id, name in LUT.items()
-        if
-            "Cingulate gyrus, posterior" in name
-        and
-            "WM" not in name
-    ]
+    ids_to_exclude = [node_id for node_id, name in LUT.items() if any(x in name for x in [
+        "WM",
+        "background",
+        "CSF",
+        "Corpus Callosum",
+        "Lateral Ventricle",
+        "Brainstem",
+    ])]
+    ids_to_keep= []
+    for node_id in LUT.keys():
+        if node_id not in ids_to_exclude:
+            ids_to_keep.append(node_id)
+            print(f"{node_id}: {LUT[node_id]} kept")
+    # ids_to_keep = [
+    #     node_id
+    #     for
+    #         node_id, name in LUT.items()
+    #     if
+    #         "Cingulate gyrus, posterior" in name
+    #     and
+    #         "WM" not in name
+    # ]
 
     for node_id in ids_to_keep:
         print(f"{node_id}: {LUT[node_id]} kept")
 
 
     PARCELLATION_FILE = paths.ext40Parcellation
-    OUTPUT_MASK_FILE = paths.ext40PosteriorCingulateGyrusMask
+    OUTPUT_MASK_FILE = paths.ext40GreyMatterMask
     # ========================
+
+    temp_out = OUTPUT_MASK_FILE.parent / "temp_mask_fullres.nii"
 
     # Load parcellation
     img = nib.load(PARCELLATION_FILE)
@@ -130,6 +141,20 @@ if __name__ == "__main__":
 
     # Save mask as new NIfTI
     mask_img = nib.Nifti1Image(mask, affine=img.affine, header=img.header)
-    nib.save(mask_img, OUTPUT_MASK_FILE)
+
+    nib.save(mask_img, temp_out)
+
+    flirt(
+        src=temp_out,
+        ref=temp_out,
+        out=OUTPUT_MASK_FILE,
+        applyisoxfm=2,
+        interp='nearestneighbour',
+        nosearch=True
+    )
+
+    # Remove temporary file
+    temp_out.unlink()
+
 
     print(f"Binary mask for nodes {ids_to_keep} saved to {OUTPUT_MASK_FILE}")

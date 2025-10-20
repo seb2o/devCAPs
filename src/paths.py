@@ -36,7 +36,6 @@ ext40Parcellation = templates / "extdhcp40wk_parcellation.nii.gz"
 ext40Parcellation_lowres = templates / "extdhcp40wkParcellation_lowres.nii.gz"
 ext40GreyMatterMask = templates / "extdhcp40wkGreyMatterLowres_mask.nii"
 ext40PosteriorCingulateGyrusMask = templates / "extdhcp40wkPosteriorCingulateGyrusLowres_mask.nii"
-ext40Mask = templates / "extdhcp40wk_mask.nii.gz"
 
 
 def rel(path: Path) -> str:
