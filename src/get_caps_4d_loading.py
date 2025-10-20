@@ -57,7 +57,7 @@ def main(
         retained_frames = []
         times = []
         start_time = perf_counter()
-        with ThreadPoolExecutor(max_workers=max(os.cpu_count(), 8)) as ex:
+        with ThreadPoolExecutor(max_workers=min(os.cpu_count(), 8)) as ex:
 
             futures = [
                 ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, t, sel_mode)
