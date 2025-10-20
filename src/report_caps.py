@@ -179,6 +179,8 @@ def main(
 
         # cluster size
         lines.append(f"**Cluster size:** {cluster_sizes.loc[col]} frames\n")
+        lines.append(
+            f"**Cluster size:** {cluster_sizes.loc[col]}/{cluster_sizes.sum()} ({cluster_sizes.loc[col] / cluster_sizes.sum() * 100:.1f}%)\n")
 
         # Image
         img_path = cap_img_paths[col].relative_to(data_path)
