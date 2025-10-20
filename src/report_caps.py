@@ -131,6 +131,7 @@ def main(
     cluster_sizes_path = data_path / "cluster_sizes.pkl"
     cluster_sizes = pd.read_pickle(cluster_sizes_path)
     cluster_sizes.index = [f"CAP_{i+1:02d}" for i in cluster_sizes.index]
+    n_frames = cluster_sizes.sum()
 
     glob_res = {}
     for cap_idx, cap_path in enumerate(cap_paths):
@@ -144,8 +145,8 @@ def main(
         for node_idx, node_name in LUT.items():
 
             # only process GM
-            if "WM" in node_name:
-                continue
+            # if "WM" in node_name:
+            #     continue
 
             node_mask = parcell_data == node_idx
             if np.sum(node_mask) == 0:
@@ -160,7 +161,7 @@ def main(
 
     df = pd.DataFrame(glob_res)
 
-    # Write top/bottom 5 per column to a Markdown file, embedding the corresponding image
+    # Write top/bottom 10 per column to a Markdown file, embedding the corresponding image
     outfile = data_path /  "report.md"
     lines = []
 
@@ -179,19 +180,19 @@ def main(
         lines.append("\n---\n")
 
         # Top 5
-        lines.append("**Top 5 nodes**")
+        lines.append("**Top 10 nodes**")
         lines.append("\n| Node | Value |")
         lines.append("|---|---:|")
-        top5 = df[col].sort_values(ascending=False).head(5)
+        top5 = df[col].sort_values(ascending=False).head(10)
         for idx, val in top5.items():
             lines.append(f"| `{str(idx)}` | {val:.4f} |")
         lines.append("")
 
         # Bottom 5
-        lines.append("**Bottom 5 nodes**")
+        lines.append("**Bottom 10 nodes**")
         lines.append("\n| Node | Value |")
         lines.append("|---|---:|")
-        bottom5 = df[col].sort_values(ascending=True).head(5)
+        bottom5 = df[col].sort_values(ascending=True).head(10)
         for idx, val in bottom5.items():
             lines.append(f"| `{str(idx)}` | {val:.4f} |")
         lines.append("")
