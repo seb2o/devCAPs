@@ -220,10 +220,8 @@ def main(
       <meta charset="utf-8">
       <style>
         @page {{ size: A4; margin: 20mm; }}
-        /* New page before each column section (marked by H1), except the first */
         h3 {{ page-break-before: always; }}
-    
-        /* Make images span page width while keeping aspect ratio */
+        body {{ font-size: 12px; line-height: 1.4; }}
         img {{ display: block; width: 100%; height: auto; max-width: 100%; }}
       </style>
     </head>
