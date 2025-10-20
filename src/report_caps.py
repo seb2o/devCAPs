@@ -116,6 +116,8 @@ def main(
     parcell = nib.load(parcell_path)
     parcell_data = parcell.get_fdata()
 
+    gm_mask_path = paths.ext40GreyMatterMask
+    gm_mask_data = nib.load(gm_mask_path).get_fdata().astype(bool)
 
     caps_img_paths = sorted(data_path.glob("CAP_*_z.png"))
     cap_img_paths = {p.stem.removesuffix("_z") :p for p in caps_img_paths}
@@ -138,6 +140,10 @@ def main(
         print(f"Processing {cap_idx+1}/{n_caps}: {cap_path.name}")
         cap = nib.load(cap_path)
         cap_data = cap.get_fdata()
+
+        # check that GM mask has been properly applied
+        if not np.all(cap_data[~gm_mask_data] == 0):
+            raise ValueError(f"CAP file {cap_path.name} contains non-zero values outside GM mask.")
 
         cap_key = f"CAP_{cap_idx+1:02d}"
         glob_res[cap_key] = {}
