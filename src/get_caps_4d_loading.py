@@ -81,7 +81,7 @@ def main(
 
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Average time to load and mask a subject: {np.mean(times):.4f} seconds. Total time: {total_time:.2f} seconds to process {len(subj_4dbolds_paths)} subjects")
 
-        retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "frame_time", "type", "frame"]).set_index(["subj_name", "frame_time"])
+        retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "ses_name", "frame_time", "type", "frame"]).set_index(["subj_name", "ses_name", "frame_time"])
         del retained_frames
     else:
         retained_frames_df = pd.read_pickle(savedir / "retained_frames.pkl")

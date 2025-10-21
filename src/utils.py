@@ -429,6 +429,7 @@ def extract_subject_frames(
         raise NotImplementedError(f"Selection mode {selmode} not implemented, only 'pos' is supported.")
 
     subj_name = bold_path.parent.parent.parent.name
+    ses_name = bold_path.parent.parent.name
 
     start = perf_counter()
     masked_timeserie = get_masked_frames_4d_only_gm(bold_path, gm_mask)
@@ -455,6 +456,7 @@ def extract_subject_frames(
 
     return {
         "subj_name": subj_name,
+        "ses_name": ses_name,
         "load_time": end - start,
         "n_vols": masked_timeserie.shape[1],
         "n_voxels": masked_timeserie.shape[0],
