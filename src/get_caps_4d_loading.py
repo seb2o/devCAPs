@@ -22,6 +22,7 @@ def main(
         n_inits=50,
         sel_mode='pos',
         cluster_dist='euclidean',
+        optional_path_prefix="",
         load_retained_frames_df=False,
         recompute_clusters=True
 ):
@@ -37,13 +38,14 @@ def main(
     n_subjs = len(subj_4dbolds_paths)
 
     expname = (
-           f"dist-{cluster_dist}"
-           f"_ttype-{threshold_type}"
-           f"_tvalue-{t}"
-           f"_k-{n_clusters}"
-           f"_ninits-{n_inits}"
-           f"_activation-{sel_mode}"
-           f"_n-{n_subjs}"
+        f"{optional_path_prefix}"       
+        f"dist-{cluster_dist}"      
+        f"_ttype-{threshold_type}"      
+        f"_tvalue-{t}"      
+        f"_k-{n_clusters}"      
+        f"_ninits-{n_inits}"        
+        f"_activation-{sel_mode}"       
+        f"_n-{n_subjs}"
     )
     savedir = group_path / expname
     savedir.mkdir(exist_ok=True)
