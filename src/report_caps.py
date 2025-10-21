@@ -233,7 +233,7 @@ def main(
     </html>"""
 
     weasyprint.HTML(string=html, base_url=str(p.parent)).write_pdf(outfile.with_suffix(".pdf"))
-    print(f"Wrote PDF report to: {outfile.with_suffix('.pdf')}")
+    print(f"Wrote PDF report to: \n{outfile.with_suffix('.pdf')}")
 
 if __name__ == "__main__":
     main(
