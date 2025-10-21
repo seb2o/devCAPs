@@ -1,5 +1,6 @@
 import numpy as np
 import networkx as nx
+from matplotlib import pyplot as plt
 
 
 def CAPEntriesFromBaseline(tpm_s):
@@ -10,7 +11,7 @@ def CAPEntriesFromBaseline(tpm_s):
     :return: np.array of probabilities
     """
     tpm_s = np.array(tpm_s)
-    return tpm_s[0, :]
+    return {i:v for i,v in enumerate(tpm_s[0, :])}
 
 
 def CAPExitsToBaseline(tpm_s):
@@ -21,7 +22,7 @@ def CAPExitsToBaseline(tpm_s):
     :return: np.array of probabilities
     """
     tpm_s = np.array(tpm_s)
-    return tpm_s[:, 0]
+    return {i:v for i,v in enumerate(tpm_s[:, 0])}
 
 
 def CAPResilience(tpm_s):
@@ -32,7 +33,7 @@ def CAPResilience(tpm_s):
     :return: np.array of probabilities
     """
     tpm_s = np.array(tpm_s)
-    return np.diag(tpm_s)
+    return {i:v for i,v in enumerate(np.diag(tpm_s))}
 
 
 
@@ -45,7 +46,7 @@ def CAPInDegree(tpm_s):
     """
     tpm_s = np.array(tpm_s, copy=True)
     np.fill_diagonal(tpm_s, 0)
-    return np.sum(tpm_s, axis=0)
+    return {i:v for i,v in enumerate(np.sum(tpm_s, axis=0))}
 
 
 def CAPOutDegree(tpm_s):
@@ -57,7 +58,7 @@ def CAPOutDegree(tpm_s):
     """
     tpm_s = np.array(tpm_s, copy=True)
     np.fill_diagonal(tpm_s, 0)
-    return np.sum(tpm_s, axis=1)
+    return {i:v for i,v in enumerate(np.sum(tpm_s, axis=1))}
 
 def BetweennessCentrality(tpm_s):
     tpm_s = np.array(tpm_s, copy=True)
