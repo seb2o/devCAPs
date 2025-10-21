@@ -1,4 +1,4 @@
-import paths, report_caps, get_caps_4d_loading
+import paths, report_caps, get_caps_4d_loading, compute_metrics
 
 
 def main(
@@ -25,11 +25,18 @@ def main(
         load_retained_frames_df=load_retained_frames_df,
         recompute_clusters=recompute_clusters,
     )
+
+    compute_metrics.main(
+        expfolder=exp_path,
+        tr=0.392,
+        plot_graphs=True
+    )
+
     report_caps.main(exp_path)
 
 if __name__ == "__main__":
     main(
-        group_path=paths.sample_derivatives,
+        group_path=paths.derivatives / "non_preterm",
         t=15,
         threshold_type='percentage',
         n_clusters=4,

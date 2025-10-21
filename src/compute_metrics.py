@@ -108,6 +108,7 @@ def main(
     if plot_graphs:
         graph_dir = expfolder / "graphs"
         graph_dir.mkdir(exist_ok=True)
+        print(f"Graphs will be saved to \n{graph_dir}")
 
     for subj, tpm_s in res_df['TPM'].items():
         res_df.at[subj, "CAPEntriesFromBaseline"] = (
