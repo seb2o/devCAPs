@@ -60,7 +60,7 @@ def CAPOutDegree(tpm_s):
     np.fill_diagonal(tpm_s, 0)
     return {i:v for i,v in enumerate(np.sum(tpm_s, axis=1))}
 
-def BetweennessCentrality(tpm_s, show_graph=True):
+def BetweennessCentrality(tpm_s, graph_plot_savepath=True):
     tpm_s = np.array(tpm_s, copy=True)
     np.fill_diagonal(tpm_s, 0)
 
@@ -76,12 +76,14 @@ def BetweennessCentrality(tpm_s, show_graph=True):
     for i, j, w in zip(rows.tolist(), cols.tolist(), costs.tolist()):
         G.add_edge(i, j, weight=w)
 
-    if show_graph:
+    if graph_plot_savepath:
         weights = [100*np.exp(-d['weight']) for (_, _, d) in G.edges(data=True)]
         # Plot with arrows and width proportional to weight
+        fig, ax = plt.subplots(figsize=(8, 6))
         pos = nx.spring_layout(G)
         nx.draw(
             G, pos,
+            ax=ax,
             with_labels=True,
             node_color='lightblue',
             node_size=700,
@@ -90,9 +92,10 @@ def BetweennessCentrality(tpm_s, show_graph=True):
             arrowsize=20,
             connectionstyle='arc3,rad=0.1'
         )
-        plt.show()
+        plt.savefig(graph_plot_savepath)
+        plt.close(fig)
     # Weighted, directed betweenness centrality on shortest paths
     # normalized=True returns values in [0,1]
     bc = nx.betweenness_centrality(G, k=None, normalized=True, weight="weight", endpoints=False)
-    return bc
+    return bc, G
 

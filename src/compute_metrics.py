@@ -7,7 +7,8 @@ import numpy as np
 
 def main(
         expfolder,
-        tr
+        tr,
+        plot_graphs
 ):
     frame_clustering = pd.read_pickle(expfolder / "frames_clustering.pkl")
 
@@ -98,10 +99,15 @@ def main(
         "CAPInDegree",
         "CAPOutDegree",
         "frameCountsPerCAP",
-        "frameFracPerCAP"
+        "frameFracPerCAP",
+        "nxGraph"
     ]:
         res_df[col] = pd.Series(index=res_df.index, dtype=object)
 
+    graph_dir = None
+    if plot_graphs:
+        graph_dir = expfolder / "graphs"
+        graph_dir.mkdir(exist_ok=True)
 
     for subj, tpm_s in res_df['TPM'].items():
         res_df.at[subj, "CAPEntriesFromBaseline"] = (
@@ -113,9 +119,18 @@ def main(
         res_df.at[subj, "CAPResilience"] = (
             metrics.CAPResilience(tpm_s)
         )
+        graph_plot_savepath = None
+        if plot_graphs:
+            graph_plot_savepath = graph_dir / f"{subj}.png"
+
+        bc, g = metrics.BetweennessCentrality(tpm_s, graph_plot_savepath=graph_plot_savepath)
+
         res_df.at[subj, "BetweennessCentrality"] = (
-            metrics.BetweennessCentrality(tpm_s)
+            bc
         )
+
+        res_df.at[subj, "nxGraph"] = g
+
         res_df.at[subj, "CAPInDegree"] = (
             metrics.CAPInDegree(tpm_s)
         )
@@ -144,6 +159,7 @@ def main(
     ]
     global_cols = [
         "TPM",
+        "nxGraph"
     ]
 
     assert set(res_df.columns) == set(per_cap_cols).union(set(global_cols))
@@ -151,7 +167,7 @@ def main(
 
     expanded = []
     for c in per_cap_cols:
-        tmp = pd.json_normalize(res_df[c])            # rows -> dict keys as columns
+        tmp = pd.json_normalize(res_df[c])
         tmp.columns = pd.MultiIndex.from_product([[c], tmp.columns])
         tmp.index = res_df.index
         expanded.append(tmp)
@@ -160,21 +176,29 @@ def main(
 
     others = res_df.drop(columns=per_cap_cols)
     if len(others.columns):
-        others.columns = pd.MultiIndex.from_product([global_cols, others.columns])
+        others.columns = pd.MultiIndex.from_tuples([(col, 0) for col in others.columns])
         out = pd.concat([others, out], axis=1)
 
+    savepath = expfolder / "metrics_per_subject.pkl"
+    pd.to_pickle(out, savepath)
+
+    return savepath, out
+
+def plot_metrics(df):
+
+    n_states = len(df["frameCountsPerCAP"].columns)
+
     without_baseline = False
-    for col_name, n_subcols in out.columns.get_level_values(0).value_counts().items():
+    for col_name, n_subcols in df.columns.get_level_values(0).value_counts().items():
         if n_subcols == n_states:
             if col_name == "seq_lengths_per_state": continue
-            print(f"{col_name=}")
             fig, ax = plt.subplots(figsize=(8, 4))
 
             if without_baseline:
-                data = out[col_name].iloc[:, 1:].to_numpy().astype(float)
+                data = df[col_name].iloc[:, 1:].to_numpy().astype(float)
                 extent = (0.5, data.shape[1] + 0.5, 0, data.shape[0])
             else:
-                data = out[col_name].to_numpy().astype(float)
+                data = df[col_name].to_numpy().astype(float)
                 extent = (-0.5, data.shape[1] - 0.5, 0, data.shape[0])
 
             im = ax.imshow(data, aspect='auto', cmap='viridis', extent=extent)
@@ -185,17 +209,15 @@ def main(
             ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
             plt.show()
 
-
     without_baseline = True
-    for col_name, n_subcols in out.columns.get_level_values(0).value_counts().items():
+    for col_name, n_subcols in df.columns.get_level_values(0).value_counts().items():
         if n_subcols == n_states:
             if col_name == "seq_lengths_per_state": continue
-            print(f"{col_name=}")
             if without_baseline:
-                avg_data = out[col_name].iloc[:, 1:].mean(axis=0)
+                avg_data = df[col_name].iloc[:, 1:].mean(axis=0)
                 plot_range = range(1, n_states)
             else:
-                avg_data = out[col_name].mean(axis=0)
+                avg_data = df[col_name].mean(axis=0)
                 plot_range = range(0, n_states)
 
             fig, ax = plt.subplots(figsize=(6, 4))
@@ -206,7 +228,10 @@ def main(
             ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
             plt.show()
 
+
+
 if __name__ == "__main__":
     expfolder = paths.sample_derivatives / "dist-euclidean_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
     tr = 0.392
-    main(expfolder, tr)
+    _, df = main(expfolder, tr, plot_graphs=True)
+    plot_metrics(df)
