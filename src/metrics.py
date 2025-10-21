@@ -26,23 +26,14 @@ def CAPExitsToBaseline(tpm_s):
 
 def CAPResilience(tpm_s):
     """
-    for all states but baseline (state 0) returns probability to remain in that state,
-    as a np array of shape (n_states-1,)
+    for all states returns probability to remain in that state,
+    as a np array of shape (n_states,)
     :param tpm_s: transition probability matrix (n_states x n_states)
     :return: np.array of probabilities
     """
     tpm_s = np.array(tpm_s)
     return np.diag(tpm_s)
 
-
-
-def BaselineResilience(tpm_s):
-    """
-    returns the probability to remain in baseline state (state 0)
-    :param tpm_s:
-    :return:
-    """
-    return tpm_s[0, 0]
 
 
 def CAPInDegree(tpm_s):
