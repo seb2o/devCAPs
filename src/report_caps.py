@@ -179,7 +179,6 @@ def main(
         lines.append(f"### {col}\n")
 
         # cluster size
-        lines.append(f"**Cluster size:** {cluster_sizes.loc[col]} frames\n")
         lines.append(
             f"**Cluster size:** {cluster_sizes.loc[col]}/{n_frames} ({cluster_sizes.loc[col] / n_frames * 100:.1f}%)\n")
 
