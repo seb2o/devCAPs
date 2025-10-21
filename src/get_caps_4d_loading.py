@@ -6,7 +6,8 @@ from time import perf_counter
 import nibabel as nib
 import numpy as np
 import pandas as pd
-from sklearn.cluster import KMeans
+import sklearn
+import cust_kmeans
 
 import paths
 import show_caps
@@ -86,26 +87,35 @@ def main(
 
     if recompute_clusters:
 
-        stacked_frames = np.stack(retained_frames_df['frame'].to_numpy())
+        stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
 
         # zscore samples to approximate correlation distance with euclidean
         # this is important for kmeans to work well
-        zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
+        # zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
-        kmeans = KMeans(
-            n_clusters=n_clusters,
-            random_state=0,
-            n_init=n_inits,
-        )
-
+        # kmeans = sklearn.cluster.KMeans(
+        #     n_clusters=n_clusters,
+        #     random_state=0,
+        #     n_init=n_inits,
+        # )
+        # retained_frames_df['cluster'] = kmeans.fit_predict(zscored_stacked_frames)
 
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
 
+        best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
+            X=stacked_frames,
+            nclusters=n_clusters,
+            n_init=n_inits,
+            delta=1e-4,
+            maxiter=300,
+            metric=cluster_dist,
+            verbose=2,
+        )
 
-        retained_frames_df['cluster'] = kmeans.fit_predict(zscored_stacked_frames)
-
+        retained_frames_df['cluster'] = best_xtocentre
 
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
+
 
 
         clusters_value_counts = retained_frames_df['cluster'].value_counts()
