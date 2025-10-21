@@ -117,6 +117,7 @@ def main(
     parcell_data = parcell.get_fdata()
 
     gm_mask_path = paths.ext40GreyMatterMask
+    print(f"Loading GM mask from: {gm_mask_path}")
     gm_mask_data = nib.load(gm_mask_path).get_fdata().astype(bool)
 
     caps_img_paths = sorted(data_path.glob("CAP_*_z.png"))
@@ -180,7 +181,7 @@ def main(
         # cluster size
         lines.append(f"**Cluster size:** {cluster_sizes.loc[col]} frames\n")
         lines.append(
-            f"**Cluster size:** {cluster_sizes.loc[col]}/{cluster_sizes.sum()} ({cluster_sizes.loc[col] / cluster_sizes.sum() * 100:.1f}%)\n")
+            f"**Cluster size:** {cluster_sizes.loc[col]}/{n_frames} ({cluster_sizes.loc[col] / n_frames * 100:.1f}%)\n")
 
         # Image
         img_path = cap_img_paths[col].relative_to(data_path)
