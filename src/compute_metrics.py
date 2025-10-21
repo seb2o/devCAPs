@@ -232,6 +232,6 @@ def plot_metrics(df):
 
 
 if __name__ == "__main__":
-    expfolder = paths.sample_derivatives / "dist-euclidean_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
+    expfolder = paths.sample_derivatives / "cust_kmeans_dist-correlation_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
     tr = 0.392
     df = main(expfolder, tr, plot_graphs=True)
