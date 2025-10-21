@@ -82,7 +82,7 @@ def BetweennessCentrality(tpm_s, graph_plot_savepath=True, self_connections=Fals
         weights = [100*np.exp(-d['weight']) for (_, _, d) in G.edges(data=True)]
         # Plot with arrows and width proportional to weight
         fig, ax = plt.subplots(figsize=(8, 6))
-        pos = nx.spring_layout(G)
+        pos = nx.spring_layout(G, seed=0)
         nx.draw(
             G, pos,
             ax=ax,
