@@ -130,7 +130,7 @@ def main(
     detailed_overview_path = detailed_overview_paths[0]
     print(f"Using detailed overview file: {detailed_overview_path.name}")
 
-    cluster_sizes_path = data_path / "cluster_sizes.pkl"
+    cluster_sizes_path = data_path / paths.cluster_sizes_df_name
     cluster_sizes = pd.read_pickle(cluster_sizes_path)
     cluster_sizes.index = [f"CAP_{i+1:02d}" for i in cluster_sizes.index]
     n_frames = cluster_sizes.sum()

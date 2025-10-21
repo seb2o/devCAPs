@@ -10,7 +10,7 @@ def main(
         tr,
         plot_graphs
 ):
-    frame_clustering = pd.read_pickle(expfolder / "frames_clustering.pkl")
+    frame_clustering = pd.read_pickle(expfolder / paths.frames_clustering_df_name)
 
     # increments clusters names so that 0 is free for baseline state
     frame_clustering['cluster_assignment'] = frame_clustering["cluster"] + 1
@@ -179,10 +179,10 @@ def main(
         others.columns = pd.MultiIndex.from_tuples([(col, 0) for col in others.columns])
         out = pd.concat([others, out], axis=1)
 
-    savepath = expfolder / "metrics_per_subject.pkl"
+    savepath = expfolder / paths.metrics_per_subject_df_name
     pd.to_pickle(out, savepath)
 
-    return savepath, out
+    return out
 
 def plot_metrics(df):
 
@@ -233,5 +233,4 @@ def plot_metrics(df):
 if __name__ == "__main__":
     expfolder = paths.sample_derivatives / "dist-euclidean_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
     tr = 0.392
-    _, df = main(expfolder, tr, plot_graphs=True)
-    plot_metrics(df)
+    df = main(expfolder, tr, plot_graphs=True)

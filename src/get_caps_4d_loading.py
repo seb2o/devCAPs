@@ -141,13 +141,13 @@ def main(
 
     # Save analysed frames df with their clusters
 
-    retained_frames_df.to_pickle(savedir / "retained_frames.pkl")
+    retained_frames_df.to_pickle(savedir / paths.retained_frames_df_name)
 
     # Save without the frame data to save space when only want to analyze clusters
-    retained_frames_df.drop(columns="frame").to_pickle(savedir / "frames_clustering.pkl")
+    retained_frames_df.drop(columns="frame").to_pickle(savedir / paths.frames_clustering_df_name)
 
     # Save cluster sizes
-    retained_frames_df['cluster'].value_counts().to_pickle(savedir / "cluster_sizes.pkl")
+    retained_frames_df['cluster'].value_counts().to_pickle(savedir / paths.cluster_sizes_df_name)
 
     # Save png views for each individual CAP, global overview, and detailed overview
     show_caps.plot_caps(
