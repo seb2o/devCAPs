@@ -60,9 +60,11 @@ def CAPOutDegree(tpm_s):
     np.fill_diagonal(tpm_s, 0)
     return {i:v for i,v in enumerate(np.sum(tpm_s, axis=1))}
 
-def BetweennessCentrality(tpm_s, graph_plot_savepath=True):
+def BetweennessCentrality(tpm_s, graph_plot_savepath=True, self_connections=False):
     tpm_s = np.array(tpm_s, copy=True)
-    np.fill_diagonal(tpm_s, 0)
+
+    if not self_connections:
+        np.fill_diagonal(tpm_s, 0)
 
     n = tpm_s.shape[0]
     G = nx.DiGraph()
