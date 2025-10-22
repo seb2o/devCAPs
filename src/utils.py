@@ -450,7 +450,7 @@ def extract_subject_frames(
             activity_type, frame_sign = "high", 1
         if activity_type:
             local_retained.append(
-                (subj_name, frame_time, activity_type,
+                (subj_name, ses_name, frame_time, activity_type,
                  frame_sign * masked_timeserie[..., frame_time].flatten())
             )
 

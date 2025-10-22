@@ -73,7 +73,7 @@ def main(
                 retained_frames.extend(res["retained"])
                 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 print(
-                    f"[{now}] Processed {res['subj_name']}, {res['n_vols']} vols of {res['n_voxels']} voxels each in {res['load_time']:.4f}s, retained {len(retained_frames)} frames so far"
+                    f"[{now}] Processed {res['subj_name']}-{res['ses_name']} ,{res['n_vols']} vols of {res['n_voxels']} voxels each in {res['load_time']:.4f}s, retained {len(retained_frames)} frames so far"
                 )
 
         end_time = perf_counter()
@@ -82,6 +82,9 @@ def main(
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Average time to load and mask a subject: {np.mean(times):.4f} seconds. Total time: {total_time:.2f} seconds to process {len(subj_4dbolds_paths)} subjects")
 
         retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "ses_name", "frame_time", "type", "frame"]).set_index(["subj_name", "ses_name", "frame_time"])
+
+        retained_frames_df.to_pickle(savedir / (paths.retained_frames_df_name.stem + "_wo_clusters.pkl"))
+
         del retained_frames
     else:
         retained_frames_df = pd.read_pickle(savedir / "retained_frames.pkl")
