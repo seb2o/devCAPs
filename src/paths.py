@@ -38,10 +38,10 @@ ext40GreyMatterMask = templates / "extdhcp40wkGreyMatterLowres_mask.nii.gz"
 ext40PosteriorCingulateGyrusMask = templates / "extdhcp40wkPosteriorCingulateGyrusLowres_mask.nii"
 
 
-retained_frames_df_name = "retained_frames.pkl"
-frames_clustering_df_name = "frames_clustering.pkl"
-cluster_sizes_df_name = "cluster_sizes.pkl"
-metrics_per_subject_df_name = "metrics_per_subject.pkl"
+retained_frames_df_name = Path("retained_frames.pkl")
+frames_clustering_df_name = Path("frames_clustering.pkl")
+cluster_sizes_df_name = Path("cluster_sizes.pkl")
+metrics_per_subject_df_name = Path("metrics_per_subject.pkl")
 
 def rel(path: Path) -> str:
     """
