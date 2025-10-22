@@ -81,6 +81,9 @@ def main(
         # normalize by all the transitions (max_frame_time - 1)
         TPM_s = TPM_s / (max_frame_time - 1)
 
+        # TPM_s = TPM_s / TPM_s.sum(axis=1, keepdims=True)
+        # TPM_s[np.isnan(TPM_s)] = 0
+
         results.append({
             'subj_name': subj,
             'n_seq_per_state': n_seq_per_state,
@@ -232,6 +235,6 @@ def plot_metrics(df):
 
 
 if __name__ == "__main__":
-    expfolder = paths.sample_derivatives / "cust_kmeans_dist-correlation_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
+    expfolder = paths.sample_derivatives / "cust_kmeans_dist-correlation_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-355"
     tr = 0.392
-    df = main(expfolder, tr, plot_graphs=True)
+    df = main(expfolder, tr, plot_graphs=False)
