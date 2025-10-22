@@ -36,7 +36,7 @@ def main(
 
 if __name__ == "__main__":
     main(
-        group_path=paths.sample_derivatives,
+        group_path=paths.derivatives,
         t=15,
         threshold_type='percentage',
         n_clusters=4,
