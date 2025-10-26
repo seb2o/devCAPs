@@ -107,15 +107,24 @@ def main(
 
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
 
-        best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
-            X=stacked_frames,
-            nclusters=n_clusters,
-            n_init=n_inits,
-            delta=1e-4,
-            maxiter=300,
-            metric=cluster_dist,
-            verbose=2,
-        )
+        if cluster_dist=='euclidean':
+            best_xtocentre = sklearn.cluster.KMeans(
+                n_clusters=n_clusters,
+                random_state=0,
+                n_init=n_inits,
+                max_iter=300,
+                tol=1e-4
+            ).fit_predict(stacked_frames)
+        else:
+            best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
+                X=stacked_frames,
+                nclusters=n_clusters,
+                n_init=n_inits,
+                delta=1e-4,
+                maxiter=300,
+                metric=cluster_dist,
+                verbose=2,
+            )
 
         retained_frames_df['cluster'] = best_xtocentre
 
