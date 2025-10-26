@@ -425,8 +425,8 @@ def extract_subject_frames(
         selmode,
 ):
 
-    if selmode != 'pos':
-        raise NotImplementedError(f"Selection mode {selmode} not implemented, only 'pos' is supported.")
+    if selmode != 'pos' or selmode != 'neg' or selmode != 'both':
+        raise NotImplementedError(f"Selection mode {selmode} not implemented, only 'pos', 'neg' or 'both' are supported.")
 
     subj_name = bold_path.parent.parent.parent.name
     ses_name = bold_path.parent.parent.name
@@ -444,10 +444,9 @@ def extract_subject_frames(
         seed_activity = seed_timecourse[frame_time]
         activity_type = frame_sign = None
         if seed_activity < l:
-            # activity_type, frame_sign = "low", -1
-            pass
+            if selmode in ['neg', 'both']: activity_type, frame_sign = "low", -1
         elif seed_activity > h:
-            activity_type, frame_sign = "high", 1
+            if selmode in ['pos', 'both']: activity_type, frame_sign = "high", 1
         if activity_type:
             local_retained.append(
                 (subj_name, ses_name, frame_time, activity_type,
