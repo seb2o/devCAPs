@@ -425,7 +425,7 @@ def extract_subject_frames(
         selmode,
 ):
 
-    if selmode != 'pos' or selmode != 'neg' or selmode != 'both':
+    if selmode != 'pos' and  selmode != 'neg' and  selmode != 'both':
         raise NotImplementedError(f"Selection mode {selmode} not implemented, only 'pos', 'neg' or 'both' are supported.")
 
     subj_name = bold_path.parent.parent.parent.name
