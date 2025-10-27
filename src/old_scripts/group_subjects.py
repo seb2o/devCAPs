@@ -14,6 +14,10 @@ def non_preterm_criterion(row):
 
     return birth_age >= 37.5
 
+def preterm_criterion(row):
+    birth_age = float(row["birth_age"])
+
+    return birth_age < 37.5
 
 def get_subjs_to_symlink(
     bids_root: Path,
@@ -126,8 +130,8 @@ def main(
 
 if __name__ == '__main__':
     main(
-        group_name="non_preterm",
-        group_tsv_criterion=non_preterm_criterion,
+        group_name="preterm",
+        group_tsv_criterion=preterm_criterion,
         bids_root=paths.bids_root,
         derivatives_path=paths.derivatives
 )
