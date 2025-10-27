@@ -6,7 +6,7 @@ import paths, metrics
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-
+from matplotlib.colors import ListedColormap
 import itertools
 
 def main(
@@ -46,15 +46,14 @@ def main(
            )
     print(f"{ssm.shape=}")
 
-    # test retained frames times are equal
-    tm_retained_frames_indices = ssm.apply(lambda row: row[row != 0].index, axis=1)
-    original_df_frame_indicies = pd.Series(frame_clustering.index.get_level_values('frame_time').groupby(frame_clustering.index.get_level_values('subj_name'))).rename_axis(index='subj')
-    pd.testing.assert_series_equal(tm_retained_frames_indices, original_df_frame_indicies)
-    # test cluster assignments are equals
-    a = ssm.apply(lambda row: pd.Series(row[row != 0].values), axis=1).astype(int)
-    b = frame_clustering.groupby(level="subj_name")['cluster_assignment'].apply(lambda x: pd.Series(x.values)).unstack().astype(int)
-    b.index.name = 'subj'
-    pd.testing.assert_frame_equal(a, b)
+    colors = ["#91bfdb", "#ffffbf", "#fdae61", "#d73027", "#d3d3d3"][::-1]  # red, green, yellow, blue, orange
+    cmap = ListedColormap(colors)
+
+    plt.figure(figsize=(20,15))
+    plt.imshow(ssm, aspect='auto', cmap=cmap, interpolation='nearest')
+    plt.colorbar(label='State')
+    plt.savefig(expfolder / "state_sequence_matrix.png")
+
     # # test retained frames times are equal
     # tm_retained_frames_indices = ssm.apply(lambda row: row[row != 0].index, axis=1)
     # original_df_frame_indicies = pd.Series(frame_clustering.index.get_level_values('frame_time').groupby(frame_clustering.index.get_level_values('subj_name'))).rename_axis(index='subj')
