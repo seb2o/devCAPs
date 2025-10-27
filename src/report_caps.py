@@ -136,6 +136,12 @@ def main(
     cluster_sizes.index = [f"CAP_{i+1:02d}" for i in cluster_sizes.index]
     n_frames = cluster_sizes.sum()
 
+    frame_clustering = pd.read_pickle(data_path / paths.frames_clustering_df_name)
+    cap_type_sizes = frame_clustering.groupby(['cluster', 'type']).size().unstack()
+    cap_type_sizes.index = [f"CAP_{i+1:02d}" for i in cap_type_sizes.index]
+
+
+
     glob_res = {}
     for cap_idx, cap_path in enumerate(cap_paths):
         print(f"Processing {cap_idx+1}/{n_caps}: {cap_path.name}")
@@ -181,6 +187,15 @@ def main(
         # cluster size
         lines.append(
             f"**Cluster size:** {cluster_sizes.loc[col]}/{n_frames} ({cluster_sizes.loc[col] / n_frames * 100:.1f}%)\n")
+
+        # type sizes
+        lines.append("**Cluster size by type:**")
+        types = list(cap_type_sizes.loc[col].items())
+        for i, (type_name, size) in enumerate(types):
+            perc = size / cluster_sizes.loc[col] * 100
+            sep = " | " if i < len(types) - 1 else ""
+            lines.append(f" {type_name}, {perc:.1f}% ({size})" + sep)
+        lines.append("\n")
 
         # Image
         img_path = cap_img_paths[col].relative_to(data_path)
@@ -237,5 +252,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        data_path= paths.sample_derivatives / "dist-euclidean_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-34"
+        data_path= paths.sample_derivatives / "sklearn_kmeans_dist-euclidean_ttype-percentage_tvalue-15_k-4_ninits-50_activation-both_n-34"
     )
