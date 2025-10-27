@@ -1,9 +1,13 @@
+from datetime import datetime
+
+from scipy.cluster.hierarchy import linkage, leaves_list
 
 import paths, metrics
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+import itertools
 
 def main(
         expfolder,
@@ -19,13 +23,21 @@ def main(
 
     n_states = K + 1 ; print(f"{n_states=}") # including baseline state
 
-    subjects = frame_clustering.index.get_level_values('subj_name').unique()
-    n_subjects = len(subjects); print(f"{n_subjects=}")
-
     max_frame_time = int(frame_clustering.index.get_level_values('frame_time').max()) + 1; print(f"{max_frame_time=}")
 
-    # building the state sequence matrix
-    full_idx = pd.MultiIndex.from_product([subjects, range(max_frame_time)],names=['subj','time'])
+    if 'ses_name' not in frame_clustering.index.names:
+        subjects = frame_clustering.index.get_level_values('subj_name').unique()
+        full_idx = pd.MultiIndex.from_product([subjects, range(max_frame_time)],names=['subj','time'])
+
+    else:
+        pairs = frame_clustering.index.droplevel('frame_time').unique()
+        times = range(max_frame_time)
+        full_idx = pd.MultiIndex.from_tuples(
+            [(subj, ses, t) for (subj, ses), t in itertools.product(pairs, times)],
+            names=['subj_name', 'ses_name', 'time']
+        )
+
+
     ssm = (frame_clustering['cluster_assignment']
            .reindex(full_idx)
            .fillna(0) # baseline is when the subject has no row at time
@@ -43,6 +55,15 @@ def main(
     b = frame_clustering.groupby(level="subj_name")['cluster_assignment'].apply(lambda x: pd.Series(x.values)).unstack().astype(int)
     b.index.name = 'subj'
     pd.testing.assert_frame_equal(a, b)
+    # # test retained frames times are equal
+    # tm_retained_frames_indices = ssm.apply(lambda row: row[row != 0].index, axis=1)
+    # original_df_frame_indicies = pd.Series(frame_clustering.index.get_level_values('frame_time').groupby(frame_clustering.index.get_level_values('subj_name'))).rename_axis(index='subj')
+    # pd.testing.assert_series_equal(tm_retained_frames_indices, original_df_frame_indicies)
+    # # test cluster assignments are equals
+    # a = ssm.apply(lambda row: pd.Series(row[row != 0].values), axis=1).astype(int)
+    # b = frame_clustering.groupby(level="subj_name")['cluster_assignment'].apply(lambda x: pd.Series(x.values)).unstack().astype(int)
+    # b.index.name = 'subj'
+    # pd.testing.assert_frame_equal(a, b)
 
 
     results= []
@@ -141,10 +162,8 @@ def main(
         res_df.at[subj, "CAPOutDegree"] = (
             metrics.CAPOutDegree(tpm_s)
         )
-
-    for subj in subjects:
-        subj_row = ssm.loc[subj]
-        counts = subj_row.value_counts()  # exclude baseline
+        subj_state_sequence = ssm.loc[subj]
+        counts = subj_state_sequence.value_counts()  # exclude baseline
         res_df.at[subj, "frameCountsPerCAP"] = counts.to_dict()
         res_df.at[subj, "frameFracPerCAP"] = (counts / counts.sum()).to_dict()
 
@@ -185,7 +204,7 @@ def main(
 
     savepath = expfolder / paths.metrics_per_subject_df_name
     pd.to_pickle(out, savepath)
-
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] saved metrics df to \n{savepath}")
     return out
 
 def plot_metrics(df):
@@ -235,6 +254,6 @@ def plot_metrics(df):
 
 
 if __name__ == "__main__":
-    expfolder = paths.sample_derivatives / "cust_kmeans_dist-correlation_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-355"
+    expfolder = paths.sample_derivatives / "cust_kmeans_dist-correlation_ttype-percentage_tvalue-15_k-4_ninits-50_activation-pos_n-481"
     tr = 0.392
     df = main(expfolder, tr, plot_graphs=False)
