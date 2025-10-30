@@ -36,12 +36,12 @@ def main(
 
 if __name__ == "__main__":
     main(
-        group_path=paths.sample_derivatives,
+        group_path=paths.derivatives / "preterm",
         t=15,
         threshold_type='percentage',
         n_clusters=4,
         n_inits=50,
         sel_mode='pos',
-        cluster_dist='euclidean',
-        optional_path_prefix="sklearn_kmeans_"
+        cluster_dist='correlation',
+        optional_path_prefix="cust_kmeans_"
     )
