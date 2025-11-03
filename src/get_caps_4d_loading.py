@@ -92,7 +92,7 @@ def main(
 
 
     stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
-
+    del retained_frames_df
     # zscore samples to approximate correlation distance with euclidean
     # this is important for kmeans to work well
     # zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
@@ -114,6 +114,17 @@ def main(
             max_iter=300,
             tol=1e-4
         ).fit_predict(stacked_frames)
+    elif cluster_dist=="correlation":
+       stacked_frames -= stacked_frames.mean(axis=1, keepdims=True)
+       stacked_frames /= np.linalg.norm(stacked_frames, axis=1, keepdims=True, ord=2)
+       best_xtocentre = sklearn.cluster.KMeans(
+           n_clusters=n_clusters,
+           random_state=0,
+           n_init=n_inits,
+           max_iter=300,
+           tol=1e-4
+       ).fit_predict(stacked_frames)
+
     else:
         best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
             X=stacked_frames,
@@ -125,6 +136,9 @@ def main(
             verbose=2,
         )
     del stacked_frames
+
+    retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
+
     retained_frames_df['cluster'] = best_xtocentre
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
