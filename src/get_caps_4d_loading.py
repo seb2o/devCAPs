@@ -106,26 +106,6 @@ def main(
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
 
-        if cluster_dist=='euclidean':
-            best_xtocentre = sklearn.cluster.KMeans(
-                n_clusters=n_clusters,
-                random_state=0,
-                n_init=n_inits,
-                max_iter=300,
-                tol=1e-4
-            ).fit_predict(stacked_frames)
-        else:
-            best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
-                X=stacked_frames,
-                nclusters=n_clusters,
-                n_init=n_inits,
-                delta=1e-4,
-                maxiter=300,
-                metric=cluster_dist,
-                verbose=2,
-            )
-
-        retained_frames_df['cluster'] = best_xtocentre
     if cluster_dist=='euclidean':
         best_xtocentre = sklearn.cluster.KMeans(
             n_clusters=n_clusters,
@@ -144,6 +124,7 @@ def main(
             metric=cluster_dist,
             verbose=2,
         )
+    del stacked_frames
     retained_frames_df['cluster'] = best_xtocentre
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
@@ -156,8 +137,18 @@ def main(
     cluster_map = {old: new for new, old in enumerate(cluster_order)}
     retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
 
+    # Save analysed frames df with their clusters
+    retained_frames_df.to_pickle(savedir / paths.retained_frames_df_name)
+
+    # Save without the frame data to save space when only want to analyze clusters
+    retained_frames_df.drop(columns="frame").to_pickle(savedir / paths.frames_clustering_df_name)
+
+    # Save cluster sizes
+    retained_frames_df['cluster'].value_counts().to_pickle(savedir / paths.cluster_sizes_df_name)
 
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
+
+    del retained_frames_df
 
     # reshape each CAP to 3D and save
     n = CAPs.shape[0]
@@ -168,16 +159,6 @@ def main(
     for i, cap in CAPs.items():
         cap_3d = utils.unflatten_to_3d_only_gm(cap, gm_mask, sample_volume,  zscore=True)
         nib.save(cap_3d, savedir / f"CAP_{i+1:02d}_z.nii")
-
-    # Save analysed frames df with their clusters
-
-    retained_frames_df.to_pickle(savedir / paths.retained_frames_df_name)
-
-    # Save without the frame data to save space when only want to analyze clusters
-    retained_frames_df.drop(columns="frame").to_pickle(savedir / paths.frames_clustering_df_name)
-
-    # Save cluster sizes
-    retained_frames_df['cluster'].value_counts().to_pickle(savedir / paths.cluster_sizes_df_name)
 
     # Save png views for each individual CAP, global overview, and detailed overview
     show_caps.plot_caps(
