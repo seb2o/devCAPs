@@ -83,11 +83,11 @@ def main(
 
         retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "ses_name", "frame_time", "type", "frame"]).set_index(["subj_name", "ses_name", "frame_time"])
 
-        retained_frames_df.to_pickle(savedir / (paths.retained_frames_df_name.stem + "_wo_clusters.pkl"))
+        retained_frames_df.to_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
 
         del retained_frames
     else:
-        retained_frames_df = pd.read_pickle(savedir / "retained_frames.pkl")
+        retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_df_name)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / 'retained_frames.pkl'}, shape: {retained_frames_df.shape}")
 
     if recompute_clusters:
