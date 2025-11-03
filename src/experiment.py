@@ -41,7 +41,7 @@ if __name__ == "__main__":
         threshold_type='percentage',
         n_clusters=4,
         n_inits=50,
-        sel_mode='both',
+        sel_mode='pos',
         cluster_dist='correlation',
         optional_path_prefix="sklearn_kmeans_",
         load_retained_frames_df=True
