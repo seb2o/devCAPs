@@ -90,22 +90,21 @@ def main(
         retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_df_name)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / 'retained_frames.pkl'}, shape: {retained_frames_df.shape}")
 
-    if recompute_clusters:
 
-        stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
+    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
 
-        # zscore samples to approximate correlation distance with euclidean
-        # this is important for kmeans to work well
-        # zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
+    # zscore samples to approximate correlation distance with euclidean
+    # this is important for kmeans to work well
+    # zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
 
-        # kmeans = sklearn.cluster.KMeans(
-        #     n_clusters=n_clusters,
-        #     random_state=0,
-        #     n_init=n_inits,
-        # )
-        # retained_frames_df['cluster'] = kmeans.fit_predict(zscored_stacked_frames)
+    # kmeans = sklearn.cluster.KMeans(
+    #     n_clusters=n_clusters,
+    #     random_state=0,
+    #     n_init=n_inits,
+    # )
+    # retained_frames_df['cluster'] = kmeans.fit_predict(zscored_stacked_frames)
 
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Clustering")
 
         if cluster_dist=='euclidean':
             best_xtocentre = sklearn.cluster.KMeans(
@@ -127,16 +126,35 @@ def main(
             )
 
         retained_frames_df['cluster'] = best_xtocentre
+    if cluster_dist=='euclidean':
+        best_xtocentre = sklearn.cluster.KMeans(
+            n_clusters=n_clusters,
+            random_state=0,
+            n_init=n_inits,
+            max_iter=300,
+            tol=1e-4
+        ).fit_predict(stacked_frames)
+    else:
+        best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
+            X=stacked_frames,
+            nclusters=n_clusters,
+            n_init=n_inits,
+            delta=1e-4,
+            maxiter=300,
+            metric=cluster_dist,
+            verbose=2,
+        )
+    retained_frames_df['cluster'] = best_xtocentre
 
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Clustering")
 
 
 
-        clusters_value_counts = retained_frames_df['cluster'].value_counts()
-        print(f"Cluster sizes: {clusters_value_counts.to_dict()}")
-        cluster_order = clusters_value_counts.index
-        cluster_map = {old: new for new, old in enumerate(cluster_order)}
-        retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
+    clusters_value_counts = retained_frames_df['cluster'].value_counts()
+    print(f"Cluster sizes: {clusters_value_counts.to_dict()}")
+    cluster_order = clusters_value_counts.index
+    cluster_map = {old: new for new, old in enumerate(cluster_order)}
+    retained_frames_df['cluster'] = retained_frames_df['cluster'].map(cluster_map)
 
 
     CAPs = retained_frames_df.groupby('cluster')['frame'].apply(lambda x: np.mean(np.stack(x), axis=0))
