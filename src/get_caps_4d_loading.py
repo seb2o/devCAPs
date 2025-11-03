@@ -87,8 +87,8 @@ def main(
 
         del retained_frames
     else:
-        retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_df_name)
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / 'retained_frames.pkl'}, shape: {retained_frames_df.shape}")
+        retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / paths.retained_frames_wo_clusters_df_name}, shape: {retained_frames_df.shape}")
 
 
     stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
