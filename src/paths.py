@@ -39,6 +39,7 @@ ext40PosteriorCingulateGyrusMask = templates / "extdhcp40wkPosteriorCingulateGyr
 
 
 retained_frames_df_name = Path("retained_frames.pkl")
+retained_frames_wo_clusters_df_name = Path("retained_frames_wo_clusters.pkl")
 frames_clustering_df_name = Path("frames_clustering.pkl")
 cluster_sizes_df_name = Path("cluster_sizes.pkl")
 metrics_per_subject_df_name = Path("metrics_per_subject.pkl")
