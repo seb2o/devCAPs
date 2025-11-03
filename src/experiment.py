@@ -43,5 +43,6 @@ if __name__ == "__main__":
         n_inits=50,
         sel_mode='both',
         cluster_dist='correlation',
-        optional_path_prefix="cust_kmeans_"
+        optional_path_prefix="sklearn_kmeans_",
+        load_retained_frames_df=True
     )
