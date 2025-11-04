@@ -10,6 +10,8 @@ from typing import Callable
 import nibabel as nib
 import numpy as np
 import pandas as pd
+import psutil
+
 import paths
 
 def get_bold_from_ses(ses_dir):
@@ -429,6 +431,16 @@ def format_sec_for_print(sec):
         return_string = f"{h:02d}h " + return_string
     return return_string
 
+def format_bytes_for_print(num_bytes):
+    units = ["B", "KB", "MB", "GB", "TB", "PB"]
+    size = float(num_bytes)
+    for unit in units:
+        if size < 1024:
+            return f"{size:.2f}{unit}"
+        size /= 1024
+    return f"{size:.2f}EB"
+
+
 def extract_subject_frames(
         bold_path,
         gm_mask,
@@ -540,5 +552,12 @@ def get_frames(
     )
 
     return retained_frames_df
+
+
+def print_memstate(message=""):
+    pid = os.getpid()
+    process = psutil.Process(pid)
+    mem_info = process.memory_info()
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] (PID {pid}) {message} Memory Usage: RSS = {format_bytes_for_print(mem_info.rss)}")
 
 
