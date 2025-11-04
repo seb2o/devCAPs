@@ -114,16 +114,45 @@ def main(
             max_iter=300,
             tol=1e-4
         ).fit_predict(stacked_frames)
+
     elif cluster_dist=="correlation":
-       stacked_frames -= stacked_frames.mean(axis=1, keepdims=True)
-       stacked_frames /= np.linalg.norm(stacked_frames, axis=1, keepdims=True, ord=2)
-       best_xtocentre = sklearn.cluster.KMeans(
-           n_clusters=n_clusters,
-           random_state=0,
+       # stacked_frames -= stacked_frames.mean(axis=1, keepdims=True)
+       # stacked_frames /= np.linalg.norm(stacked_frames, axis=1, keepdims=True, ord=2)
+       # best_xtocentre = sklearn.cluster.KMeans(
+       #     n_clusters=n_clusters,
+       #     random_state=0,
+       #     n_init=n_inits,
+       #     max_iter=300,
+       #     tol=1e-4
+       # ).fit_predict(stacked_frames)
+
+        _, best_xtocentre_oldcust, _, _ = cust_kmeans.kmeans_with_n_init_withDebugging(
+           X=stacked_frames,
+           nclusters=n_clusters,
            n_init=n_inits,
-           max_iter=300,
-           tol=1e-4
-       ).fit_predict(stacked_frames)
+           delta=1e-4,
+           maxiter=300,
+           metric=cluster_dist,
+           verbose=2,
+        )
+
+        best_xtocentre = cust_kmeans.kmeans_corr(
+            X=stacked_frames,
+            n_clusters=n_clusters ,
+            n_inits=n_inits ,
+            max_iter=300 ,
+            tol=1e-4 ,
+            random_state=0
+        )
+
+        def sort_labels(labels):
+            unique, counts = np.unique(labels, return_counts=True)
+            sorted_clusters = unique[np.argsort(-counts)]  # descending by size
+            mapping = {old: new for new, old in enumerate(sorted_clusters)}
+            return np.vectorize(mapping.get)(labels)
+
+        print("Agreement between cust_kmeans.corr and old cust_kmeans:", end=" ")
+        print(np.mean(sort_labels(best_xtocentre) == sort_labels(best_xtocentre_oldcust)))
 
     else:
         best_centres, best_xtocentre, best_distances, best_inertia = cust_kmeans.kmeans_with_n_init_withDebugging(
