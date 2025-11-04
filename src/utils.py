@@ -460,10 +460,13 @@ def extract_subject_frames(
         elif seed_activity > h:
             if selmode in ['pos', 'both']: activity_type, frame_sign = "high", 1
         if activity_type:
-            local_retained.append(
-                (subj_name, ses_name, frame_time, activity_type,
-                 frame_sign * masked_timeserie[..., frame_time].flatten())
-            )
+            local_retained.append((
+                subj_name,
+                ses_name,
+                frame_time,
+                activity_type,
+                frame_sign * masked_timeserie[..., frame_time].flatten()
+            ))
 
     return {
         "subj_name": subj_name,
