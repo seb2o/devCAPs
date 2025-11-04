@@ -415,7 +415,16 @@ def unflatten_to_3d_only_gm(cap, gm_mask, sample_volume, zscore=True):
 
     return nib.Nifti1Image(cap_3d, sample_volume.affine, sample_volume.header)
 
-
+def format_sec_for_print(sec):
+    h = int(sec // 3600)
+    m = int((sec % 3600) // 60)
+    s = sec % 60
+    return_string = f"{s:.2f}s"
+    if m > 0:
+        return_string = f"{m:02d}m " + return_string
+    if h > 0:
+        return_string = f"{h:02d}h " + return_string
+    return return_string
 
 def extract_subject_frames(
         bold_path,
