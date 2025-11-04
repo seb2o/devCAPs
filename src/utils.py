@@ -1,13 +1,16 @@
 import csv
+from datetime import datetime, timedelta
+import os
 import re
 import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from time import perf_counter
 from typing import Callable
 import nibabel as nib
 import numpy as np
-from tqdm import tqdm
-
+import pandas as pd
+import paths
 
 def get_bold_from_ses(ses_dir):
     bold_runs = [p for p in ses_dir.iterdir() if p.name.endswith('bold.nii.gz')]
@@ -253,7 +256,7 @@ def get_masked_frames_4d(bold_path, gm_mask):
     given vols dir path, assuming vols are suffixed with _3D_<frame_time>.nii
     applies the gm_mask to each volume and returns a list with frame_time as index
     raise ValueError if the mask shape does not match the volume shape
-    :param vol_dir:
+    :param bold_path:
     :param gm_mask:
     :return:
     """
@@ -274,7 +277,7 @@ def get_masked_frames_4d_only_gm(bold_path, gm_mask):
     given vols dir path, assuming vols are suffixed with _3D_<frame_time>.nii
     applies the gm_mask to each volume and returns a list with frame_time as index
     raise ValueError if the mask shape does not match the volume shape
-    :param vol_dir:
+    :param bold_path:
     :param gm_mask:
     :return:
     """
@@ -323,7 +326,7 @@ def get_seed_timecourse_from4d(timeserie, seed_mask, zscore=True):
     computes the mean timecourse within the seed mask
     and optionally zscore the timecourse
 
-    :param flat_vols:
+    :param timeserie:
     :param seed_mask:
     :param zscore:
     :return:
