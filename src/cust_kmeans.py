@@ -249,3 +249,75 @@ def kmeans_with_n_init_withDebugging(X, nclusters, n_init=10, delta=0.001, maxit
             print(f"Run {i+1}/{n_init}, Inertia: {best_inertia}")
 
     return best_centres, best_xtocentre, best_distances, best_inertia
+
+
+def kmeans_corr(X, n_clusters, n_inits, max_iter, tol, random_state=0):
+    """
+    K-means with correlation distance (1 - Pearson r), single-function, vectorized.
+    Returns labels of shape (n_samples,).
+    ! Caution ! it modifies X in place to save memory space. Pass a copy to discard later when the labels are obtained.
+    """
+    X = np.asarray(X, dtype=np.float64, order="C")
+    n_samples, n_dims = X.shape
+
+    # Row-wise mean-center and L2-normalize (so correlation distance = 1 - dot)
+    X -= X.mean(axis=1, keepdims=True)
+    nrms = np.linalg.norm(X, axis=1, ord=2, keepdims=True)
+    # handle zero-variance rows
+    np.maximum(nrms, 1e-12, out=nrms)
+    X /= nrms
+
+    best_labels = None
+    best_inertia = np.inf
+    rng = np.random.default_rng(random_state)
+
+    # workspace
+    sim = np.empty((n_samples, n_clusters), dtype=np.float64)
+    labels = np.empty(n_samples, dtype=np.int32)
+
+    for _ in range(int(n_inits)):
+        # init centers by sampling distinct points
+        idx = rng.choice(n_samples, size=n_clusters, replace=False)
+        C = X[idx].copy() # shape (n_clusters, n_dims)
+
+        prev_labels = None
+        for iter_id in range(int(max_iter)):
+            # assign (maximize similarity == minimize 1 - similarity)
+            sim[:] = X @ C.T
+            np.argmax(sim, axis=1, out=labels)
+
+            # check convergence by label stability
+            if prev_labels is not None:
+                changed = np.count_nonzero(labels != prev_labels)
+                if changed / n_samples <= tol:
+                    break
+            prev_labels = labels.copy()
+
+            # update centers: mean then renormalize; handle empty clusters
+            for k in range(n_clusters):
+                mask = (labels == k)
+                if not np.any(mask):
+                    # re-seed empty cluster with a random point
+                    j = rng.integers(0, n_samples)
+                    C[k] = X[j]
+                else:
+                    C[k] = X[mask].mean(axis=0)
+                # renormalize (row is already zero-mean because mean of zero-mean rows)
+                nk = np.linalg.norm(C[k])
+                if nk < 1e-12:
+                    # fallback if degenerate
+                    j = rng.integers(0, n_samples)
+                    C[k] = X[j]
+                else:
+                    C[k] /= nk
+
+        # compute inertia (sum correlation distance)
+        # distance = 1 - similarity of assigned center
+        sim[:] = X @ C.T
+        inertia = np.sum(1.0 - sim[np.arange(n_samples), labels])
+
+        if inertia < best_inertia:
+            best_inertia = inertia
+            best_labels = labels.copy()
+
+    return best_labels
