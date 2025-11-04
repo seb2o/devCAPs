@@ -36,13 +36,13 @@ def main(
 
 if __name__ == "__main__":
     main(
-        group_path=paths.derivatives,
+        group_path=paths.sample_derivatives,
         t=15,
         threshold_type='percentage',
         n_clusters=4,
         n_inits=50,
         sel_mode='both',
         cluster_dist='correlation',
-        optional_path_prefix="sklearn_kmeans_",
-        load_retained_frames_df=True
+        optional_path_prefix="vectorizedCorr_kmeans_",
+        load_retained_frames_df=False
     )
