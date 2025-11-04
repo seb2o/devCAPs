@@ -561,3 +561,7 @@ def print_memstate(message=""):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] (PID {pid}) {message} Memory Usage: RSS = {format_bytes_for_print(mem_info.rss)}")
 
 
+def get_sample_volume(subj_4dbolds_path):
+    sample_fourd = nib.load(subj_4dbolds_path)
+    sample_volume = sample_fourd.slicer[..., 0]
+    return sample_volume
