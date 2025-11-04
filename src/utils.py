@@ -476,3 +476,67 @@ def extract_subject_frames(
         "n_voxels": masked_timeserie.shape[0],
         "retained": local_retained,
     }
+
+
+def get_frames(
+        subj_4dbolds_paths,
+        gm_mask,
+        seed_mask,
+        t,
+        sel_mode,
+        savedir,
+        num_workers=1,
+):
+
+    retained_frames = []
+    times = []
+    start_time = perf_counter()
+    with ThreadPoolExecutor(max_workers=min(os.cpu_count() // 2, num_workers)) as ex:
+        futures = [
+            ex.submit(extract_subject_frames, bold_path, gm_mask, seed_mask, t, sel_mode)
+            for bold_path in subj_4dbolds_paths
+        ]
+
+        for fut in as_completed(futures):
+            res = fut.result()
+            times.append(res["load_time"])
+            retained_frames.extend(res["retained"])
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(
+                f"[{now}] Processed {res['subj_name']}-{res['ses_name']}, {res['n_vols']} vols, each of {res['n_voxels']}, in {format_sec_for_print(res['load_time'])}, retained {len(retained_frames)} frames so far"
+            )
+
+    total_time = perf_counter() - start_time
+
+    print(
+        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]"
+        f" Average time to load and mask a subject: {format_sec_for_print(np.mean(times))}."
+        f" Total time: {format_sec_for_print(total_time)}"
+        f" to process {len(subj_4dbolds_paths)} subjects."
+        f" Parallelization speedup: {np.sum(times)/total_time:.2f}x"
+    )
+
+    retained_frames_df = pd.DataFrame(
+        retained_frames,
+        columns=[
+            "subj_name",
+            "ses_name",
+            "frame_time",
+            "type",
+            "frame"
+        ]
+    ).set_index(
+        [
+            "subj_name",
+            "ses_name",
+            "frame_time"
+        ]
+    )
+
+    retained_frames_df.to_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
+    print(
+        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]"
+        f" Saved retained_frames_df to {savedir / paths.retained_frames_wo_clusters_df_name}"
+    )
+
+
