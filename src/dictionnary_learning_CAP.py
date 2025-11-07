@@ -195,5 +195,5 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=False,
         alpha=1.0,
-        subject_loading_n_workers=2,
+        subject_loading_n_workers=os.cpu_count()//4,
     )
