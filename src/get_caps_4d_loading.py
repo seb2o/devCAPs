@@ -2,7 +2,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from time import perf_counter
-
+import gc
 import nibabel as nib
 import numpy as np
 import pandas as pd
@@ -74,9 +74,14 @@ def main(
 
     utils.print_memstate(message="Before copying frames: ")
 
-    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=False))
+    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
 
     utils.print_memstate(message="After extracting frames: ")
+
+    del retained_frames_df
+    gc.collect()
+    utils.print_memstate(message="After removing frames df: ")
+
 
     # zscore samples to approximate correlation distance with euclidean
     # this is important for kmeans to work well
@@ -131,8 +136,12 @@ def main(
             metric=cluster_dist,
             verbose=2,
         )
-    del retained_frames_df
-    utils.print_memstate(message="After removing frames df: ")
+
+    utils.print_memstate("After clustering: ")
+
+    del stacked_frames
+    gc.collect()
+    utils.print_memstate("After deleting stacked frames: ")
 
 
     retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
