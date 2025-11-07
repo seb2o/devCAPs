@@ -19,7 +19,6 @@ def main(
         load_retained_frames_df=False,
 ):
     pid = os.getpid()
-    process = psutil.Process(pid)
 
     gm_mask_path = paths.ext40GreyMatterMask
     seed_mask_path = paths.ext40PosteriorCingulateGyrusMask
