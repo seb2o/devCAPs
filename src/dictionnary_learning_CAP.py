@@ -81,18 +81,82 @@ def main(
         transform_algorithm='omp',
         random_state=0,
     )
+
     assignments = dico.fit_transform(stacked_frames)
-
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
-
     comps = dico.components_
+    del stacked_frames
+    gc.collect()
+    utils.print_memstate(message="After Dictionary Learning fitting: ")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
+    # save components
+    np.save(savedir / paths.dictcomps_npy_name, comps)
+    retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
 
+    assignments_df = pd.DataFrame(
+        assignments,
+        index=retained_frames_df.index,
+        columns=range(assignments.shape[1])
+    )
+    assignments_df.columns = pd.MultiIndex.from_product(
+        [
+            ["DictComp"],
+            list(range(comps.shape[0]))
+        ],
+        names=[
+            "block",
+            "idx"
+        ]
+    )
 
+    retained_frames_df.columns = pd.MultiIndex.from_product(
+        [
+            ["RetainedFrames"],
+            retained_frames_df.columns
+        ],
+        names=[
+            "block",
+            "info"
+        ]
+    )
+    frames_with_assignments_df = pd.concat([retained_frames_df, assignments_df], axis=1)
 
+    frames_with_assignments_df.to_pickle(
+        savedir / paths.comp_assignments_with_frames_df_name
+    )
+    frames_with_assignments_df.drop(columns=[("RetainedFrames", "frame")]).to_pickle(
+        savedir / paths.comp_assignments_df_name
+    )
 
+    DictCAPs = []
+    for comp_id, comp in enumerate(frames_with_assignments_df["DictComp"].columns):
+        DictCAPs.append(
+            (
+                    frames_with_assignments_df[("RetainedFrames", "frame")]
+                    * frames_with_assignments_df[("DictComp", comp)]
+            )
+            .sum(axis=0) / frames_with_assignments_df[("DictComp", comp)].sum(axis=0)
+        )
+
+    sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
+    for comp_id, dictCAP in enumerate(DictCAPs):
+        dictCAP3d = utils.unflatten_to_3d_only_gm(
+            dictCAP,
+            gm_mask=gm_mask,
+            sample_volume=sample_volume,
+            zscore=False
+        )
+        nib.save(dictCAP3d, savedir / f"DictCAP_{comp_id+1:02d}.nii")
+
+    vmax=None
+    show_caps.plot_caps(
+        folder_path=savedir,
+        fig_title=f"DictCAPs in {group_path.name} ({len(DictCAPs)} total)",
+        save_path=savedir / "DictCAPs_overview.png",
+        caps_glob="DictCAP_*.nii",
+        vmax=vmax
+    )
 
     n_comps = len(comps)
-    sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
     for comp_id, comp in enumerate(comps):
         comp3d = utils.unflatten_to_3d_only_gm(
             comp,
@@ -104,8 +168,10 @@ def main(
 
     show_caps.plot_caps(
         folder_path=savedir,
-        fig_title=f"CAPs in {group_path.name} ({n_comps} total)",
-        save_path=savedir / "CAPs_overview.png"
+    fig_title=f"DictComps in {group_path.name} ({n_comps} total)",
+    save_path=savedir / "DictComps_overview.png",
+    caps_glob="DictComp_*.nii",
+    vmax=vmax
     )
 
     return savedir
