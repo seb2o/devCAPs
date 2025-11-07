@@ -44,6 +44,10 @@ frames_clustering_df_name = Path("frames_clustering.pkl")
 cluster_sizes_df_name = Path("cluster_sizes.pkl")
 metrics_per_subject_df_name = Path("metrics_per_subject.pkl")
 
+dictcomps_npy_name = Path("dictionary_components.npy")
+comp_assignments_with_frames_df_name = Path("frames_with_comp_assignments.pkl")
+comp_assignments_df_name = Path("comp_assignments.pkl")
+
 def rel(path: Path) -> str:
     """
     given an absolute path, returns the relative path starting from the root of the project
