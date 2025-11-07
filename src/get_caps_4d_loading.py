@@ -27,6 +27,8 @@ def main(
         recompute_clusters=True
 ):
 
+    pid = os.getpid()
+
     if not load_retained_frames_df and not recompute_clusters:
         raise ValueError("If not loading retained_frames_df, must recompute clusters")
 
@@ -70,9 +72,17 @@ def main(
         retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / paths.retained_frames_wo_clusters_df_name}, shape: {retained_frames_df.shape}")
 
+    utils.print_memstate(message="Before copying frames: ")
 
     stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
+
+    utils.print_memstate(message="After copying frames: ")
+
     del retained_frames_df
+
+    utils.print_memstate(message="After removing frames: ")
+
+
     # zscore samples to approximate correlation distance with euclidean
     # this is important for kmeans to work well
     # zscored_stacked_frames = (stacked_frames - stacked_frames.mean(axis=1, keepdims=True)) / stacked_frames.std(axis=1, keepdims=True)
