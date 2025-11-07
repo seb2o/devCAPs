@@ -257,7 +257,7 @@ def kmeans_corr(X, n_clusters, n_inits, max_iter, tol, random_state=0):
     Returns labels of shape (n_samples,).
     ! Caution ! it modifies X in place to save memory space. Pass a copy to discard later when the labels are obtained.
     """
-    X = np.asarray(X, dtype=np.float64, order="C")
+
     n_samples, n_dims = X.shape
 
     # Row-wise mean-center and L2-normalize (so correlation distance = 1 - dot)
