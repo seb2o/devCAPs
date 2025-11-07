@@ -551,7 +551,7 @@ def get_frames(
         f" Saved retained_frames_df to {savedir / paths.retained_frames_wo_clusters_df_name}"
     )
 
-    return retained_frames_df["frame"].to_numpy()
+    return np.stack(retained_frames_df["frame"].to_numpy(), axis=0)
 
 
 def print_memstate(message=""):
