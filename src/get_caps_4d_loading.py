@@ -59,7 +59,7 @@ def main(
     del sample_fourd
 
     if not load_retained_frames_df:
-        retained_frames_df = utils.get_frames(
+        frames = utils.get_frames(
             subj_4dbolds_paths=subj_4dbolds_paths,
             gm_mask=gm_mask,
             seed_mask=seed_mask,
@@ -69,18 +69,12 @@ def main(
             num_workers=2
         )
     else:
-        retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / paths.retained_frames_wo_clusters_df_name}, shape: {retained_frames_df.shape}")
+        frames = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)['frame'].to_numpy()
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded frames from {savedir / paths.retained_frames_wo_clusters_df_name}")
 
-    utils.print_memstate(message="Before copying frames: ")
+    utils.print_memstate(message="After getting frames: ")
 
-    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
-
-    utils.print_memstate(message="After extracting frames: ")
-
-    del retained_frames_df
-    gc.collect()
-    utils.print_memstate(message="After removing frames df: ")
+    stacked_frames = np.stack(frames, axis=0)
 
 
     # zscore samples to approximate correlation distance with euclidean
@@ -197,8 +191,8 @@ if __name__ == "__main__":
         threshold_type='percentage',
         n_clusters=4,
         n_inits=50,
-        sel_mode='pos',
-        cluster_dist='euclidean',
-        load_retained_frames_df=False,
-        recompute_clusters=True
+        sel_mode='both',
+        cluster_dist='correlation',
+        optional_path_prefix="vectorizedCorr_kmeans_",
+        load_retained_frames_df=True,
     )
