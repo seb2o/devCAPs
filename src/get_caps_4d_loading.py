@@ -59,7 +59,7 @@ def main(
     del sample_fourd
 
     if not load_retained_frames_df:
-        stacked_frames = utils.get_frames(
+        frames = utils.get_frames(
             subj_4dbolds_paths=subj_4dbolds_paths,
             gm_mask=gm_mask,
             seed_mask=seed_mask,
@@ -69,10 +69,15 @@ def main(
             num_workers=2
         )
     else:
-        stacked_frames = np.stack(pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)['frame'].to_numpy(), axis=0)
+        frames = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)['frame'].to_numpy()
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded frames from {savedir / paths.retained_frames_wo_clusters_df_name}")
 
     utils.print_memstate(message="After getting frames: ")
+
+    stacked_frames = np.stack(frames, axis=0)
+    del frames
+    gc.collect()
+    utils.print_memstate(message="After stacking frames: ")
 
     # zscore samples to approximate correlation distance with euclidean
     # this is important for kmeans to work well
