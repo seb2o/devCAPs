@@ -1,3 +1,4 @@
+import gc
 import os
 
 import pandas as pd
@@ -48,11 +49,11 @@ def main(
     )
 
     if load_retained_frames_df:
-        retained_frames_df = pd.read_pickle(
+        frames = pd.read_pickle(
             savedir / paths.retained_frames_wo_clusters_df_name
-        )
+        )['frame'].to_numpy()
     else:
-        retained_frames_df = utils.get_frames(
+        frames = utils.get_frames(
             subj_4dbolds_paths=subj_4dbolds_paths,
             gm_mask=gm_mask,
             seed_mask=seed_mask,
@@ -62,16 +63,13 @@ def main(
             num_workers=2
         )
 
-    utils.print_memstate(message="Before copying frames: ")
+    utils.print_memstate(message="After getting frames: ")
 
-    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
+    stacked_frames = np.stack(frames, axis=0)
+    del frames
+    gc.collect()
 
-    utils.print_memstate(message="After copying frames: ")
-
-    del retained_frames_df
-
-    utils.print_memstate(message="After removing frames: ")
-
+    utils.print_memstate(message="After stacking frames: ")
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Dictionary Learning fitting")
 
@@ -83,33 +81,18 @@ def main(
         transform_algorithm='omp',
         random_state=0,
     )
-
     assignments = dico.fit_transform(stacked_frames)
-    comps = dico.components_
-
-    for comp_id in range(comps.shape[0]):
-        plt.plot(assignments[:, comp_id], label=f"Component {comp_id+1}")
-    plt.xlabel("Frame index")
-    plt.ylabel("Component activation")
-    plt.title("Dictionary Learning Component Activations over Frames")
-    plt.legend()
-    plt.show()
-
-    for comp_id in range(comps.shape[0]):
-        plt.figure()
-        plt.hist(comps[comp_id])
-        plt.title(f"Histogram of Component {comp_id+1}")
-        plt.show()
-
-    del stacked_frames
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
 
+    comps = dico.components_
 
 
-    sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
+
+
+
     n_comps = len(comps)
-
+    sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
     for comp_id, comp in enumerate(comps):
         comp3d = utils.unflatten_to_3d_only_gm(
             comp,
@@ -117,7 +100,7 @@ def main(
             sample_volume=sample_volume,
             zscore=False
         )
-        nib.save(comp3d, savedir / f"CAP_{comp_id+1:02d}_z.nii")
+        nib.save(comp3d, savedir / f"DictComp_{comp_id+1:02d}.nii")
 
     show_caps.plot_caps(
         folder_path=savedir,
