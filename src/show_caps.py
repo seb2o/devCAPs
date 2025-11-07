@@ -13,13 +13,15 @@ def plot_caps(
         template_img_path=paths.ext40Template,
         save_path= None,
         fig_title: str = None,
+        caps_glob = "CAP_*_z.nii",
+        vmax=5,
 ):
-    zcaps_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
+    zcaps_paths = sorted(list(folder_path.glob(caps_glob)))
     for p in zcaps_paths:
         print(p.name, end=" | ")
     n = len(zcaps_paths)
     if n == 0:
-        print("\nNo CAP_*_z.nii files found in the folder.")
+        print(f"\nNo {caps_glob} files found in the folder.")
         return
 
     fig, axes = plt.subplots(n, 1, figsize=(12, 3 * n))
@@ -36,7 +38,7 @@ def plot_caps(
             display_mode="ortho",
             cut_coords=None,
             colorbar=True,
-            vmax=5,
+            vmax=vmax,
             cmap='RdBu_r',
             axes=ax,
             bg_img=bgimg,
@@ -58,8 +60,14 @@ def plot_caps(
         plt.show()
 
     detailed_caps_savepaths = []
-    for i in range(1, len(zcaps_paths)+1):
-            detailed_caps_savepaths.append(plot_cap_detail(folder_path, i, save_path.parent))
+    for i, zcap_path in enumerate(zcaps_paths, start=1):
+            detailed_caps_savepaths.append(
+                plot_cap_detail(
+                    zcap_path,
+                    save_path.parent if save_path else None,
+                    vmax=vmax,
+                )
+            )
 
     # combine vertically all detailed cap images into one
     images = [Image.open(p) for p in detailed_caps_savepaths]
@@ -79,13 +87,11 @@ def plot_caps(
     combined.save(combined_savepath)
 
 def plot_cap_detail(
-        folder_path,
-        cap_index: int,
-        savedir=None
+        zcap_path: Path,
+        savedir=None,
+        vmax=5,
 ):
-    cap_name = f"CAP_{cap_index:02d}_z"
-    zcap_paths = sorted(list(folder_path.glob("CAP_*_z.nii")))
-    zcap_path = [p for p in zcap_paths if p.stem == cap_name][0]
+    cap_name = zcap_path.stem
 
     if savedir is not None:
         savedir = savedir / (cap_name + ".png")
@@ -96,7 +102,7 @@ def plot_cap_detail(
         display_mode="mosaic",
         cut_coords=None,
         colorbar=True,
-        vmax=5,
+        vmax=vmax,
         bg_img=paths.ext40Template,
         black_bg=False,
         cmap="RdBu_r",
