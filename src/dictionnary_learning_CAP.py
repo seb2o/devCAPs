@@ -18,6 +18,9 @@ def main(
         sel_mode='pos',
         optional_path_prefix=None,
         load_retained_frames_df=False,
+        n_comps=4,
+        positive_code=False,
+        alpha=1.0,
 ):
     pid = os.getpid()
 
@@ -35,10 +38,12 @@ def main(
 
     expname = (
         f"{optional_path_prefix}"
-        f"DictionaryLearning"
-        f"_ttype-percentage"      
-        f"_tvalue-{t}"      
-        f"_activation-{sel_mode}"       
+        f"DictLr"
+        f"_Ncomps-{n_comps}"
+        f"_PosCode-{positive_code}"
+        f"_Alpha-{alpha}"
+        f"_Tvalue-{t}"      
+        f"_Act-{sel_mode}"
         f"_n-{n_subjs}"
     )
     savedir = group_path / expname
@@ -62,32 +67,36 @@ def main(
             savedir=savedir,
             num_workers=2
         )
-
     utils.print_memstate(message="After getting frames: ")
 
     stacked_frames = np.stack(frames, axis=0)
     del frames
     gc.collect()
-
     utils.print_memstate(message="After stacking frames: ")
+
+
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Dictionary Learning fitting")
 
     dico = sklearn.decomposition.DictionaryLearning(
-        n_components=4,
-        alpha=1,
+        n_components=n_comps,
+        alpha=alpha,
         max_iter=500,
         fit_algorithm='lars',
         transform_algorithm='omp',
         random_state=0,
+        positive_code=positive_code,
     )
 
     assignments = dico.fit_transform(stacked_frames)
+
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
+
     comps = dico.components_
     del stacked_frames
     gc.collect()
     utils.print_memstate(message="After Dictionary Learning fitting: ")
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
+
     # save components
     np.save(savedir / paths.dictcomps_npy_name, comps)
     retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
@@ -107,7 +116,6 @@ def main(
             "idx"
         ]
     )
-
     retained_frames_df.columns = pd.MultiIndex.from_product(
         [
             ["RetainedFrames"],
@@ -182,5 +190,8 @@ if __name__ == "__main__":
         t=15,
         sel_mode='pos',
         optional_path_prefix="",
-        load_retained_frames_df=False
+        load_retained_frames_df=False,
+        n_comps=4,
+        positive_code=False,
+        alpha=1.0,
     )
