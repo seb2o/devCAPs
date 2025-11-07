@@ -74,9 +74,14 @@ def main(
 
     utils.print_memstate(message="Before copying frames: ")
 
-    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=False))
+    stacked_frames = np.stack(retained_frames_df['frame'].to_numpy(copy=True))
 
-    utils.print_memstate(message="After extracting frames: ")
+    utils.print_memstate(message="After copying frames: ")
+
+    del retained_frames_df
+
+    utils.print_memstate(message="After removing frames: ")
+
 
     # zscore samples to approximate correlation distance with euclidean
     # this is important for kmeans to work well
@@ -131,9 +136,7 @@ def main(
             metric=cluster_dist,
             verbose=2,
         )
-    del retained_frames_df
-    utils.print_memstate(message="After removing frames df: ")
-
+    del stacked_frames
 
     retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
 
