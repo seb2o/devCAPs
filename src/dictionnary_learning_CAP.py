@@ -21,6 +21,7 @@ def main(
         n_comps=4,
         positive_code=False,
         alpha=1.0,
+        subject_loading_n_workers=2,
 ):
     pid = os.getpid()
 
@@ -65,7 +66,7 @@ def main(
             t=t,
             sel_mode=sel_mode,
             savedir=savedir,
-            num_workers=2
+            num_workers=subject_loading_n_workers
         )
     utils.print_memstate(message="After getting frames: ")
 
@@ -194,4 +195,5 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=False,
         alpha=1.0,
+        subject_loading_n_workers=2,
     )
