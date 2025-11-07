@@ -49,7 +49,7 @@ def main(
     )
     savedir = group_path / expname
     savedir.mkdir(exist_ok=True)
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting CAP analysis from {group_path}, saving to {savedir}")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] (PID {pid}) Starting CAP analysis from {group_path}, saving to {savedir}")
 
     # load one 3d bold to get affine, header, shape info
     sample_fourd = nib.load(subj_4dbolds_paths[0])
@@ -57,35 +57,15 @@ def main(
     del sample_fourd
 
     if not load_retained_frames_df:
-        retained_frames = []
-        times = []
-        start_time = perf_counter()
-        with ThreadPoolExecutor(max_workers=min(os.cpu_count(), 8)) as ex:
-
-            futures = [
-                ex.submit(utils.extract_subject_frames, bold_path, gm_mask, seed_mask, t, sel_mode)
-                for bold_path in subj_4dbolds_paths
-            ]
-
-            for fut in as_completed(futures):
-                res = fut.result()
-                times.append(res["load_time"])
-                retained_frames.extend(res["retained"])
-                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                print(
-                    f"[{now}] Processed {res['subj_name']}-{res['ses_name']} ,{res['n_vols']} vols of {res['n_voxels']} voxels each in {res['load_time']:.4f}s, retained {len(retained_frames)} frames so far"
-                )
-
-        end_time = perf_counter()
-        total_time = end_time - start_time
-
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Average time to load and mask a subject: {np.mean(times):.4f} seconds. Total time: {total_time:.2f} seconds to process {len(subj_4dbolds_paths)} subjects")
-
-        retained_frames_df = pd.DataFrame(retained_frames, columns=["subj_name", "ses_name", "frame_time", "type", "frame"]).set_index(["subj_name", "ses_name", "frame_time"])
-
-        retained_frames_df.to_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
-
-        del retained_frames
+        retained_frames_df = utils.get_frames(
+            subj_4dbolds_paths=subj_4dbolds_paths,
+            gm_mask=gm_mask,
+            seed_mask=seed_mask,
+            t=t,
+            sel_mode=sel_mode,
+            savedir=savedir,
+            num_workers=2
+        )
     else:
         retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Loaded retained_frames_df from {savedir / paths.retained_frames_wo_clusters_df_name}, shape: {retained_frames_df.shape}")
