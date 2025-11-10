@@ -193,7 +193,7 @@ if __name__ == "__main__":
         optional_path_prefix="",
         load_retained_frames_df=False,
         n_comps=4,
-        positive_code=False,
+        positive_code=True,
         alpha=1.0,
         subject_loading_n_workers=os.cpu_count()//4,
     )
