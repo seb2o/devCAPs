@@ -11,6 +11,9 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 import psutil
+from matplotlib import pyplot as plt
+from nilearn import plotting
+from scipy.stats import pearsonr
 
 import paths
 
@@ -565,3 +568,223 @@ def get_sample_volume(subj_4dbolds_path):
     sample_fourd = nib.load(subj_4dbolds_path)
     sample_volume = sample_fourd.slicer[..., 0]
     return sample_volume
+
+
+def compare_folder(
+        folderA,
+        folderB,
+        folderA_name,
+        folderB_name,
+        folderA_glob,
+        folderB_glob,
+        path_prefix=paths.sample_derivatives,
+):
+
+
+
+    folderA = path_prefix / folderA
+    folderB = path_prefix / folderB
+
+    # Collect CAP maps
+    cap_paths_A = sorted(folderA.glob(folderA_glob))
+    cap_paths_B = sorted(folderB.glob(folderB_glob))
+    if len(cap_paths_A) == 0 :
+        raise ValueError(f"No file matching {folderA_glob} found in {folderA}")
+    if len(cap_paths_B) == 0 :
+        raise ValueError(f"No file matching {folderB_glob} found in {folderB}")
+
+    # Load cluster sizes
+    # cluster_sizes_A = pd.read_pickle(folderA / paths.cluster_sizes_df_name)
+    # cluster_sizes_B = pd.read_pickle(folderB / paths.cluster_sizes_df_name)
+
+    nA, nB = len(cap_paths_A), len(cap_paths_B)
+    corrs = np.zeros((nA, nB), dtype=float)
+
+    # Compute pairwise correlations and L2 distances
+    cap_data_A = [nib.load(p).get_fdata().ravel() for p in cap_paths_A]
+    cap_data_B = [nib.load(p).get_fdata().ravel() for p in cap_paths_B]
+
+
+    # Pearson correlations of CAPs of each folder
+    corrs_A = np.zeros((nA, nA), dtype=float)
+    for i in range(nA):
+        for j in range(i, nA):
+            r, _ = pearsonr(cap_data_A[i], cap_data_A[j])
+            corrs_A[i, j] = r
+            corrs_A[j, i] = r
+    plt.imshow(corrs_A, cmap='coolwarm', vmin=-1, vmax=1)
+    plt.title(f"Correlation between CAPs within {folderA_name}", fontsize=14, weight="bold", pad=12)
+    plt.colorbar(label='Pearson r')
+    plt.grid(False)
+
+    for i in range(nA):
+        for j in range(nA):
+            plt.text(j, i, f"{corrs_A[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+
+    plt.xticks(
+        ticks=np.arange(nA),
+        labels=[
+            f"{folderA_name} CAP {j + 1}\n"
+            # f"{(cluster_sizes_B.iloc[j] / cluster_sizes_B.sum() * 100):.2f}%"
+            for j in range(nA)
+        ],
+        rotation=45,
+        ha='right'
+    )
+    plt.yticks(
+        ticks=np.arange(nA),
+        labels=[
+            f"{folderA_name} CAP {i + 1}\n"
+            # f"{(cluster_sizes_A.iloc[i] / cluster_sizes_A.sum() * 100):.2f}%"
+            for i in range(nA)
+        ],
+        rotation=0
+    )
+    plt.show()
+
+    corrs_B = np.zeros((nB, nB), dtype=float)
+    for i in range(nB):
+        for j in range(i, nB):
+            r, _ = pearsonr(cap_data_B[i], cap_data_B[j])
+            corrs_B[i, j] = r
+            corrs_B[j, i] = r
+    plt.imshow(corrs_B, cmap='coolwarm', vmin=-1, vmax=1)
+    plt.title(f"Correlation between CAPs within {folderB_name}", fontsize=14, weight="bold", pad=12)
+    plt.colorbar(label='Pearson r')
+    plt.grid(False)
+
+    for i in range(nB):
+        for j in range(nB):
+            plt.text(j, i, f"{corrs_B[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+
+    plt.xticks(
+        ticks=np.arange(nB),
+        labels=[
+            f"{folderB_name} CAP {j + 1}\n"
+            # f"{(cluster_sizes_B.iloc[j] / cluster_sizes_B.sum() * 100):.2f}%"
+            for j in range(nB)
+        ],
+        rotation=45,
+        ha='right'
+    )
+    plt.yticks(
+        ticks=np.arange(nB),
+        labels=[
+            f"{folderB_name} CAP {i + 1}\n"
+            # f"{(cluster_sizes_A.iloc[i] / cluster_sizes_A.sum() * 100):.2f}%"
+            for i in range(nB)
+        ],
+        rotation=0
+    )
+
+    plt.show()
+
+
+
+
+    for i in range(nA):
+        for j in range(nB):
+            r, _ = pearsonr(cap_data_A[i], cap_data_B[j])
+            corrs[i, j] = r
+
+    # --- Heatmap of correlations ---
+    plt.figure(figsize=(10, 7))
+    plt.imshow(corrs, cmap='coolwarm', vmin=-1, vmax=1)
+    for i in range(nA):
+        for j in range(nB):
+            plt.text(j, i, f"{corrs[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+    plt.colorbar(label='Pearson r')
+
+    plt.xticks(
+        ticks=np.arange(nB),
+        labels=[
+            f"{folderB_name} CAP {j+1}\n"
+            # f"{(cluster_sizes_B.iloc[j] / cluster_sizes_B.sum() * 100):.2f}%"
+            for j in range(nB)
+        ],
+        rotation=45,
+        ha='right'
+    )
+    plt.yticks(
+        ticks=np.arange(nA),
+        labels=[
+            f"{folderA_name} CAP {i+1}\n"
+            # f"{(cluster_sizes_A.iloc[i] / cluster_sizes_A.sum() * 100):.2f}%"
+            for i in range(nA)
+        ],
+        rotation=0
+    )
+    plt.title(f"Correlation between CAPs: {folderA_name} vs {folderB_name}", fontsize=14, weight="bold", pad=12)
+    plt.grid(False)
+    plt.tight_layout()
+    plt.show()
+
+    # --- Best matches & slice plots ---
+    cut_coords = [13, 20, 27, 34, 40]
+    bg_img = paths.ext40Template
+
+    for i in range(nA):
+        j_best = int(np.argmax(corrs[i, :]))
+        r_best = corrs[i, j_best]
+
+        imgA = nib.load(cap_paths_A[i])
+        imgB = nib.load(cap_paths_B[j_best])
+
+        fig, axes = plt.subplots(2, 1, figsize=(11, 8))
+        plotting.plot_stat_map(
+            imgA,
+            title=f"{folderA_name} {cap_paths_A[i].name}",
+            bg_img=bg_img,
+            black_bg=False,
+            display_mode="z",
+            cut_coords=cut_coords,
+            colorbar=True,
+            axes=axes[0],
+            figure=fig,
+        )
+        plotting.plot_stat_map(
+            imgB,
+            title=f"{folderB_name} {cap_paths_B[j_best].name}",
+            bg_img=bg_img,
+            black_bg=False,
+            display_mode="z",
+            cut_coords=cut_coords,
+            colorbar=True,
+            axes=axes[1],
+            figure=fig,
+        )
+        plt.title(f"r={r_best:.3f}", fontsize=16, weight="bold", pad=20)
+    plt.show()
+
+    for j in range(nB):
+        i_best = int(np.argmax(corrs[:, j]))
+        r_best = corrs[i_best, j]
+
+        imgA = nib.load(cap_paths_A[i_best])
+        imgB = nib.load(cap_paths_B[j])
+
+        fig, axes = plt.subplots(2, 1, figsize=(11, 8))
+        plotting.plot_stat_map(
+            imgA,
+            title=f"{folderA_name} {cap_paths_A[i_best].name}",
+            bg_img=bg_img,
+            black_bg=False,
+            display_mode="z",
+            cut_coords=cut_coords,
+            colorbar=True,
+            axes=axes[1],
+            figure=fig,
+        )
+        plotting.plot_stat_map(
+            imgB,
+            title=f"{folderB_name} {cap_paths_B[j].name}",
+            bg_img=bg_img,
+            black_bg=False,
+            display_mode="z",
+            cut_coords=cut_coords,
+            colorbar=True,
+            axes=axes[0],
+            figure=fig,
+        )
+        plt.title(f"r={r_best:.3f}", fontsize=16, weight="bold", pad=20)
+        plt.show()
