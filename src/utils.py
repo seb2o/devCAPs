@@ -582,7 +582,7 @@ def compare_folder(
 
 
 
-    comp_save_folder = path_prefix / f"{folderA_name}_vs_{folderB_name}_comparison"
+    comp_save_folder = (path_prefix / "comparisons") / f"{folderA_name}_vs_{folderB_name}"
     comp_save_folder.mkdir(parents=True, exist_ok=True)
 
     folderA = path_prefix / folderA
