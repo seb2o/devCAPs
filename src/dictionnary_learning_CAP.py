@@ -189,9 +189,9 @@ if __name__ == "__main__":
     main(
         group_path=paths.sample_derivatives,
         t=15,
-        sel_mode='pos',
+        sel_mode='both',
         optional_path_prefix="",
-        load_retained_frames_df=True,
+        load_retained_frames_df=False,
         n_comps=4,
         positive_code=True,
         alpha=1.0,
