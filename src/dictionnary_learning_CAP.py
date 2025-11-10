@@ -83,8 +83,8 @@ def main(
         n_components=n_comps,
         alpha=alpha,
         max_iter=500,
-        fit_algorithm='lars',
-        transform_algorithm='omp',
+        fit_algorithm='cd',
+        transform_algorithm='lasso_cd',
         random_state=0,
         positive_code=positive_code,
     )
