@@ -582,6 +582,9 @@ def compare_folder(
 
 
 
+    comp_save_folder = path_prefix / f"{folderA_name}_vs_{folderB_name}_comparison"
+    comp_save_folder.mkdir(parents=True, exist_ok=True)
+
     folderA = path_prefix / folderA
     folderB = path_prefix / folderB
 
@@ -640,6 +643,7 @@ def compare_folder(
         ],
         rotation=0
     )
+    plt.savefig(comp_save_folder / f"{folderA_name}_within_CAP_correlation_heatmap.png")
     plt.show()
 
     corrs_B = np.zeros((nB, nB), dtype=float)
@@ -677,6 +681,7 @@ def compare_folder(
         rotation=0
     )
 
+    plt.savefig(comp_save_folder / f"{folderB_name}_within_CAP_correlation_heatmap.png")
     plt.show()
 
 
@@ -717,6 +722,7 @@ def compare_folder(
     plt.title(f"Correlation between CAPs: {folderA_name} vs {folderB_name}", fontsize=14, weight="bold", pad=12)
     plt.grid(False)
     plt.tight_layout()
+    plt.savefig(comp_save_folder / f"{folderA_name}_vs_{folderB_name}_CAP_correlation_heatmap.png")
     plt.show()
 
     # --- Best matches & slice plots ---
@@ -754,7 +760,9 @@ def compare_folder(
             figure=fig,
         )
         plt.title(f"r={r_best:.3f}", fontsize=16, weight="bold", pad=20)
-    plt.show()
+        fig.suptitle(f"{folderA_name} {cap_paths_A[i].name} best match in {folderB_name}", fontsize=18, weight="bold")
+        plt.savefig(comp_save_folder / f"{folderA_name}_CAP_{i+1}_best_match_in_{folderB_name}.png")
+        plt.show()
 
     for j in range(nB):
         i_best = int(np.argmax(corrs[:, j]))
@@ -787,4 +795,6 @@ def compare_folder(
             figure=fig,
         )
         plt.title(f"r={r_best:.3f}", fontsize=16, weight="bold", pad=20)
+        fig.suptitle(f"{folderB_name} {cap_paths_B[j].name} best match in {folderA_name}", fontsize=18, weight="bold")
+        plt.savefig(comp_save_folder / f"{folderB_name}_CAP_{j+1}_best_match_in_{folderA_name}.png")
         plt.show()
