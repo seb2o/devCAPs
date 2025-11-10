@@ -191,7 +191,7 @@ if __name__ == "__main__":
         t=15,
         sel_mode='pos',
         optional_path_prefix="",
-        load_retained_frames_df=False,
+        load_retained_frames_df=True,
         n_comps=4,
         positive_code=True,
         alpha=1.0,
