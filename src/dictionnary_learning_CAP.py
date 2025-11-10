@@ -194,6 +194,6 @@ if __name__ == "__main__":
         load_retained_frames_df=False,
         n_comps=4,
         positive_code=True,
-        alpha=2.0,
+        alpha=1.0,
         subject_loading_n_workers=os.cpu_count()//4,
     )
