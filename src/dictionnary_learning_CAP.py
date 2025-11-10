@@ -189,11 +189,11 @@ if __name__ == "__main__":
     main(
         group_path=paths.sample_derivatives,
         t=15,
-        sel_mode='both',
+        sel_mode='pos',
         optional_path_prefix="",
         load_retained_frames_df=False,
         n_comps=4,
         positive_code=True,
-        alpha=1.0,
+        alpha=2.0,
         subject_loading_n_workers=os.cpu_count()//4,
     )
