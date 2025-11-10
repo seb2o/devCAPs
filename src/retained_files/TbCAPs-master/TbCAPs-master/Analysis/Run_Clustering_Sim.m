@@ -29,7 +29,7 @@ function [CP2,Disp,Std_Clusters,idx,d,sfrac] = Run_Clustering_Sim(XONn,n_cluster
     % a datapoint)
     % idx will contain 1462 elements (the index of the cluster to which the
     % considered datapoint belongs
-    [idx,CP] = kmeans(XONn',n_clusters,'distance','sqeuclidean','replicates',n_rep,'empty','drop','maxiter',300);
+    [idx,CP] = kmeans(XONn',n_clusters,'distance','correlation','replicates',n_rep,'empty','drop','maxiter',300);
     
     % idx2counts is of size K (number of clusters) and has the number of
     % datapoints classified within a given cluster)
