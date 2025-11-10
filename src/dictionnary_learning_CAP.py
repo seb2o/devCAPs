@@ -159,7 +159,7 @@ def main(
     vmax=None
     show_caps.plot_caps(
         folder_path=savedir,
-        fig_title=f"DictCAPs in {group_path.name} ({len(DictCAPs)} total)",
+        fig_title=f"DictCAPs in {savedir.name} ({len(DictCAPs)} total)",
         save_path=savedir / "DictCAPs_overview.png",
         caps_glob="DictCAP_*.nii",
         vmax=vmax
@@ -177,7 +177,7 @@ def main(
 
     show_caps.plot_caps(
         folder_path=savedir,
-    fig_title=f"DictComps in {group_path.name} ({n_comps} total)",
+    fig_title=f"DictComps in {savedir.name} ({n_comps} total)",
     save_path=savedir / "DictComps_overview.png",
     caps_glob="DictComp_*.nii",
     vmax=vmax
