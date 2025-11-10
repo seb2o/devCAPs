@@ -577,7 +577,7 @@ def compare_folder(
         folderB_name,
         folderA_glob,
         folderB_glob,
-        path_prefix=paths.sample_derivatives,
+        path_prefix=paths.results,
 ):
 
 
@@ -798,3 +798,5 @@ def compare_folder(
         fig.suptitle(f"{folderB_name} {cap_paths_B[j].name} best match in {folderA_name}", fontsize=18, weight="bold")
         plt.savefig(comp_save_folder / f"{folderB_name}_CAP_{j+1}_best_match_in_{folderA_name}.png")
         plt.show()
+
+    print(f"Comparison results saved in {paths.rel(comp_save_folder)}")

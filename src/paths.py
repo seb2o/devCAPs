@@ -23,6 +23,7 @@ atlas_url = "https://git.fmrib.ox.ac.uk/seanf/dhcp-resources/-/blob/master/docs/
 src = Path(__file__).resolve().parent
 absolute_root = src.parent
 data = absolute_root / "data"
+results = absolute_root / "results"
 
 templates = data / "templates"
 derivatives = data / "derivatives"
