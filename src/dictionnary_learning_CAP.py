@@ -47,8 +47,10 @@ def main(
         f"_Act-{sel_mode}"
         f"_n-{n_subjs}"
     )
-    savedir = group_path / expname
-    savedir.mkdir(exist_ok=True)
+
+    savedir = (paths.results / group_path.relative_to(paths.data)) / expname
+    savedir.mkdir(exist_ok=True, parents=True)
+
     print(
         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] (PID {pid})"
         f" Starting Dictionnary Learning analysis from {group_path}, saving to {savedir}"
