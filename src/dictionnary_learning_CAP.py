@@ -100,6 +100,14 @@ def main(
     gc.collect()
     utils.print_memstate(message="After Dictionary Learning fitting: ")
 
+
+    # reorder components by mean value across all assignments
+    mean_assignments = assignments.mean(axis=0)
+    sorted_comp_indices = np.argsort(-mean_assignments)  # descending order
+    comps = comps[sorted_comp_indices]
+    assignments = assignments[:, sorted_comp_indices]
+
+
     # save components
     np.save(savedir / paths.dictcomps_npy_name, comps)
     retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
