@@ -15,10 +15,10 @@ SelMode = 'Percentage';
 SignMatrix = [1,0];
 
 % Number of clusters to use
-K_opt=4;
+K_opt=6;
 
 % run consensus clustering ?
-run_consensus = false  % true or false
+run_consensus = true  % true or false
 
 % folder where to find the data (in BIDS derivatives format)
 derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
@@ -27,7 +27,7 @@ derivatives_folder = '/home/boo/capslifespan/data/sample_derivatives/';
 group_name = "";
 
 % optional custom prefix for output folder
-custom_prefix = "euclidean";
+custom_prefix = "correlation";
 
 
 derivatives_folder = string(derivatives_folder);
@@ -218,10 +218,12 @@ if run_consensus
     [Consensus] = CAP_ConsensusClustering(Xon,K_range,'items',Pcc/100,N,'correlation');
 
 % Calculates the quality metrics
-    [~,PAC] = ComputeClusteringQuality(Consensus,[]);
+    [CDF,PAC] = ComputeClusteringQuality(Consensus,[]);
 
 % Qual should be inspected to determine the best cluster number(s)
-
+    save(fullfile(out_dir, 'CDF.mat'), 'CDF')
+    save(fullfile(out_dir, 'PAC.mat'), 'PAC')
+    save(fullfile(out_dir, 'Consensus.mat'), 'Consensus')
 end
 
 
