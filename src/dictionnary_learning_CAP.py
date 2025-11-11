@@ -148,6 +148,7 @@ def main(
 
     sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
     n_comps = len(comps)
+    vmax=0
     for comp_id, comp in enumerate(comps):
         comp3d = utils.unflatten_to_3d_only_gm(
             comp,
@@ -155,13 +156,15 @@ def main(
             sample_volume=sample_volume,
             zscore=True
         )
+        if np.abs(comp3d.get_fdata()).max() > vmax: vmax = np.abs(comp3d.get_fdata()).max()
         nib.save(comp3d, savedir / f"DictComp_{comp_id+1:02d}_z.nii")
 
     show_caps.plot_caps(
         folder_path=savedir,
-    fig_title=f"DictComps in {savedir.name} ({n_comps} total)",
-    save_path=savedir / "DictComps_overview.png",
-    caps_glob="DictComp_*_z.nii",
+        fig_title=f"DictComps in {savedir.name} ({n_comps} total)",
+        save_path=savedir / "DictComps_overview.png",
+        caps_glob="DictComp_*_z.nii",
+        vmax=vmax
     )
 
     return savedir
