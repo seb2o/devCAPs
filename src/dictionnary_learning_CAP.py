@@ -181,16 +181,15 @@ def main(
             comp,
             gm_mask=gm_mask,
             sample_volume=sample_volume,
-            zscore=False
+            zscore=True
         )
-        nib.save(comp3d, savedir / f"DictComp_{comp_id+1:02d}.nii")
+        nib.save(comp3d, savedir / f"DictComp_{comp_id+1:02d}_z.nii")
 
     show_caps.plot_caps(
         folder_path=savedir,
     fig_title=f"DictComps in {savedir.name} ({n_comps} total)",
     save_path=savedir / "DictComps_overview.png",
-    caps_glob="DictComp_*.nii",
-    vmax=vmax
+    caps_glob="DictComp_*_z.nii",
     )
 
     return savedir
