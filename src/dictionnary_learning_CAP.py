@@ -146,34 +146,34 @@ def main(
         savedir / paths.comp_assignments_df_name
     )
 
-    DictCAPs = []
-    for comp_id, comp in enumerate(frames_with_assignments_df["DictComp"].columns):
-        DictCAPs.append(
-            (
-                    frames_with_assignments_df[("RetainedFrames", "frame")]
-                    * frames_with_assignments_df[("DictComp", comp)]
-            )
-            .sum(axis=0) / frames_with_assignments_df[("DictComp", comp)].sum(axis=0)
-        )
-
     sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
-    for comp_id, dictCAP in enumerate(DictCAPs):
-        dictCAP3d = utils.unflatten_to_3d_only_gm(
-            dictCAP,
-            gm_mask=gm_mask,
-            sample_volume=sample_volume,
-            zscore=False
-        )
-        nib.save(dictCAP3d, savedir / f"DictCAP_{comp_id+1:02d}.nii")
-
-    vmax=None
-    show_caps.plot_caps(
-        folder_path=savedir,
-        fig_title=f"DictCAPs in {savedir.name} ({len(DictCAPs)} total)",
-        save_path=savedir / "DictCAPs_overview.png",
-        caps_glob="DictCAP_*.nii",
-        vmax=vmax
-    )
+    # DictCAPs = []
+    # for comp_id, comp in enumerate(frames_with_assignments_df["DictComp"].columns):
+    #     DictCAPs.append(
+    #         (
+    #                 frames_with_assignments_df[("RetainedFrames", "frame")]
+    #                 * frames_with_assignments_df[("DictComp", comp)]
+    #         )
+    #         .sum(axis=0) / frames_with_assignments_df[("DictComp", comp)].sum(axis=0)
+    #     )
+    #
+    # for comp_id, dictCAP in enumerate(DictCAPs):
+    #     dictCAP3d = utils.unflatten_to_3d_only_gm(
+    #         dictCAP,
+    #         gm_mask=gm_mask,
+    #         sample_volume=sample_volume,
+    #         zscore=False
+    #     )
+    #     nib.save(dictCAP3d, savedir / f"DictCAP_{comp_id+1:02d}.nii")
+    #
+    # vmax=None
+    # show_caps.plot_caps(
+    #     folder_path=savedir,
+    #     fig_title=f"DictCAPs in {savedir.name} ({len(DictCAPs)} total)",
+    #     save_path=savedir / "DictCAPs_overview.png",
+    #     caps_glob="DictCAP_*.nii",
+    #     vmax=vmax
+    # )
 
     n_comps = len(comps)
     for comp_id, comp in enumerate(comps):
