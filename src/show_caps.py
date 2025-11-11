@@ -69,22 +69,23 @@ def plot_caps(
                 )
             )
 
-    # combine vertically all detailed cap images into one
-    images = [Image.open(p) for p in detailed_caps_savepaths]
-    widths, heights = zip(*(i.size for i in images))
+    if save_path:
+        # combine vertically all detailed cap images into one
+        images = [Image.open(p) for p in detailed_caps_savepaths]
+        widths, heights = zip(*(i.size for i in images))
 
-    total_height = sum(heights)
-    max_width = max(widths)
+        total_height = sum(heights)
+        max_width = max(widths)
 
-    combined = Image.new("RGBA", (max_width, total_height))
-    y_offset = 0
-    for im in images:
-        combined.paste(im, (0, y_offset))
-        y_offset += im.height
+        combined = Image.new("RGBA", (max_width, total_height))
+        y_offset = 0
+        for im in images:
+            combined.paste(im, (0, y_offset))
+            y_offset += im.height
 
-    combined_savepath = save_path.parent / f"{save_path.stem}_detailed.png"
-    print(f"\nDetailed figure saved to: {combined_savepath}")
-    combined.save(combined_savepath)
+        combined_savepath = save_path.parent / f"{save_path.stem}_detailed.png"
+        print(f"\nDetailed figure saved to: {combined_savepath}")
+        combined.save(combined_savepath)
 
 def plot_cap_detail(
         zcap_path: Path,
