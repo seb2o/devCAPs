@@ -147,34 +147,6 @@ def main(
     )
 
     sample_volume = utils.get_sample_volume(subj_4dbolds_paths[0])
-    # DictCAPs = []
-    # for comp_id, comp in enumerate(frames_with_assignments_df["DictComp"].columns):
-    #     DictCAPs.append(
-    #         (
-    #                 frames_with_assignments_df[("RetainedFrames", "frame")]
-    #                 * frames_with_assignments_df[("DictComp", comp)]
-    #         )
-    #         .sum(axis=0) / frames_with_assignments_df[("DictComp", comp)].sum(axis=0)
-    #     )
-    #
-    # for comp_id, dictCAP in enumerate(DictCAPs):
-    #     dictCAP3d = utils.unflatten_to_3d_only_gm(
-    #         dictCAP,
-    #         gm_mask=gm_mask,
-    #         sample_volume=sample_volume,
-    #         zscore=False
-    #     )
-    #     nib.save(dictCAP3d, savedir / f"DictCAP_{comp_id+1:02d}.nii")
-    #
-    # vmax=None
-    # show_caps.plot_caps(
-    #     folder_path=savedir,
-    #     fig_title=f"DictCAPs in {savedir.name} ({len(DictCAPs)} total)",
-    #     save_path=savedir / "DictCAPs_overview.png",
-    #     caps_glob="DictCAP_*.nii",
-    #     vmax=vmax
-    # )
-
     n_comps = len(comps)
     for comp_id, comp in enumerate(comps):
         comp3d = utils.unflatten_to_3d_only_gm(
@@ -195,6 +167,31 @@ def main(
     return savedir
 
 if __name__ == "__main__":
+
+    main(
+        group_path=paths.sample_derivatives,
+        t=15,
+        sel_mode='pos',
+        optional_path_prefix="",
+        load_retained_frames_df=False,
+        n_comps=4,
+        positive_code=False,
+        alpha=1.0,
+        subject_loading_n_workers=os.cpu_count()//4,
+    )
+
+    main(
+        group_path=paths.sample_derivatives,
+        t=15,
+        sel_mode='pos',
+        optional_path_prefix="",
+        load_retained_frames_df=False,
+        n_comps=4,
+        positive_code=True,
+        alpha=1.0,
+        subject_loading_n_workers=os.cpu_count() // 4,
+    )
+
     main(
         group_path=paths.sample_derivatives,
         t=15,
@@ -204,5 +201,5 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=True,
         alpha=2.0,
-        subject_loading_n_workers=os.cpu_count()//4,
+        subject_loading_n_workers=os.cpu_count() // 4,
     )
