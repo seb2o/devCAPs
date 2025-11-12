@@ -578,6 +578,7 @@ def compare_folder(
         folderA_glob,
         folderB_glob,
         path_prefix=paths.results,
+        anots=True
 ):
 
 
@@ -620,9 +621,10 @@ def compare_folder(
     plt.colorbar(label='Pearson r')
     plt.grid(False)
 
-    for i in range(nA):
-        for j in range(nA):
-            plt.text(j, i, f"{corrs_A[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+    if anots:
+        for i in range(nA):
+            for j in range(nA):
+                plt.text(j, i, f"{corrs_A[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
 
     plt.xticks(
         ticks=np.arange(nA),
@@ -657,9 +659,10 @@ def compare_folder(
     plt.colorbar(label='Pearson r')
     plt.grid(False)
 
-    for i in range(nB):
-        for j in range(nB):
-            plt.text(j, i, f"{corrs_B[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+    if anots:
+        for i in range(nB):
+            for j in range(nB):
+                plt.text(j, i, f"{corrs_B[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
 
     plt.xticks(
         ticks=np.arange(nB),
@@ -695,9 +698,11 @@ def compare_folder(
     # --- Heatmap of correlations ---
     plt.figure(figsize=(10, 7))
     plt.imshow(corrs, cmap='coolwarm', vmin=-1, vmax=1)
-    for i in range(nA):
-        for j in range(nB):
-            plt.text(j, i, f"{corrs[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+    if anots:
+        for i in range(nA):
+            for j in range(nB):
+                plt.text(j, i, f"{corrs[i, j]:.3f}", ha='center', va='center', color='black', fontsize=8)
+
     plt.colorbar(label='Pearson r')
 
     plt.xticks(
