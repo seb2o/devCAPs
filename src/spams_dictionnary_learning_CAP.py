@@ -80,7 +80,7 @@ def main(
     gc.collect()
     utils.print_memstate(message="After stacking frames: ")
 
-    reshaped_stacked_frames = np.asfortranarray(stacked_frames.T) # TODO maybe cast to np.float64 is needed
+    reshaped_stacked_frames = np.asfortranarray(stacked_frames.T, dtype=np.double)
     del stacked_frames
     gc.collect()
     utils.print_memstate(message="After putting stacked frames to fortran array: ")
