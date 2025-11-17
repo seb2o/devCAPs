@@ -805,3 +805,172 @@ def compare_folder(
         plt.show()
 
     print(f"Comparison results saved in {paths.rel(comp_save_folder)}")
+
+
+
+def compute_dictionary_stability(Ds, Alphas):
+    """
+    dictionary and assignments for different initializations
+    ! caution ! the shapes exepcted here are the one from SPAMS: components are stored as columns
+    D has shape (n_dimensions, n_components)
+    Alpha has shape (n_components, n_samples)
+    :param Ds:
+    :param Alphas:
+    :return: atoms_stability_matrix, atoms_order_stability_matrix, assignments_stability_matrix
+    """
+    if len(Ds) != len(Alphas):
+        raise ValueError("Ds and Alphas must have the same length.")
+
+    n_comps = Ds[0].shape[1]
+
+    n_inits = len(Ds)
+    # measure stability: correlation between D learned with different inits
+    atoms_stability_matrix = np.zeros((n_inits, n_inits))
+    atoms_order_stability_matrix = np.zeros((n_inits, n_inits))
+    matches = np.zeros((n_inits, n_inits, n_comps), dtype=int)
+    for i in range(n_inits):
+        for j in range(n_inits):
+            D_i = Ds[i]
+            D_j = Ds[j]
+            # match components by max correlation
+            corrs = np.zeros((n_comps, n_comps))
+            for i_comp in range(n_comps):
+                for j_comp in range(n_comps):
+                    r, _ = pearsonr(D_i[:,i_comp], D_j[:,j_comp])
+                    corrs[i_comp, j_comp] = r
+            # best match wrt i:
+            best_matches = range(n_comps)#np.argmax(corrs, axis=1)
+            matched_corrs = corrs[np.arange(n_comps), best_matches]
+            atoms_stability_matrix[i, j] = matched_corrs.mean()
+            matches[i, j, :] = best_matches
+            atoms_order_stability_matrix[i, j] = (best_matches == np.arange(n_comps)).mean()
+
+    assignments_stability_matrix = np.zeros((n_inits, n_inits))
+    for i in range(n_inits):
+        for j in range(n_inits):
+            Alpha_i = Alphas[i]
+            Alpha_j = Alphas[j]
+            #use matches to reorder components in Alpha_j to match Alpha_i
+            reordered_Alpha_j = Alpha_j[matches[i, j, :], :]
+            # compute mean of row-wise pearson correlation between Alpha_i and reordered_Alpha_j
+            corrs = []
+            dense_Ai = Alpha_i.todense().A
+            dense_Aj = reordered_Alpha_j.todense().A
+            for comp_id in range(n_comps):
+                r, _ = pearsonr(dense_Ai[comp_id, :].ravel(), dense_Aj[comp_id, :].ravel())
+                corrs.append(r)
+            assignments_stability_matrix[i, j] = np.mean(corrs)
+    return atoms_stability_matrix, atoms_order_stability_matrix, assignments_stability_matrix
+
+
+
+def plot_dictionary_stability(
+        mses,
+        atoms_stability_matrix,
+        atoms_order_stability_matrix,
+        assignments_stability_matrix,
+        n_subjects,
+        savedir=None,
+        title=None
+):
+    if atoms_order_stability_matrix.shape[0] != atoms_stability_matrix.shape[0]:
+        raise ValueError("atoms_stability_matrix and atoms_order_stability_matrix must have the same shape.")
+    if assignments_stability_matrix.shape[0] != atoms_stability_matrix.shape[0]:
+        raise ValueError("assignments_stability_matrix and atoms_stability_matrix must have the same shape.")
+    if len(mses) != len(atoms_stability_matrix):
+        raise ValueError("mses length must match the size of the stability matrices.")
+    n_inits = len(mses)
+
+    # sort rows of the stability matrix by mse value
+    sorted_indices = np.argsort(mses)
+    sorted_atoms_stability_matrix = atoms_stability_matrix[sorted_indices, :][:, sorted_indices]
+    sorted_atoms_order_stability_matrix = atoms_order_stability_matrix[sorted_indices, :][:, sorted_indices]
+    sorted_assignments_stability_matrix = assignments_stability_matrix[sorted_indices, :][:, sorted_indices]
+
+    fig, axes = plt.subplots(2, 3, figsize=(15, 10), sharex='row', sharey='row')
+    # Common labels
+    mse_labels = [f"{mses[i]:.2f}" for i in sorted_indices][::4]
+    tick_positions = np.arange(n_inits)[::4]
+
+    ax = axes[0,0]
+    im = ax.imshow(sorted_atoms_stability_matrix, vmin=-1, vmax=1, cmap='viridis')
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels(mse_labels, rotation=90)
+    ax.set_yticks(tick_positions)
+    ax.set_yticklabels(mse_labels)
+    ax.set_title("Atoms stability matrix between dictionary learning inits\n(sorted by MSE)")
+    fig.colorbar(im, ax=ax, orientation="horizontal")
+
+    ax = axes[1,0]
+    ax.hist(sorted_atoms_stability_matrix.ravel(), bins=30, range=(-1, 1), density=True, alpha=0.7, edgecolor='black')
+    ax.set_title("Distribution of atoms stability matrix ")
+
+    ax = axes[0,1]
+    im = ax.imshow(sorted_atoms_order_stability_matrix, vmin=-1, vmax=1, cmap='viridis')
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels(mse_labels, rotation=90)
+    ax.set_yticks(tick_positions)
+    ax.set_yticklabels(mse_labels)
+    ax.set_title("Order stability matrix between dictionary learning inits\n(sorted by MSE)")
+    fig.colorbar(im, ax=ax, orientation="horizontal")
+
+    ax = axes[1,1]
+    ax.hist(sorted_atoms_order_stability_matrix.ravel(), bins=30, range=(-1, 1), density=True, alpha=0.7, edgecolor='black')
+    ax.set_title("Distribution of order stability matrix ")
+
+    ax = axes[0,2]
+    im = ax.imshow(sorted_assignments_stability_matrix, vmin=-1, vmax=1, cmap='viridis')
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels(mse_labels, rotation=90)
+    ax.set_yticks(tick_positions)
+    ax.set_yticklabels(mse_labels)
+    ax.set_title("Stability matrix between assignments from different inits\n(sorted by MSE)")
+    fig.colorbar(im, ax=ax, orientation="horizontal")
+
+    ax = axes[1,2]
+    ax.hist(sorted_assignments_stability_matrix.ravel(), bins=30, range=(-1, 1), density=True, alpha=0.7, edgecolor='black')
+    ax.set_title("Distribution of assignments stability")
+
+    fig.suptitle(title if title else f"Stability of dictionary learning and assignments over {n_inits} inits\non {n_subjects} subjects", fontsize=16, weight="bold")
+    fig.tight_layout()
+
+    if savedir:
+        plt.savefig(savedir / "dictionary_learning_stability.png")
+    else:
+        plt.show()
+
+
+def compare_assignments(
+        assignments_stability_matrix,
+        Alphas,
+        mses,
+        savedir=None,
+):
+
+    n_comps = Alphas[0].shape[0]
+    sorted_indices = np.argsort(mses)
+
+    i, j = np.unravel_index(np.abs(assignments_stability_matrix).argmin(), assignments_stability_matrix.shape)
+    Alpha_1 = Alphas[i]
+    Alpha_2 = Alphas[j]
+    # show coefficient time course for each component
+    dense_A1 = Alpha_1.todense().A
+    dense_A2 = Alpha_2.todense().A
+    fig, axes = plt.subplots(n_comps, 1, figsize=(15, 3*n_comps), sharex=True)
+    for comp_id in range(n_comps):
+        axes[comp_id].plot(dense_A1[comp_id, :], label=f"Init {sorted_indices[5]} (MSE={mses[sorted_indices[5]]:.2f})")
+        axes[comp_id].plot(dense_A2[comp_id, :], label=f"Init {sorted_indices[-5]} (MSE={mses[sorted_indices[-5]]:.2f})")
+        axes[comp_id].set_title(f"Component {comp_id}")
+        axes[comp_id].legend()
+    plt.xlabel("Sample index")
+    fig.suptitle(
+        f"Component activations for the two least similar assignments across inits, "
+        f"MSE={mses[i]:.2f} "
+        f"vs MSE={mses[j]:.2f}\n"
+        f"stability value: {assignments_stability_matrix[i,j]:.4f}")
+    plt.tight_layout()
+
+    if savedir:
+        plt.savefig(savedir / "compare_least_similar_assignments.png")
+    else:
+        plt.show()
