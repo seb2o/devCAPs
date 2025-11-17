@@ -83,7 +83,7 @@ def main(
     reshaped_stacked_frames = np.asfortranarray(stacked_frames.T, dtype=np.double)
     del stacked_frames
     gc.collect()
-    utils.print_memstate(message="After putting stacked frames to fortran array: ")
+    utils.print_memstate(message=f"After putting stacked frames to {reshaped_stacked_frames.dtype} fortran array: ")
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Dictionary Learning fitting")
 
