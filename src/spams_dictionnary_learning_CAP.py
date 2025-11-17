@@ -22,6 +22,9 @@ def main(
         positive_code=False,
         alpha=1.0,
         subject_loading_n_workers=2,
+        n_iters=300,
+        positive_atoms=True,
+        n_inits=50
 ):
 
     if positive_code: raise NotImplementedError("SPAMS does not support positive coding only yet.")
@@ -45,8 +48,11 @@ def main(
         f"SPAMS_DictLr"
         f"_Ncomps-{n_comps}"
         f"_PosCode-{positive_code}"
-        f"_Alpha-{alpha}"
-        f"_Tvalue-{t}"      
+        f"_PosAtoms-{positive_atoms}"
+        f"_nIters-{n_iters}"
+        f"_nInits-{n_inits}"
+        f"_alpha-{alpha}"
+        f"_t-{t}"
         f"_Act-{sel_mode}"
         f"_n-{n_subjs}"
     )
@@ -86,31 +92,88 @@ def main(
     utils.print_memstate(message=f"After putting stacked frames to {reshaped_stacked_frames.dtype} fortran array: ")
 
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Dictionary Learning fitting")
+    per_seed_results = []
+    for init in range(n_inits):
 
-    D = spams.trainDL(
-        reshaped_stacked_frames,
-        K=n_comps,
-        mode=3,
-        lambda1=alpha,
-        numThreads=subject_loading_n_workers,
-        batchsize=512,
-        verbose=False
-    ) # D shape (n_dimensions, n_components) (each column is a component)
+        # dict_inits = np.asfortranarray(np.random.default_rng(seed=init).random(
+        #     size=(reshaped_stacked_frames.shape[0], n_comps),
+        #     dtype=np.double
+        # ))
 
+        # select k random frames as initial dictionary
+        col_ids = np.random.default_rng(seed=init).choice(
+            reshaped_stacked_frames.shape[1],
+            size=n_comps,
+            replace=False
+        )
+        dict_inits = reshaped_stacked_frames[:, col_ids]
 
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary learned, now computing assignments")
+        D = spams.trainDL(
+            reshaped_stacked_frames,
+            K=n_comps,
+            D=dict_inits,
+            mode=3,
+            lambda1=alpha,
+            numThreads=subject_loading_n_workers,
+            batchsize=512,
+            verbose=False,
+            iter=n_iters,
+            posD=positive_atoms,
+            return_model=False
+        ) # D shape (n_dimensions, n_components) (each column is a component)
 
-    Alpha = spams.omp(
-        reshaped_stacked_frames,
-        D,
-        L=alpha,
-        numThreads=subject_loading_n_workers
+        # print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary learned, now computing assignments")
+
+        Alpha = spams.omp(
+            reshaped_stacked_frames,
+            D,
+            L=alpha,
+            numThreads=subject_loading_n_workers
+        )
+        #sum_{i=1}^n (1/2)||x_i-Dalpha_i||_2^2
+        # D has shape (n_dimensions, n_components)
+        # Alpha has shape (n_components, n_samples)
+        err_matrix = reshaped_stacked_frames - D @ Alpha
+        # each column i is the elementwise difference between the sample i
+        # and its approximation by linear combination of D with weights Alpha_i
+        mse = np.einsum('ij,ij->j', err_matrix, err_matrix).mean() # equivalent to np.mean(np.linalg.norm(err_matrix, axis=0, ord=2)**2)
+        # print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Assignments computed, MSE={mse}")
+        per_seed_results.append((mse, D, Alpha, init))
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Init {init+1}/{n_inits} done, MSE={mse:.4f}")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting stability analysis")
+
+    mses, Ds, Alphas, inits = zip(*per_seed_results)
+
+    (atoms_stability_matrix,
+     atoms_order_stability_matrix,
+     assignments_stability_matrix) = utils.compute_dictionary_stability(Ds, Alphas)
+
+    utils.plot_dictionary_stability(
+        mses=mses,
+        atoms_stability_matrix=atoms_stability_matrix,
+        atoms_order_stability_matrix=atoms_order_stability_matrix,
+        assignments_stability_matrix=assignments_stability_matrix,
+        n_subjects=n_subjs,
+        savedir=savedir
     )
+
+    utils.compare_assignments(
+        assignments_stability_matrix,
+        Alphas,
+        mses,
+        savedir=savedir
+    )
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Stability analysis done")
+
+    best_init_idx = np.argmin(mses)
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Best MSE={mses[best_init_idx]:.4f}")
+    Alpha = Alphas[best_init_idx]
+    D = Ds[best_init_idx]
 
     assignments = Alpha.T.toarray()  # (n_samples, k)
     comps = np.array(D.T, copy=False)
 
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
 
     del reshaped_stacked_frames
     gc.collect()
