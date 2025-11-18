@@ -44,6 +44,15 @@ def main(
     elif not optional_path_prefix.endswith("_"):
         optional_path_prefix += "_"
 
+    data_loading_params = {
+        'folder' : group_path.relative_to(paths.data),
+        't':t,
+        'Act':sel_mode,
+    }
+
+    frames_wo_cluster_savedir = paths.results / '_'.join([f"{k}-{v}" for k,v in data_loading_params.items()])
+    frames_wo_cluster_savedir.mkdir(exist_ok=True, parents=True)
+
     expname = (
         f"{optional_path_prefix}"
         f"SPAMS_DictLr"
@@ -58,7 +67,7 @@ def main(
         f"_n-{n_subjs}"
     )
 
-    savedir = (paths.results / group_path.relative_to(paths.data)) / expname
+    savedir = (paths.results / data_loading_params['folder']) / expname
     savedir.mkdir(exist_ok=True, parents=True)
 
     print(
@@ -68,7 +77,7 @@ def main(
 
     if load_retained_frames_df:
         frames = pd.read_pickle(
-            savedir / paths.retained_frames_wo_clusters_df_name
+            frames_wo_cluster_savedir / paths.retained_frames_wo_clusters_df_name
         )['frame'].to_numpy()
     else:
         frames = utils.get_frames(
@@ -77,7 +86,7 @@ def main(
             seed_mask=seed_mask,
             t=t,
             sel_mode=sel_mode,
-            savedir=savedir,
+            savedir=frames_wo_cluster_savedir,
             num_workers=subject_loading_n_workers
         )
     utils.print_memstate(message="After getting frames: ")
@@ -221,9 +230,10 @@ def main(
     )
     frames_with_assignments_df = pd.concat([retained_frames_df, assignments_df], axis=1)
 
-    frames_with_assignments_df.to_pickle(
-        savedir / paths.comp_assignments_with_frames_df_name
-    )
+    # frames_with_assignments_df.to_pickle(
+    #     savedir / paths.comp_assignments_with_frames_df_name
+    # )
+
     frames_with_assignments_df.drop(columns=[("RetainedFrames", "frame")]).to_pickle(
         savedir / paths.comp_assignments_df_name
     )
@@ -254,7 +264,7 @@ def main(
 if __name__ == "__main__":
 
     main(
-        group_path=paths.derivatives,
+        group_path=paths.sample_derivatives,
         t=15,
         sel_mode='pos',
         optional_path_prefix='',
@@ -262,14 +272,14 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=False,
         alpha=2.0,
-        subject_loading_n_workers=1,#os.cpu_count() // 4,
-        n_iters=300,
+        subject_loading_n_workers=os.cpu_count() // 4,
+        n_iters=1, # todo change
         positive_atoms=False,
-        n_inits=50
+        n_inits=50 # todo change
     )
 
     main(
-        group_path=paths.derivatives,
+        group_path=paths.sample_derivatives,
         t=15,
         sel_mode='pos',
         optional_path_prefix='',
@@ -278,8 +288,8 @@ if __name__ == "__main__":
         positive_code=False,
         alpha=2.0,
         subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=300,
+        n_iters=1, # todo change
         positive_atoms=True,
-        n_inits=50
+        n_inits=50 # todo change
     )
 
