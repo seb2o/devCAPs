@@ -11,6 +11,7 @@ import nibabel as nib
 import numpy as np
 from datetime import datetime
 import spams
+import pickle
 
 def main(
         group_path,
@@ -140,8 +141,10 @@ def main(
         # print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Assignments computed, MSE={mse}")
         per_seed_results.append((mse, D, Alpha, init))
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Init {init+1}/{n_inits} done, MSE={mse:.4f}")
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done")
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting stability analysis")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dictionary Learning fitting done; Starting stability analysis")
+
+    with open(savedir / "mses_Ds_Alphas_inits.pkl", "wb") as f:
+        pickle.dump(per_seed_results, f)
 
     mses, Ds, Alphas, inits = zip(*per_seed_results)
 
@@ -259,7 +262,7 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=False,
         alpha=2.0,
-        subject_loading_n_workers=1,#os.cpu_count() // 4,
+        subject_loading_n_workers=os.cpu_count() // 4,
         n_iters=300,
         positive_atoms=False,
         n_inits=50
