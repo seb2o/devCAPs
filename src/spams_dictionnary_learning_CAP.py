@@ -50,7 +50,7 @@ def main(
         'Act':sel_mode,
     }
 
-    frames_wo_cluster_savedir = paths.results / '_'.join([f"{k}-{v}" for k,v in data_loading_params.items()])
+    frames_wo_cluster_savedir = paths.results / '__'.join([f"{k}-{v}" for k,v in data_loading_params.items()])
     frames_wo_cluster_savedir.mkdir(exist_ok=True, parents=True)
 
     expname = (
@@ -268,7 +268,7 @@ if __name__ == "__main__":
         t=15,
         sel_mode='pos',
         optional_path_prefix='',
-        load_retained_frames_df=True,
+        load_retained_frames_df=False,
         n_comps=4,
         positive_code=False,
         alpha=2.0,
@@ -283,7 +283,7 @@ if __name__ == "__main__":
         t=15,
         sel_mode='pos',
         optional_path_prefix='',
-        load_retained_frames_df=False,
+        load_retained_frames_df=True,
         n_comps=4,
         positive_code=False,
         alpha=2.0,
