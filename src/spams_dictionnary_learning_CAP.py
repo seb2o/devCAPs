@@ -246,7 +246,7 @@ def main(
         fig_title=f"DictComps in {savedir.name} ({n_comps} total)",
         save_path=savedir / "DictComps_overview.png",
         caps_glob="DictComp_*_z.nii",
-        vmax=vmax
+        vmax=None#vmax
     )
 
     return savedir
