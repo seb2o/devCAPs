@@ -948,7 +948,6 @@ def compare_assignments(
 ):
 
     n_comps = Alphas[0].shape[0]
-    sorted_indices = np.argsort(mses)
 
     i, j = np.unravel_index(np.abs(assignments_stability_matrix).argmin(), assignments_stability_matrix.shape)
     Alpha_1 = Alphas[i]
@@ -958,8 +957,8 @@ def compare_assignments(
     dense_A2 = Alpha_2.todense().A
     fig, axes = plt.subplots(n_comps, 1, figsize=(15, 3*n_comps), sharex=True)
     for comp_id in range(n_comps):
-        axes[comp_id].plot(dense_A1[comp_id, :], label=f"Init {sorted_indices[5]} (MSE={mses[sorted_indices[5]]:.2f})")
-        axes[comp_id].plot(dense_A2[comp_id, :], label=f"Init {sorted_indices[-5]} (MSE={mses[sorted_indices[-5]]:.2f})")
+        axes[comp_id].plot(dense_A1[comp_id, :], label=f"Init {i} (MSE={mses[i]:.2f})")
+        axes[comp_id].plot(dense_A2[comp_id, :], label=f"Init {j} (MSE={mses[j]:.2f})")
         axes[comp_id].set_title(f"Component {comp_id}")
         axes[comp_id].legend()
     plt.xlabel("Sample index")
