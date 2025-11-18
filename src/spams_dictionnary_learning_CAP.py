@@ -262,7 +262,7 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=False,
         alpha=2.0,
-        subject_loading_n_workers=os.cpu_count() // 4,
+        subject_loading_n_workers=1,#os.cpu_count() // 4,
         n_iters=300,
         positive_atoms=False,
         n_inits=50
