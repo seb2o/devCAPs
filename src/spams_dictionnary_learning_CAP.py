@@ -87,7 +87,7 @@ def main(
     gc.collect()
     utils.print_memstate(message="After stacking frames: ")
 
-    reshaped_stacked_frames = np.asfortranarray(stacked_frames.T, dtype=np.double)
+    reshaped_stacked_frames = np.asfortranarray(stacked_frames.T, dtype=np.float32)#np.double)
     del stacked_frames
     gc.collect()
     utils.print_memstate(message=f"After putting stacked frames to {reshaped_stacked_frames.dtype} fortran array: ")
@@ -117,7 +117,7 @@ def main(
             lambda1=alpha,
             numThreads=subject_loading_n_workers,
             batchsize=512,
-            verbose=False,
+            verbose=True,
             iter=n_iters,
             posD=positive_atoms,
             return_model=False
