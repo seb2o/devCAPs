@@ -201,7 +201,7 @@ def main(
 
     # save components
     np.save(savedir / paths.dictcomps_npy_name, comps)
-    retained_frames_df = pd.read_pickle(savedir / paths.retained_frames_wo_clusters_df_name)
+    retained_frames_df = pd.read_pickle(frames_wo_cluster_savedir / paths.retained_frames_wo_clusters_df_name)
 
     assignments_df = pd.DataFrame(
         assignments,
@@ -268,14 +268,14 @@ if __name__ == "__main__":
         t=15,
         sel_mode='pos',
         optional_path_prefix='',
-        load_retained_frames_df=False,
+        load_retained_frames_df=True,
         n_comps=4,
         positive_code=False,
         alpha=2.0,
         subject_loading_n_workers=os.cpu_count() // 4,
         n_iters=1, # todo change
         positive_atoms=False,
-        n_inits=50 # todo change
+        n_inits=1 # todo change
     )
 
     main(
@@ -290,6 +290,6 @@ if __name__ == "__main__":
         subject_loading_n_workers=os.cpu_count() // 4,
         n_iters=1, # todo change
         positive_atoms=True,
-        n_inits=50 # todo change
+        n_inits=1 # todo change
     )
 
