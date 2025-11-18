@@ -251,36 +251,6 @@ def main(
 if __name__ == "__main__":
 
     main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=4,
-        positive_code=False,
-        alpha=2.0,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=300,
-        positive_atoms=True,
-        n_inits=50
-    )
-
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=4,
-        positive_code=False,
-        alpha=2.0,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=300,
-        positive_atoms=False,
-        n_inits=50
-    )
-
-    main(
         group_path=paths.derivatives,
         t=15,
         sel_mode='pos',
@@ -289,7 +259,7 @@ if __name__ == "__main__":
         n_comps=4,
         positive_code=False,
         alpha=2.0,
-        subject_loading_n_workers=os.cpu_count() // 4,
+        subject_loading_n_workers=1,#os.cpu_count() // 4,
         n_iters=300,
         positive_atoms=False,
         n_inits=50
