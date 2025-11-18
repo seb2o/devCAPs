@@ -839,7 +839,7 @@ def compute_dictionary_stability(Ds, Alphas):
                     r, _ = pearsonr(D_i[:,i_comp], D_j[:,j_comp])
                     corrs[i_comp, j_comp] = r
             # best match wrt i:
-            best_matches = range(n_comps)#np.argmax(corrs, axis=1)
+            best_matches = np.argmax(corrs, axis=1)
             matched_corrs = corrs[np.arange(n_comps), best_matches]
             atoms_stability_matrix[i, j] = matched_corrs.mean()
             matches[i, j, :] = best_matches
