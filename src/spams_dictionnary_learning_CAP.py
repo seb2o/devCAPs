@@ -157,7 +157,7 @@ def main(
             lambda1=alpha,
             numThreads=subject_loading_n_workers,
             batchsize=512,
-            verbose=True,
+            verbose=False,
             iter=n_iters,
             posD=positive_atoms,
             posAlpha=positive_code,
