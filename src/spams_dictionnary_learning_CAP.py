@@ -153,7 +153,7 @@ def main(
     gc.collect()
     utils.print_memstate(message=f"After putting stacked frames to {reshaped_stacked_frames.dtype} fortran array: ")
 
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Dictionary Learning fitting")
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Starting Dictionary Learning fitting using {subject_loading_n_workers} threads")
     per_seed_results = []
     for init in range(n_inits):
 
@@ -174,7 +174,7 @@ def main(
             lambda1=alpha,
             numThreads=subject_loading_n_workers,
             batchsize=512,
-            verbose=False,
+            verbose=True,
             iter=n_iters,
             posD=positive_atoms,
             posAlpha=positive_code,
@@ -325,9 +325,9 @@ if __name__ == "__main__":
         positive_code=False,
         alpha=950, # here begigger since contraisnt on l2 norm squared
         subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
+        n_iters=2,
         positive_atoms=True,
-        n_inits=50,
+        n_inits=4,
         constraint_mode='l2Atoms-optimL0Codes'
     )
 
