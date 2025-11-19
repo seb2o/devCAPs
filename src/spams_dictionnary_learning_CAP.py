@@ -61,8 +61,26 @@ def main(
         omp_lambda1 = alpha
 
 
-
-
+    # # X : m x n, Fortran-ordered
+    # param_train = {
+    #     'mode': 0,  # or 1
+    #     'lambda1': 0.1,
+    #     'lambda2': 0.,  # if you used it
+    #     'posAlpha': True,
+    #     'numThreads': -1,
+    # }
+    # D = spams.trainDL(X, **param_train)
+    #
+    # param_lasso = {
+    #     'lambda1': param_train['lambda1'],
+    #     'lambda2': param_train.get('lambda2', 0.),
+    #     'mode': param_train['mode'],  # 0 or 1, same as trainDL
+    #     'pos': True,  # because posAlpha=True in trainDL
+    #     'numThreads': param_train.get('numThreads', -1),
+    # }
+    #
+    # alpha = spams.lasso(X, D=D, return_reg_path=False, **param_lasso)
+    # # alpha : p x n sparse matrix
 
     pid = os.getpid()
 
@@ -296,37 +314,7 @@ def main(
 
 if __name__ == "__main__":
 
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=4,
-        positive_code=False,
-        alpha=2.0,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=True,
-        n_inits=50,
-        constraint_mode='l0Codes-optimL2Atoms'
-    )
 
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=4,
-        positive_code=False,
-        alpha=2.0,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=False,
-        n_inits=50,
-        constraint_mode='l0Codes-optimL2Atoms'
-    )
 
     main(
         group_path=paths.sample_derivatives,
@@ -358,6 +346,22 @@ if __name__ == "__main__":
         positive_atoms=False,
         n_inits=50,
         constraint_mode='None-optimL2AtomsAlphaL0Codes'
+    )
+
+    main(
+        group_path=paths.sample_derivatives,
+        t=15,
+        sel_mode='pos',
+        optional_path_prefix='',
+        load_retained_frames_df=True,
+        n_comps=10,
+        positive_code=False,
+        alpha=2.0,
+        subject_loading_n_workers=os.cpu_count() // 4,
+        n_iters=1000,
+        positive_atoms=True,
+        n_inits=50,
+        constraint_mode='l0Codes-optimL2Atoms'
     )
 
 
