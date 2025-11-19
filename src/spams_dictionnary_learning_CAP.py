@@ -3,7 +3,6 @@ import os
 
 import pandas as pd
 import psutil
-import sklearn
 from matplotlib import pyplot as plt
 
 import paths, utils, show_caps
