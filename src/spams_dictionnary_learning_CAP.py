@@ -170,7 +170,7 @@ def main(
             reshaped_stacked_frames,
             K=n_comps,
             D=dict_inits,
-            mode=3,
+            mode=constraint_modes_mapping[constraint_mode],
             lambda1=alpha,
             numThreads=subject_loading_n_workers,
             batchsize=512,
