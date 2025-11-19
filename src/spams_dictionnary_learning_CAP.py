@@ -322,9 +322,9 @@ if __name__ == "__main__":
         positive_code=False,
         alpha=2.0,
         subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
+        n_iters=2,
         positive_atoms=True,
-        n_inits=50,
+        n_inits=4,
         constraint_mode='l0Codes-optimL2Atoms'
     )
 
