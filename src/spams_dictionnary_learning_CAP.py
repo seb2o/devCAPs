@@ -306,7 +306,7 @@ def main(
             comp,
             gm_mask=gm_mask,
             sample_volume=sample_volume,
-            zscore=True
+            zscore=False#True
         )
         if np.abs(comp3d.get_fdata()).max() > vmax: vmax = np.abs(comp3d.get_fdata()).max()
         nib.save(comp3d, savedir / f"DictComp_{comp_id+1:02d}_z.nii")
