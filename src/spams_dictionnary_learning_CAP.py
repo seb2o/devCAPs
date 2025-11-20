@@ -25,7 +25,8 @@ def main(
         n_iters=300,
         positive_atoms=True,
         n_inits=50,
-        constraint_mode='l0Codes-optimL2Atoms'
+        constraint_mode='l0Codes-optimL2Atoms',
+        l1_atoms_constraint_gamma=0
 ):
 
     constraint_modes_mapping = {
@@ -58,6 +59,12 @@ def main(
     elif constraint_mode == "None-optimL2AtomsAlphaL0Codes":
         # omp uses lambda1 as weight in the sum of reconstruction error + l0 norm of codes
         omp_lambda1 = alpha
+
+
+    modeD = 0
+    if l1_atoms_constraint_gamma > 0:
+        modeD = 1
+
 
 
     # # X : m x n, Fortran-ordered
@@ -112,6 +119,7 @@ def main(
         f"_PosCode-{positive_code}"
         f"_PosAtoms-{positive_atoms}"
         f"_Constr-{constraint_mode}"
+        f"_AtomsL1gamma-{l1_atoms_constraint_gamma}"
         f"_nIters-{n_iters}"
         f"_nInits-{n_inits}"
         f"_t-{t}"
@@ -179,6 +187,8 @@ def main(
             posD=positive_atoms,
             posAlpha=positive_code,
             return_model=False,
+            modeD=modeD,
+            gamma1=l1_atoms_constraint_gamma,
         ) # D shape (n_voxels, n_components) (each column is a component)
 
 
