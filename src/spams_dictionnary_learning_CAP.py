@@ -325,106 +325,23 @@ if __name__ == "__main__":
 
 
     main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
         n_comps=10,
         positive_code=False,
-        alpha=950,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
         positive_atoms=True,
+        alpha=2,
+        constraint_mode='l0Codes-optimL2Atoms',
+        l1_atoms_constraint_gamma=0,
+        n_iters=1000,
         n_inits=50,
-        constraint_mode='l2Atoms-optimL0Codes',
-        l1_atoms_constraint_gamma=0
-    )
-
-    main(
         group_path=paths.sample_derivatives,
+        load_retained_frames_df=True,
         t=15,
         sel_mode='pos',
         optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=10,
-        positive_code=False,
-        alpha=3.5,
         subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=True,
-        n_inits=50,
-        constraint_mode='None-optimL2AtomsAlphaL0Codes',
-        l1_atoms_constraint_gamma=0
     )
 
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=5,
-        positive_code=False,
-        alpha=950,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=True,
-        n_inits=50,
-        constraint_mode='l2Atoms-optimL0Codes',
-        l1_atoms_constraint_gamma=0
-    )
 
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=5,
-        positive_code=False,
-        alpha=3.5,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=True,
-        n_inits=50,
-        constraint_mode='None-optimL2AtomsAlphaL0Codes',
-        l1_atoms_constraint_gamma=0
-    )
-
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=5,
-        positive_code=False,
-        alpha=950,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=True,
-        n_inits=50,
-        constraint_mode='l2Atoms-optimL0Codes',
-        l1_atoms_constraint_gamma=1
-    )
-
-    main(
-        group_path=paths.sample_derivatives,
-        t=15,
-        sel_mode='pos',
-        optional_path_prefix='',
-        load_retained_frames_df=True,
-        n_comps=5,
-        positive_code=False,
-        alpha=3.5,
-        subject_loading_n_workers=os.cpu_count() // 4,
-        n_iters=1000,
-        positive_atoms=True,
-        n_inits=50,
-        constraint_mode='None-optimL2AtomsAlphaL0Codes',
-        l1_atoms_constraint_gamma=1
-    )
 
 
 
