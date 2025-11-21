@@ -15,6 +15,7 @@ def plot_caps(
         fig_title: str = None,
         caps_glob = "CAP_*_z.nii",
         vmax=5,
+        symmetric_cbar=True
 ):
     zcaps_paths = sorted(list(folder_path.glob(caps_glob)))
     for p in zcaps_paths:
@@ -24,7 +25,7 @@ def plot_caps(
         print(f"\nNo {caps_glob} files found in the folder.")
         return
 
-    fig, axes = plt.subplots(n, 1, figsize=(12, 3 * n))
+    fig, axes = plt.subplots(n, 1, figsize=(12, 4 * n))
     if n == 1:
         axes = [axes]
 
@@ -43,6 +44,7 @@ def plot_caps(
             axes=ax,
             bg_img=bgimg,
             black_bg=False,
+            symmetric_cbar=symmetric_cbar,
         )
 
     if not fig_title:
@@ -66,6 +68,7 @@ def plot_caps(
                     zcap_path,
                     save_path.parent if save_path else None,
                     vmax=vmax,
+                    symmetric_cbar=symmetric_cbar
                 )
             )
 
@@ -91,6 +94,7 @@ def plot_cap_detail(
         zcap_path: Path,
         savedir=None,
         vmax=5,
+        symmetric_cbar=True
 ):
     cap_name = zcap_path.stem
 
@@ -107,6 +111,7 @@ def plot_cap_detail(
         bg_img=paths.ext40Template,
         black_bg=False,
         cmap="RdBu_r",
+        symmetric_cbar=symmetric_cbar,
         output_file=savedir
     )
     if not savedir:
