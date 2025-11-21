@@ -48,7 +48,7 @@ def plot_caps(
         )
 
     if not fig_title:
-        fig_title = f"CAPs in {folder_path.name} ({n} total)"
+        fig_title = f"CAPs in \n{folder_path.name}\n ({n} total)"
 
     print(fig_title)
 
