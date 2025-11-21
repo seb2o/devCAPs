@@ -750,6 +750,7 @@ def compare_folder(
             display_mode="z",
             cut_coords=cut_coords,
             colorbar=True,
+            symmetric_cbar=True,
             axes=axes[0],
             figure=fig,
         )
@@ -761,6 +762,7 @@ def compare_folder(
             display_mode="z",
             cut_coords=cut_coords,
             colorbar=True,
+            symmetric_cbar=True,
             axes=axes[1],
             figure=fig,
         )
@@ -785,6 +787,7 @@ def compare_folder(
             display_mode="z",
             cut_coords=cut_coords,
             colorbar=True,
+            symmetric_cbar=True,
             axes=axes[1],
             figure=fig,
         )
@@ -796,6 +799,7 @@ def compare_folder(
             display_mode="z",
             cut_coords=cut_coords,
             colorbar=True,
+            symmetric_cbar=True,
             axes=axes[0],
             figure=fig,
         )
