@@ -328,7 +328,7 @@ if __name__ == "__main__":
         n_comps=10,
         positive_code=False,
         positive_atoms=True,
-        alpha=2,
+        alpha=3,
         constraint_mode='l0Codes-optimL2Atoms',
         l1_atoms_constraint_gamma=0,
         n_iters=1000,
