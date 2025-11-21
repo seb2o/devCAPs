@@ -313,7 +313,7 @@ def main(
 
     show_caps.plot_caps(
         folder_path=savedir,
-        fig_title=f"DictComps in {savedir.name} ({n_comps} total)",
+        fig_title=f"DictComps in \n{savedir.name}",
         save_path=savedir / "DictComps_overview.png",
         caps_glob="DictComp_*_z.nii",
         vmax=None#vmax
