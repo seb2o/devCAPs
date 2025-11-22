@@ -1,0 +1,1 @@
+Code for analysis of resting state fMRI from the dHCP, third release using [Co-Activations Patterns](https://doi.org/10.3389/fnsys.2013.00101) and [Dictionnary learning](https://dl.acm.org/doi/abs/10.1145/1553374.1553463)
